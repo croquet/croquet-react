@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist",
+        "module": "es6",
+        "target": "es5",
+        "jsx": "react",
+        "sourceMap": true,
+        "allowSyntheticDefaultImports": true,
+        "moduleResolution": "node",
+        "strict": true
+    },
+    "files": [
+        "index.tsx",
+    ]
+}

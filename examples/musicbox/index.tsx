@@ -139,8 +139,8 @@ function MusicBoxField() {
   const [lastWrapRealTime, setLastWrapRealTime] = useState(Date.now()); // real time in ms
   const [barPos, setBarPos] = useState(0); // position in css pixels
 
-  const [grabInfo, setGrabInfo] = useState<Map<pointerId, {ballId:ballId, grabPoint:Point, translation:Point}>>(new Map());
-  const [viewBalls, setViewBalls] = useState(new Map(model.balls));
+  const [grabInfo, setGrabInfo] = useState<{data: Map<pointerId, {ballId:ballId, grabPoint:Point, translation:Point}>}>({data: new Map()});
+  const [viewBalls, setViewBalls] = useState({data: new Map(model.balls)});
 
   const updateBalls = () => {
     setViewBalls((oldViewBalls) => {
@@ -150,7 +150,7 @@ function MusicBoxField() {
 
   useSubscribe(model.id, "wrap", (time) => setWrapTime(time));
   // useSubscribe(model.id, "grabbed", (data) => console.log("grabbed", data));
-  useSubscribe(model.id, "moved", updateBalls);
+  useSubscribe(model.id, "moved", (data:{viewId:string, id:ballId, x:number, y:number}) =>
   useSubscribe(model.id, "released", updateBalls);
   useSubscribe(model.id, "added", updateBalls);
   useSubscribe(model.id, "removed", updateBalls);

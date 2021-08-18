@@ -19,6 +19,7 @@ let audioContext:AudioContext|null = null;
 type viewId = string;
 type BallData = {x:number, y:number, grabbed:viewId|null};
 type MoveData = {viewId:string, id:ballId, x:number, y:number};
+type GrabData = {viewId:string, id:ballId};
 interface Point {
   x: number;
   y: number;
@@ -129,7 +130,7 @@ MusicBoxModel.register("MusicBoxModel");
 
 function MusicBoxApp() {
   return (
-    <InCroquetSession name={App.autoSession("q")} tps={10} appId="io.croquet.react.musicbox" password="abc" modelRoot={MusicBoxModel} eventRateLimit={60} debug={[]}>
+    <InCroquetSession name={App.autoSession("q")} tps={10} appId="io.croquet.react.musicbox" password="abc" modelRoot={MusicBoxModel} eventRateLimit={60} debug={["session"]}>
       <MusicBoxField/>
     </InCroquetSession>
   );
@@ -157,7 +158,8 @@ function MusicBoxField() {
       const map = oldViewBalls.data;
       const ball = map.get(id);
       if (ball) {
-        ball.grabbed = viewId;
+        const newBall = {...ball, grabbed: viewId};
+        map.set(id, newBall);
       }
       return {data: map};
     });
@@ -184,9 +186,9 @@ function MusicBoxField() {
       const map = oldViewBalls.data;
       const ball = map.get(id);
       if (ball) {
-        ball.grabbed = null;
+        const newBall = {...ball, grabbed: null};
+        map.set(id, newBall);
       }
-      debugger;
       return {data: map};
     });
   }, [myViewId]);
@@ -217,12 +219,12 @@ function MusicBoxField() {
   useSubscribe(model.id, "added", addBall);
   useSubscribe(model.id, "removed", removeBall);
 
-  const publishGrab = usePublish((id) => [model.id, 'grab', {myViewId, id}]);
-  const publishMove = usePublish((id, newTranslation) => {
-    return [model.id, 'move', {viewId:myViewId, id, x: newTranslation.x, y: newTranslation.y}]});
-  const publishRelease = usePublish((id) => [model.id, 'release', {viewId: myViewId, id}]);
+  const publishGrab = usePublish<GrabData>((id) => [model.id, 'grab', {viewId: myViewId, id}]);
+  const publishMove = usePublish<MoveData>((id, newTranslation) => {
+    return [model.id, 'move', {viewId: myViewId, id, x: newTranslation.x, y: newTranslation.y}]});
+  const publishRelease = usePublish<GrabData>((id) => [model.id, 'release', {viewId: myViewId, id}]);
   const publishAddBall = usePublish((x, y) => [model.id, 'addBall', {viewId: myViewId, x, y}]);
-  const publishRemoveBall = usePublish((id) => [model.id, 'removeBall', {id, viewId: myViewId}]);
+  const publishRemoveBall = usePublish<GrabData>((id) => [model.id, 'removeBall', {id, viewId: myViewId}]);
 
   const findBall = useCallback((x:number, y:number, balls:Map<ballId, BallData>) : [ballId, BallData]|null => {
     const entries = Array.from(balls.entries());
@@ -238,7 +240,7 @@ function MusicBoxField() {
   }, []);
 
   const pointerDown = useCallback((evt) => {
-    //enableSound();
+    enableSound();
     const x = evt.nativeEvent.offsetX;
     const y = evt.nativeEvent.offsetY;
     const pointerId = evt.pointerId;
@@ -288,7 +290,7 @@ function MusicBoxField() {
     setGrabInfo({data: grabInfo.data});
     const ballData = model.balls.get(info.ballId);
     if (!ballData) {return;}
-    if (ballData.grabbed !== myViewId) {return;}
+    if (ballData.grabbed && ballData.grabbed !== myViewId) {return;}
     if (ballData.x > model.width) {
       publishRemoveBall(info.ballId);
     }
@@ -297,7 +299,7 @@ function MusicBoxField() {
     publishRelease(info.ballId);
   }, [grabInfo, model.balls, publishRelease, publishRemoveBall, model.width, myViewId, releaseBall]);
 
-  const update = () => {
+  const update = (time:number) => {
     setBarPos((oldBarPos) => {
       const updateNow = Date.now();
       const barTiming = (updateNow - lastWrapRealTime) / 2000;
@@ -344,7 +346,7 @@ function MusicBoxField() {
       <div id="field" style={style as any}
         onPointerDown={pointerDown}
         onPointerMove={pointerMove}
-       onPointerUp={pointerUp}
+        onPointerUp={pointerUp}
       >  
         <Bar pos={barPos}></Bar>
         {balls}

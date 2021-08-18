@@ -18,6 +18,7 @@ let audioContext:AudioContext|null = null;
 
 type viewId = string;
 type BallData = {x:number, y:number, grabbed:viewId|null};
+type MoveData = {viewId:string, id:ballId, x:number, y:number};
 interface Point {
   x: number;
   y: number;
@@ -77,14 +78,13 @@ class MusicBoxModel extends Model {
     this.publish(this.id, "grabbed", data);
   }
 
-  move(data:{viewId:string, id:ballId, x:number, y:number}) {
+  move(data:MoveData) {
     const {viewId, id, x, y} = data;
     const ball = this.balls.get(id);
     if (!ball) {return;}
     if (ball.grabbed !== viewId) {return;}
     ball.x = x;
     ball.y = y;
-
     this.publish(this.id, "moved", data);
   }
 
@@ -98,12 +98,14 @@ class MusicBoxModel extends Model {
     this.publish(this.id, "released", data);
   }
 
-  addBall(data:any) {
+  addBall(data:{viewId:string, x: number, y:number}) {
     const id = this.currentId++;
     const x = data.x || this.width / 2;
     const y = data.y || this.width / 2;
     this.balls.set(id, {x, y, grabbed:null});
-    this.publish(this.id, "added");
+
+    const result = {...data, id};
+    this.publish(this.id, "added", result);
   }
 
   removeBall(data:{viewId:string, id:ballId}) {
@@ -112,7 +114,8 @@ class MusicBoxModel extends Model {
     if (!ball) {return;}
     if (ball.grabbed !== viewId) {return;}
     this.balls.delete(id);
-    this.publish(this.id, "removed");
+
+    this.publish(this.id, "removed", {viewId, id});
   }
 
   wrap() {
@@ -134,6 +137,9 @@ function MusicBoxApp() {
 
 function MusicBoxField() {
   const model = useModelRoot() as MusicBoxModel;
+  (window as any).model = model;
+  const myViewId = useViewId();
+
   const [wrapTime, setWrapTime] = useState(0); // Croquet logical time in seconds
   const [lastWrapTime, setLastWrapTime] = useState(wrapTime); // Croquet logical time in seconds
   const [lastWrapRealTime, setLastWrapRealTime] = useState(Date.now()); // real time in ms
@@ -142,26 +148,81 @@ function MusicBoxField() {
   const [grabInfo, setGrabInfo] = useState<{data: Map<pointerId, {ballId:ballId, grabPoint:Point, translation:Point}>}>({data: new Map()});
   const [viewBalls, setViewBalls] = useState({data: new Map(model.balls)});
 
-  const updateBalls = () => {
-    setViewBalls((oldViewBalls) => {
-      return mergeBalls(model.balls, oldViewBalls);
+  const grabBall = useCallback((data:{viewId:string, id:ballId}, viewSide?:boolean) => {
+    const {viewId, id} = data;
+
+    if (!viewSide && viewId === myViewId) {return;}
+
+    setViewBalls((oldViewBalls) =>{
+      const map = oldViewBalls.data;
+      const ball = map.get(id);
+      if (ball) {
+        ball.grabbed = viewId;
+      }
+      return {data: map};
     });
-  };
+  }, [myViewId]);
+
+  const moveBall = useCallback((data:MoveData, viewSide?:boolean) => {
+    const {viewId, id, x, y} = data;
+
+    if (!viewSide && viewId === myViewId) {return;}
+
+    setViewBalls((oldViewBalls) =>{
+      const map = oldViewBalls.data;
+      map.set(id, {x, y, grabbed: viewId});
+      return {data: map};
+    });
+  }, [myViewId]);
+
+  const releaseBall = useCallback((data:{viewId:string, id:ballId}, viewSide?:boolean) => {
+    const {viewId, id} = data;
+
+    if (viewSide && viewId === myViewId) {return;}
+
+    setViewBalls((oldViewBalls) =>{
+      const map = oldViewBalls.data;
+      const ball = map.get(id);
+      if (ball) {
+        ball.grabbed = null;
+      }
+      debugger;
+      return {data: map};
+    });
+  }, [myViewId]);
+
+  const addBall = useCallback((data:{viewId:string, x:number, y:number, id:ballId}) => {
+    const {id, x, y} = data;
+    setViewBalls((oldViewBalls) =>{
+      const map = oldViewBalls.data;
+      map.set(id, {x, y, grabbed: null});
+      return {data: map};
+    });
+  }, []);
+ 
+  const removeBall = useCallback((data:{viewId:string,id:ballId}) => {
+    const {id} = data;
+    setViewBalls((oldViewBalls) =>{
+      const map = oldViewBalls.data;
+      map.delete(id);
+      return {data: map};
+    });
+  }, []);
 
   useSubscribe(model.id, "wrap", (time) => setWrapTime(time));
   // useSubscribe(model.id, "grabbed", (data) => console.log("grabbed", data));
-  useSubscribe(model.id, "moved", (data:{viewId:string, id:ballId, x:number, y:number}) =>
-  useSubscribe(model.id, "released", updateBalls);
-  useSubscribe(model.id, "added", updateBalls);
-  useSubscribe(model.id, "removed", updateBalls);
+  useSubscribe(model.id, "grabbed", grabBall);
+  useSubscribe(model.id, "moved", moveBall);
+  useSubscribe(model.id, "released", releaseBall);
+  useSubscribe(model.id, "added", addBall);
+  useSubscribe(model.id, "removed", removeBall);
 
-  const viewId = useViewId();
-  const publishGrab = usePublish((id) => [model.id, 'grab', {viewId, id}]);
+  const publishGrab = usePublish((id) => [model.id, 'grab', {myViewId, id}]);
   const publishMove = usePublish((id, newTranslation) => {
-    return [model.id, 'move', {viewId, id, x: newTranslation.x, y: newTranslation.y}]});
-  const publishRelease = usePublish((id) => [model.id, 'release', {viewId, id}]);
-  const publishAddBall = usePublish((x, y) => [model.id, 'addBall', {viewId, x, y}]);
-  const publishRemoveBall = usePublish((id) => [model.id, 'removeBall', {id, viewId}]);
+    return [model.id, 'move', {viewId:myViewId, id, x: newTranslation.x, y: newTranslation.y}]});
+  const publishRelease = usePublish((id) => [model.id, 'release', {viewId: myViewId, id}]);
+  const publishAddBall = usePublish((x, y) => [model.id, 'addBall', {viewId: myViewId, x, y}]);
+  const publishRemoveBall = usePublish((id) => [model.id, 'removeBall', {id, viewId: myViewId}]);
 
   const findBall = useCallback((x:number, y:number, balls:Map<ballId, BallData>) : [ballId, BallData]|null => {
     const entries = Array.from(balls.entries());
@@ -176,20 +237,8 @@ function MusicBoxField() {
     return null;
   }, []);
 
-  const mergeBalls = useCallback((modelBalls:Map<ballId, BallData>, viewBalls:Map<ballId, BallData>) => {
-    const newViewBalls = new Map();
-    modelBalls.forEach((ballData, ballId) => {
-      if (ballData.grabbed === viewId) {
-        newViewBalls.set(ballId, viewBalls.get(ballId));
-      } else {
-        newViewBalls.set(ballId, ballData);
-      }
-    });
-    return newViewBalls;
-  }, [viewId]);
-
   const pointerDown = useCallback((evt) => {
-    enableSound();
+    //enableSound();
     const x = evt.nativeEvent.offsetX;
     const y = evt.nativeEvent.offsetY;
     const pointerId = evt.pointerId;
@@ -197,23 +246,24 @@ function MusicBoxField() {
     const entry = findBall(x, y, balls);
     if (!entry) {return;}
     const [ballId, ballData] = entry;
-    if (ballData.grabbed && ballData.grabbed !== viewId) {return;}
-    const info = grabInfo.get(pointerId);
+    if (ballData.grabbed && ballData.grabbed !== myViewId) {return;}
+    const info = grabInfo.data.get(pointerId);
     if (info) {return;}
     const g = {ballId: entry[0], grabPoint: {x: x, y: y} as Point, translation: {x: ballData.x, y: ballData.y} as Point};
 
     // const newGrabInfo = new Map([...grabInfo.entries(), [evt.pointerId, g]]);
-    const newGrabInfo = new Map(grabInfo);
-    newGrabInfo.set(evt.pointerId, g);
-    setGrabInfo(newGrabInfo);
+    grabInfo.data.set(evt.pointerId, g);
+    setGrabInfo({data: grabInfo.data});
+    grabBall({viewId: myViewId, id: ballId}, true);
+
     publishGrab(ballId);
     evt.target.setPointerCapture(evt.pointerId);
-  }, [grabInfo, findBall, model.balls, publishGrab, viewId]);
+  }, [grabInfo, findBall, grabBall, model.balls, publishGrab, myViewId]);
 
   const pointerMove = useCallback((evt) => {
     if (evt.buttons === 0) {return;}
     const pointerId = evt.pointerId;
-    const info = grabInfo.get(pointerId);
+    const info = grabInfo.data.get(pointerId);
     if (!info) {return;}
 
     let x = evt.nativeEvent.offsetX - info.grabPoint.x + info.translation.x;
@@ -223,44 +273,37 @@ function MusicBoxField() {
     if (y <= 0) {y = 0}
     if (y > model.height - BallDiameter * 2) {y = model.height - BallDiameter * 2;}
 
-    setViewBalls((oldViewBalls) => {
-      const oldEntry = oldViewBalls.get(info.ballId);
-      if (!oldEntry) {return oldViewBalls;}
-      const newItem = {x, y, grabbed: oldEntry.grabbed};
-      const newData = new Map(oldViewBalls);
-      newData.set(info.ballId, newItem);
-      return newData;
-    });
+    moveBall({x, y, viewId: myViewId, id: info.ballId}, true);
   
     publishMove(info.ballId, {x, y});
-  }, [grabInfo, publishMove, model.height/*, model.width*/]);
+  }, [grabInfo, moveBall, publishMove, model.height, myViewId]);
 
   const pointerUp = useCallback((evt) => {
     const pointerId = evt.pointerId;
     evt.target.releasePointerCapture(pointerId);
-    const info = grabInfo.get(pointerId);
+    const info = grabInfo.data.get(pointerId);
     if (!info) {return;}
 
-    const newGrabInfo = new Map(grabInfo);
-    newGrabInfo.delete(evt.pointerId);
-
-    setGrabInfo(newGrabInfo);
+    grabInfo.data.delete(evt.pointerId);
+    setGrabInfo({data: grabInfo.data});
     const ballData = model.balls.get(info.ballId);
     if (!ballData) {return;}
-    if (ballData.grabbed !== viewId) {return;}
+    if (ballData.grabbed !== myViewId) {return;}
     if (ballData.x > model.width) {
       publishRemoveBall(info.ballId);
     }
-    publishRelease(info.ballId);
-  }, [grabInfo, model.balls, publishRelease, publishRemoveBall, model.width, viewId]);
 
-  const update = (time:number) => {
+    releaseBall({viewId: myViewId, id: info.ballId}, true);
+    publishRelease(info.ballId);
+  }, [grabInfo, model.balls, publishRelease, publishRemoveBall, model.width, myViewId, releaseBall]);
+
+  const update = () => {
     setBarPos((oldBarPos) => {
       const updateNow = Date.now();
       const barTiming = (updateNow - lastWrapRealTime) / 2000;
       const newBarPos = barTiming * model.width; // be [0..model.width+)
       const toPlay:number[] = [];
-      viewBalls.forEach((ballData) => {
+      viewBalls.data.forEach((ballData) => {
         if ((oldBarPos <= ballData.x && ballData.x < newBarPos) ||
         (oldBarPos > newBarPos && ballData.x < newBarPos)) {
           toPlay.push((model.height - ballData.y) / model.height);
@@ -286,7 +329,7 @@ function MusicBoxField() {
   }
 
   const balls:JSX.Element[] = [];
-  viewBalls.forEach((ball: BallData, id: number) => {
+  viewBalls.data.forEach((ball: BallData, id: number) => {
     balls.push(<Ball x={ball.x} y={ball.y} key={id} id={id} grabbed={ball.grabbed}/>);
   });
 

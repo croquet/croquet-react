@@ -1,3 +1,9 @@
+* {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+
 html, body {
     height: 100%;
 }

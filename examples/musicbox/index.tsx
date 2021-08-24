@@ -54,16 +54,16 @@ class MusicBoxModel extends Model {
     });
 
     this.future(2000).wrap();
-    this.subscribe(this.id, "grab", this.grab);
-    this.subscribe(this.id, "move", this.move);
-    this.subscribe(this.id, "release", this.release);
-    this.subscribe(this.id, "addBall", this.addBall);
-    this.subscribe(this.id, "removeBall", this.removeBall);
-    this.subscribe(this.sessionId, "view-exit", this.deleteUser);
+    this.subscribe<GrabData>(this.id, "grab", this.grab);
+    this.subscribe<MoveData>(this.id, "move", this.move);
+    this.subscribe<GrabData>(this.id, "release", this.release);
+    this.subscribe<{viewId:string, x:number, y:number}>(this.id, "addBall", this.addBall);
+    this.subscribe<GrabData>(this.id, "removeBall", this.removeBall);
+    this.subscribe<string>(this.sessionId, "view-exit", this.deleteUser);
   }
 
   deleteUser(viewId:string) {
-    this.balls.forEach((value, key) => {
+    this.balls.forEach((value) => {
       if (value.grabbed === viewId) {
           value.grabbed = null;
       }
@@ -130,7 +130,7 @@ MusicBoxModel.register("MusicBoxModel");
 
 function MusicBoxApp() {
   return (
-    <InCroquetSession name={App.autoSession("q")} tps={10} appId="io.croquet.react.musicbox" password="abc" modelRoot={MusicBoxModel} eventRateLimit={60} debug={["session"]}>
+    <InCroquetSession name={App.autoSession("q")} tps={10} apiKey="1_k2xgbwsmtplovtjbknerd53i73otnqvlwwjvix0f" appId="io.croquet.react.musicbox" password="abc" model={MusicBoxModel} eventRateLimit={60} debug={["session"]}>
       <MusicBoxField/>
     </InCroquetSession>
   );
@@ -211,13 +211,13 @@ function MusicBoxField() {
     });
   }, []);
 
-  useSubscribe(model.id, "wrap", (time) => setWrapTime(time));
+  useSubscribe<number>(model.id, "wrap", (time) => setWrapTime(time));
   // useSubscribe(model.id, "grabbed", (data) => console.log("grabbed", data));
-  useSubscribe(model.id, "grabbed", grabBall);
-  useSubscribe(model.id, "moved", moveBall);
-  useSubscribe(model.id, "released", releaseBall);
-  useSubscribe(model.id, "added", addBall);
-  useSubscribe(model.id, "removed", removeBall);
+  useSubscribe<GrabData>(model.id, "grabbed", grabBall);
+  useSubscribe<MoveData>(model.id, "moved", moveBall);
+  useSubscribe<GrabData>(model.id, "released", releaseBall);
+  useSubscribe<MoveData>(model.id, "added", addBall);
+  useSubscribe<GrabData>(model.id, "removed", removeBall);
 
   const publishGrab = usePublish<GrabData>((id) => [model.id, 'grab', {viewId: myViewId, id}]);
   const publishMove = usePublish<MoveData>((id, newTranslation) => {
@@ -299,7 +299,7 @@ function MusicBoxField() {
     publishRelease(info.ballId);
   }, [grabInfo, model.balls, publishRelease, publishRemoveBall, model.width, myViewId, releaseBall]);
 
-  const update = (time:number) => {
+  const update = (_time:number) => {
     setBarPos((oldBarPos) => {
       const updateNow = Date.now();
       const barTiming = (updateNow - lastWrapRealTime) / 2000;
@@ -437,9 +437,8 @@ function playSound(toPlay:number[]) :void {
     g.gain.linearRampToValueAtTime(0.2, now + 0.1);
     o.connect(g);
     g.connect(audioContext.destination);
-    //  AudioScheduledSourceNode.start() can take three parameters.
-    // @ts-ignore
-    o.start(0, 0, 2);
+    //  AudioScheduledSourceNode.start() used to take three parameters but anymore.
+    o.start(0);
 
     const stopTone = () => {
       if (!audioContext) {return;}

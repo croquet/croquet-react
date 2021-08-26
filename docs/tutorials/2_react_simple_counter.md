@@ -10,9 +10,31 @@ The tutorials for `@croquet/react` will make use of CodeSandbox to be able to sh
      sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
    ></iframe>
 
-We start by importing React and croquet libraries, here as npm dependencies instead of the normal croquet library script import.
+We start by importing React and Croquet libraries, here as npm dependencies instead of the normal Croquet library script import.
 
-The `CounterModel` looks very similar to that in the `@croquet/croquet` Hello World example. There is one state called counter, and it publishes a message called "counter" when the value of counter changes.
+The `CounterModel` looks very similar to the Croquet library version. There is one state called counter, and it publishes a message called "counter" when the value of counter changes.
+
+```
+class CounterModel extends Croquet.Model {
+  init(options) {
+    super.init(options);
+    this.future(1000).tick();
+    this.subscribe("counter", "reset", this.resetCounter);
+  }
+
+ resetCounter() {
+    this.count = 0;
+    this.publish(this.id, "counter");
+  }
+
+ tick() {
+    this.count += 1;
+    this.publish(this.id, "counter");
+  }
+}
+```
+
+After the model, we define `CounterApp` as our top level React component. In it, we use the `InCroquetSession` component, which takes the role of `Session.join` in `@croquet/croquet`, takes the same parameters and then provides the running Croquet session to its child components.
 
 ```
 function CounterApp() {
@@ -23,8 +45,6 @@ function CounterApp() {
   );
 }
 ```
-
-After the model, we define `CounterApp` as our top level React component. In it, we use the `InCroquetSession` component, which takes the role of `Session.join` in `@croquet/croquet`, takes the same parameters and then provides the running Croquet session to its child components.
 
 Next, we define the `CounterDisplay` component, which has two goals:
 

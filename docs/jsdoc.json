@@ -1,0 +1,51 @@
+{
+  "source": {
+    "include": [
+        "./top.md",
+        "./react-doc.js"
+    ]
+  },
+  "opts": {
+    "access": ["public"],
+    "tutorials": "./tutorials",
+    "template": "../template",
+    "encoding": "utf8",
+    "recurse": false,
+    "verbose": true,
+    "destination": "../build/croquet-react/"
+  },
+  "plugins": ["plugins/markdown"],
+  "markdown": {
+    "parser": "gfm",
+    "hardwrap": false,
+    "idInHeadings": true
+  },
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false,
+    "default": {
+      "outputSourceFiles": false,
+      "includeDate": false,
+      "useLongnameInNav": true,
+      "staticFiles": {
+        "includePattern": "\\.(png|jpg)$"
+      }
+    }
+  },
+  "docdash": {
+    "static": true,
+    "sort": false,
+    "disqus": "",
+    "meta": {
+      "title": "Croquet React Bindings @CROQUET_VERSION@ References",
+      "description": "Documentation for the Croquet React bindings",
+      "keyword": "croquet,"
+    },
+    "search": true,
+    "collapse": true,
+    "typedefs": true,
+    "removeQuotes": "none",
+    "scripts": [],
+    "menuHome": "Home: <b>Croquet Virtual DOM</b>"
+  }
+}

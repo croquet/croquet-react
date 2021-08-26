@@ -1,12 +1,14 @@
-In this tutorial, we'll implement a simple multiplayer music box to illustrate realtime view side update and other hooks. We also use TypeScript in this example. The app has a number of "balls", each of which represents the timing and pitch of a note. A participants can manipualted them to compose a two second loop.  The timing for the bar to wrap is synchronized by the model, but the view interporates the position of the bar and play sound when the bar passes a ball.
+In this tutorial, we'll implement a simple multiplayer music box to illustrate realtime view side update and other hooks. We also use TypeScript in this example. The app has a number of "balls", each of which represents the timing and pitch of a note. A participants can manipulated them to compose a two second loop.  The timing for the bar to wrap is synchronized by the model, but the view interpolates the position of the bar and play sound when the bar passes a ball.
 
-<iframe
-     src="https://codesandbox.io/embed/react-croquet-pong-hifx9?fontsize=14&module=%2Findex.jsx&theme=light"
-     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
-     title="react croquet pong"
-     allow="geolocation; microphone; camera; midi; vr; accelerometer; gyroscope; payment; ambient-light-sensor; encrypted-media; usb"
-     sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
+Due to eager reloading of CodeSandBox
+
+<iframe src="https://codesandbox.io/embed/purple-silence-ikqiv?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:80%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="purple-silence-ikqiv"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
    ></iframe>
+
 
 We define our main model class, `MusicBoxModel` as a subclass of `Model`. Each ball has x and y coordinates and whether it is being manipulated by another participants.
 
@@ -16,21 +18,21 @@ The model has methods for each type of user interaction, such as `grab`, `move`,
 class MusicBoxModel extends Model {
 ```
 
-The `balls` is a `Map` of the type `Map<ballId, BallData>`. The `move() method` for example receives a new ball position from a participant, update balls, and publishes a "moved" message with the same argument.
+The `balls` is a `Map` of the type `Map<BallId, BallData>`. The `move() method` for example receives a new ball position from a participant, update balls, and publishes a "moved" message with the same argument.
 
 Moving over to the view side, we first define our top-level component, `MusicBoxApp`, which starts a Croquet session.
 
 ```
 function MusicBoxApp() {
   return (
-    <InCroquetSession name="musicbox" tps={10} apiKey="1_k2xgbwsmtplovtjbknerd53i73otnqvlwwjvix0f" appId="io.croquet.react.musicbox" password="abc" model={MusicBoxModel} eventRateLimit={60} debug={["session"]}>
+    <InCroquetSession name="musicbox" tps={10} apiKey="1_k2xgbwsmtplovtjbknerd53i73otnqvlwwjvix0f" appId="io.croquet.react.codesandbox.musicbox" password="abc" model={MusicBoxModel} eventRateLimit={60}}>
       <MusicBoxField/>
     </InCroquetSession>
   );
 }
 ```
 
-The view side logic is written in the `MusicBoxField` component. For the view to quickly rerender without having to wait for a network round trip, the component has a state called viewBalls, that is "almost" the copy of the model's `balls`, except the modification occured in the local view. Because balls maybe added and deleted, the data structure is a `Map`, but to obey React's state update rule, we wrap it in an object.
+The view side logic is written in the `MusicBoxField` component. For the view to quickly rerender without having to wait for a network round trip, the component has a state called viewBalls, that is "almost" the copy of the model's `balls`, except the modification occurred in the local view. Because balls maybe added and deleted, the data structure is a `Map`, but to obey React's state update rule, we wrap it in an object.
 
 ```
  const [viewBalls, setViewBalls] = useState<{data: Map<BallId, BallData>}>({data: new Map(model.balls)});

@@ -1,1 +1,7 @@
 The `@croquet/react` package provides a simple framework for using Croquet together with React. The main principle of `@croquet/react` is that React components fully assume the role of the View side of Croquet. (Behind the scenes, a normal Croquet View is still created to act as a slim contact point between the Croquet Model and the React components, but all view logic is implemented in the React components.)
+
+React components interact with Croquet using **hooks** for accessing model state, subscribing to model events or publishing events among models and other views. These tutorials assume that you are familiar with the "functional-component + hooks" style of writing React apps. If you aren't, [the official React tutorial on hooks](https://reactjs.org/docs/hooks-intro.html) is a good starting point.
+
+The required boilerplate and hooks are pretty simple and the [documentation](./global.html) contains minimal usage examples, so you can directly head there for quick reference. Alternatively you can follow the demo app tutorials which showcase successively more complex apps on top of `@croquet/react`.
+
+The package is TypeScript ready. The burden of ensuring types in publish and subscribe declaration can be greatly reduced.

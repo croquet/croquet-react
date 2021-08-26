@@ -46,6 +46,6 @@
     "typedefs": true,
     "removeQuotes": "none",
     "scripts": [],
-    "menuHome": "Home: <b>Croquet Virtual DOM</b>"
+    "menuHome": "Home: <b>Croquet React Bindings</b>"
   }
 }

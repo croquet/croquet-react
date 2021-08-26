@@ -4,7 +4,7 @@
 @public
 @example
 const croquetContext = useContext(CroquetContext);
-if (!croquetContext) {return <div/>;}
+const sessionId = croquetContext.id;
 
 */
 
@@ -14,9 +14,7 @@ let CroquetContext = {};
 A hook to obtain the viewId.
 
 @public
-
-@type {object}
-
+@returns {string}
 @example
 const myViewId:string = useViewId();
 
@@ -24,11 +22,21 @@ const myViewId:string = useViewId();
 
 export function useViewId() {}
 
+/**
+A hook to obtain the sessionid.
+
+@public
+@returns {string}
+@example
+const sessionId:string = useSessionId();
+ */
+export function useSessionId() {}
 
 /** 
 A hook to obtain the root model object.
 
 @public
+@returns {Model} - The instance of a subclass of Model used as the root Model.
 @example
 const model = useModelRoot();
 */
@@ -38,7 +46,7 @@ export function useModelRoot() {}
 /** 
 A hook to obtain a sub model object.
 @public
-@returns {"T extends Model"} the model object with id
+@returns {Model} the model object of a subclass of Model with id.
 @example
 const submodel = useModelRoot(rootModel.someData.id);
 
@@ -51,6 +59,7 @@ A hook to create a function that publishes a view event.
 
 @public
 @example
+type GrabData = {viewId:string, id:string};
 const publishRelease = usePublish<GrabData>((id) => 
   [model.id, 'release', {viewId: myViewId, id}]);
 */
@@ -62,12 +71,12 @@ A hook to set up a subscription to a Croquet message
 
 @public
 @example
+function grabBall(data:GrabData):void  {}
 useSubscribe<GrabData>(model.id, "grabbed", grabBall);
 
 */
 
 export function useSubscribe(scope, eventSpec, callback) {}
-
 
 /** Hook that sets up a callback for Croquet.View.update().
  * The function will be called at each simulation cycle.
@@ -99,14 +108,12 @@ useDetachCallback(detach:() => void);
 
 export function useDetachCallback(callback) {}
 
-/** Main wrapper component that starts and manages a croquet session, enabling child elements to use the
- * {@link usePublish}, {@link useSubscribe}, {@link useObservable}, {@link useViewId} and {@link useModelRoot} hooks.
+/** Main wrapper component that starts and manages a croquet session, enabling child elements to use the hooks described above.
  *
- * Takes the same parameters as {@link Session.join} except that it doesn't need a root View class,
+ * It Takes the same parameters as {@link Session.join} except that it doesn't need a root View class,
  * since croquet-react provides a suitable View class behind the scenes.
 
 @public
- *
 @example
  * function MyApp() {
  *    return (

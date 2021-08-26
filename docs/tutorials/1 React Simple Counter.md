@@ -2,12 +2,10 @@ This tutorial directly corresponds to the "Hello World" tutorial of `@croquet/cr
 
 The tutorials for `@croquet/react` will make use of CodeSandbox to be able to show a whole React project around each example, with the same structure as your own project would have locally. You can go ahead and change the code right in here and the running app should update accordingly.
 
-<iframe
-     src="https://codesandbox.io/embed/react-croquet-counter-t5gw9?fontsize=14&module=%2Findex.jsx&theme=light"
-     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
-     title="react-croquet counter"
-     allow="geolocation; microphone; camera; midi; vr; accelerometer; gyroscope; payment; ambient-light-sensor; encrypted-media; usb"
-     sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
+<iframe src="https://codesandbox.io/embed/blissful-rain-4rpql?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:80%; height:500px; border:1; border-radius: 4px; overflow:hidden;"
+     title="blissful-rain-4rpql"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
    ></iframe>
 
 We start by importing React and Croquet libraries, here as npm dependencies instead of the normal Croquet library script import.
@@ -18,18 +16,19 @@ The `CounterModel` looks very similar to the Croquet library version. There is o
 class CounterModel extends Croquet.Model {
   init(options) {
     super.init(options);
+    this.count = 0;
     this.future(1000).tick();
     this.subscribe("counter", "reset", this.resetCounter);
   }
 
  resetCounter() {
     this.count = 0;
-    this.publish(this.id, "counter");
+    this.publish(this.id, "count");
   }
 
  tick() {
     this.count += 1;
-    this.publish(this.id, "counter");
+    this.publish(this.id, "count");
   }
 }
 ```

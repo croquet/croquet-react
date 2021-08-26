@@ -1,6 +1,8 @@
-This tutorial directly corresponds to the "Hello World" tutorial of `@croquet/croquet` and the model side looks exactly the same. It will be assumed that you understood the main concepts presented there.
+This tutorial directly corresponds to the "Hello World" tutorial of the [Croquet Library](../croquet/tutorial-1_1_hello_world.html). In fact the model side looks exactly the same. It will be assumed that you understood the main concepts presented there.
 
-The tutorials for `@croquet/react` will make use of CodeSandbox to be able to show a whole React project around each example, with the same structure as your own project would have locally. You can go ahead and change the code right in here and the running app should update accordingly.
+The tutorials for the Croquet/React package will make use of CodeSandbox to be able to show a whole React project around each example, with the same structure as your own project would have locally. You can go ahead and change the code right in here and the running app should update accordingly.
+
+
 
 <iframe src="https://codesandbox.io/embed/blissful-rain-4rpql?fontsize=14&hidenavigation=1&theme=dark"
      style="width:80%; height:500px; border:1; border-radius: 4px; overflow:hidden;"
@@ -10,7 +12,7 @@ The tutorials for `@croquet/react` will make use of CodeSandbox to be able to sh
 
 We start by importing React and Croquet libraries, here as npm dependencies instead of the normal Croquet library script import.
 
-The `CounterModel` looks very similar to the Croquet library version. There is one state called counter, and it publishes a message called "counter" when the value of counter changes.
+The `CounterModel` has one state called count, and it publishes a message called "count" when the value of count changes. For the message scope, a common practice is to use `this.id` to signify that this particular model's count has been changed or requested to be reset.
 
 ```
 class CounterModel extends Croquet.Model {
@@ -18,7 +20,7 @@ class CounterModel extends Croquet.Model {
     super.init(options);
     this.count = 0;
     this.future(1000).tick();
-    this.subscribe("counter", "reset", this.resetCounter);
+    this.subscribe(this.id, "reset", this.resetCounter);
   }
 
  resetCounter() {

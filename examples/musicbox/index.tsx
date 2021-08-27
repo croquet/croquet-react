@@ -264,6 +264,10 @@ function MusicBoxField() {
     const pointerId:PointerId = evt.pointerId;
     const info = grabInfo.data.get(pointerId);
     if (!info) {return;}
+  
+    const ball = model.balls.get(info.ballId);
+    if (!ball) {return;}
+    if (ball.grabbed && ball.grabbed !== myViewId) {return;}
 
     let x = evt.nativeEvent.offsetX - info.grabPoint.x + info.translation.x;
     let y = evt.nativeEvent.offsetY - info.grabPoint.y + info.translation.y;
@@ -275,7 +279,7 @@ function MusicBoxField() {
     moveBall({x, y, viewId: myViewId, id: info.ballId}, true);
   
     publishMove(info.ballId, {x, y});
-  }, [grabInfo, moveBall, publishMove, model.height, myViewId]);
+  }, [grabInfo, moveBall, publishMove, model.height, model.balls, myViewId]);
 
   const pointerUp = useCallback((evt) => {
     const pointerId:PointerId = evt.pointerId;

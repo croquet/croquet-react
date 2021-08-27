@@ -1,8 +1,6 @@
-This tutorial directly corresponds to the "Hello World" tutorial of the [Croquet Library](../croquet/tutorial-1_1_hello_world.html). In fact the model side looks exactly the same. It will be assumed that you understood the main concepts presented there.
+This tutorial directly corresponds to the ["Hello World" tutorial](../croquet/tutorial-1_1_hello_world.html) of the Croquet Library. In fact the model side looks exactly the same. The following document assumes that you are familiar with the main concepts presented there.
 
-The tutorials for the Croquet/React package will make use of CodeSandbox to be able to show a whole React project around each example, with the same structure as your own project would have locally. You can go ahead and change the code right in here and the running app should update accordingly.
-
-
+The tutorials for the `@croquet/react` package will make use of CodeSandbox to be able to show a whole React project around each example, with the same structure as your own project would have locally. The bundler used for this CodeSandBox is `parcel`, but `@croquet/react` is bundler-agnostic.
 
 <iframe src="https://codesandbox.io/embed/blissful-rain-4rpql?fontsize=14&hidenavigation=1&theme=dark"
      style="width:80%; height:500px; border:1; border-radius: 4px; overflow:hidden;"
@@ -12,7 +10,19 @@ The tutorials for the Croquet/React package will make use of CodeSandbox to be a
 
 We start by importing React and Croquet libraries, here as npm dependencies instead of the normal Croquet library script import.
 
-The `CounterModel` has one state called count, and it publishes a message called "count" when the value of count changes. For the message scope, a common practice is to use `this.id` to signify that this particular model's count has been changed or requested to be reset.
+```
+import ReactDom from "react-dom";
+import React, { useState } from "react";
+import { Model } from "@croquet/croquet";
+import {
+  usePublish,
+  useModelRoot,
+  InCroquetSession,
+  useSubscribe
+} from "@croquet/react";
+```
+
+The `CounterModel` has one state called "count" (`this.count`), and it publishes a message called "count" when the value of count changes. A common practice for the message scope value is to use `this.id` to indicate that this particular model's count has been changed or requested to be reset.
 
 ```
 class CounterModel extends Croquet.Model {
@@ -40,7 +50,11 @@ After the model, we define `CounterApp` as our top level React component. In it,
 ```
 function CounterApp() {
   return (
-    <InCroquetSession name="counter" appId="io.croquet.react.counter" apiKey: "1_k2xgbwsmtplovtjbknerd53i73otnqvlwwjvix0f" password="abc" model={CounterModel}>
+    <InCroquetSession
+      name="counter"
+      appId="io.croquet.react.counter"
+      apiKey: "1_k2xgbwsmtplovtjbknerd53i73otnqvlwwjvix0f"
+      password="abc" model={CounterModel}>
       <CounterDisplay />
     </InCroquetSession>
   );
@@ -71,10 +85,10 @@ But, to explore how we can have information flow back from our component to the 
 First, we create a callback that will publish the corresponding event like this:
 
 ```
-const publishReset = usePublish(() => ["counter", "reset"]);
+const publishReset = usePublish(() => [model.id, "reset"]);
 ```
 
-When we call `publishReset()`, it will publish a "reset" event to the "counter" scope, which our `CounterModel` happens to listen to.
+When we call `publishReset()`, it will publish a "reset" event to the `model.id` scope, which our `CounterModel` listens to.
 
 All that's left to do is to use this callback in the onClick handler of our returned count element. Let's also add some styles to make the count more prominent.
 
@@ -91,4 +105,4 @@ return (
 
 Now, you should see a live ticking counter, which resets when you click it. You can open the URL shown in the preview section of the CodeSandbox embed in another tab or window and you should see the same live replicated counter as a second session participant.
 
-To see more interesting multi-user interaction, check out the next tutorial, where we're implementing a simple multiplayer pong game.
+To see more interesting multi-user interaction, check out the next tutorial, where we implement a simple multiplayer music box.

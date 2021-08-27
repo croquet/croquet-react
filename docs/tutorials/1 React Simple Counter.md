@@ -1,6 +1,6 @@
-This tutorial directly corresponds to the ["Hello World" tutorial](../croquet/tutorial-1_1_hello_world.html) of the Croquet Library. In fact the model side looks exactly the same. The following document assumes that you are familiar with the main concepts presented there.
+This tutorial directly corresponds to the ["Hello World" tutorial](../croquet/tutorial-1_1_hello_world.html) of the Croquet Library. In fact the model side looks exactly the same. The following document assumes you are familiar with the main concepts presented there.
 
-The tutorials for the `@croquet/react` package will make use of CodeSandbox to be able to show a whole React project around each example, with the same structure as your own project would have locally. The bundler used for this CodeSandBox is `parcel`, but `@croquet/react` is bundler-agnostic.
+The tutorials for the `@croquet/react` package makes use of CodeSandbox to show a whole React project for each example, with the same structure as your own project would have locally. The bundler used for this CodeSandBox is `parcel`, but `@croquet/react` is bundler-agnostic.
 
 <iframe src="https://codesandbox.io/embed/blissful-rain-4rpql?fontsize=14&hidenavigation=1&theme=dark"
      style="width:80%; height:500px; border:1; border-radius: 4px; overflow:hidden;"
@@ -8,7 +8,7 @@ The tutorials for the `@croquet/react` package will make use of CodeSandbox to b
      sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
    ></iframe>
 
-We start by importing React and Croquet libraries, here as npm dependencies instead of the normal Croquet library script import.
+We start by importing React and Croquet Library here as npm dependencies.
 
 ```
 import ReactDom from "react-dom";
@@ -22,7 +22,7 @@ import {
 } from "@croquet/react";
 ```
 
-The `CounterModel` has one state called "count" (`this.count`), and it publishes a message called "count" when the value of count changes. A common practice for the message scope value is to use `this.id` to indicate that this particular model's count has been changed or requested to be reset.
+The `CounterModel` has one state called "count" (`this.count`), and it publishes a message called "count" when the value of count changes. A common practice for the message scope (the first argument) is to use `this.id` to indicate that this particular model's `count` has been changed or requested to be reset.
 
 ```
 class CounterModel extends Croquet.Model {
@@ -63,26 +63,26 @@ function CounterApp() {
 
 Next, we define the `CounterDisplay` component, which has two goals:
 
- - rendering the live count of the replicated counter
- - resetting the counter on click
+ - Rendering the live count of the replicated counter
+ - Resetting the counter on click
 
 ```
  function CounterDisplay() {
   const model = useModelRoot();
 ```
 
-First, we use the `useModelRoot` hook to get a hold of the `CounterModel` in our session.
-Next, we create a state by the `useState` hook. Then, we set up subscription for the counter message, and set the state.
+First, we use the `useModelRoot` hook to get hold of the `CounterModel` in our session.
+Next, we create a state with the `useState` hook. Then, we set up subscription for the counter message, and set the state.
 
-If we just wanted to render the up-to-date count, we could finish our component with
+If we just want to render the up-to-date count, we can finish our component with
 
 ```
 return <div>{count}</div>;
 ```
 
-But, to explore how we can have information flow back from our component to the `CounterModel`, let's setup our component to reset the counter when we click the count.
+But, to explore how we can have information flow back from our component to the `CounterModel`, let's set up our component to reset the counter when we click the count.
 
-First, we create a callback that will publish the corresponding event like this:
+First, we create a callback that will publish the corresponding event like this.
 
 ```
 const publishReset = usePublish(() => [model.id, "reset"]);
@@ -105,4 +105,4 @@ return (
 
 Now, you should see a live ticking counter, which resets when you click it. You can open the URL shown in the preview section of the CodeSandbox embed in another tab or window and you should see the same live replicated counter as a second session participant.
 
-To see more interesting multi-user interaction, check out the next tutorial, where we implement a simple multiplayer music box.
+To see a more interesting multi-user interaction, check out the next tutorial, where we implement a simple multiplayer music box.

@@ -67,7 +67,7 @@ const publishRelease = usePublish<GrabData>((id) =>
 export function usePublish(callback) {}
 
 /**
-A hook to set up a subscription to a Croquet message
+A hook to set up a subscription to a Croquet message.
 
 @public
 @example
@@ -79,7 +79,7 @@ useSubscribe<GrabData>(model.id, "grabbed", grabBall);
 export function useSubscribe(scope, eventSpec, callback) {}
 
 /** Hook that sets up a callback for Croquet.View.update().
- * The function will be called at each simulation cycle.
+ * The callback function is called at each simulation cycle.
 
 @public
 @example
@@ -90,7 +90,7 @@ useUpdateCallback((update:time:number) => void);
 export function useUpdateCallback(callback) {}
 
 /** Hook that sets up a callback for Croquet.View.synced().
- * The function will be called when Croquet synced event occurs.
+ * The callback function is called when a Croquet synced event occurs.
 @public
 @example
 useSyncedCallback(synced:() => void);
@@ -99,7 +99,7 @@ useSyncedCallback(synced:() => void);
 export function useSyncedCallback(callback) {}
 
 /** Hook that sets up a callback for Croquet.View.detach().
- * The function will be called when the root View is detached.
+ * The callback function is called when the root View is detached.
 
 @public
 @example

@@ -145,6 +145,44 @@ There are three user event handlers, namely `pointerDown`, `pointerMove` and `po
   }, [grabInfo, findBall, grabBall, model.balls, publishGrab, myViewId]);
 ```
 
+The `pointerMove` handler follows the similar structure. The latter part computes the new position for the ball, move the ball locally by calling `moveBall()` with the second argument, and publish the `move` message to other participants.
+
+```
+  const pointerMove = useCallback((evt) => {
+    if (evt.buttons === 0) {return;}
+    const pointerId:PointerId = evt.pointerId;
+    const info = grabInfo.data.get(pointerId);
+    if (!info) {return;}
+  
+    const ball = model.balls.get(info.ballId);
+    if (!ball) {return;}
+    if (ball.grabbed && ball.grabbed !== myViewId) {return;}
+
+    let x = evt.nativeEvent.offsetX - info.grabPoint.x + info.translation.x;
+    let y = evt.nativeEvent.offsetY - info.grabPoint.y + info.translation.y;
+    if (x <= 0) {x = 0;}
+    // if (x > model.width - BallDiameter) {x = model.width - BallDiameter;}
+    if (y <= 0) {y = 0}
+    if (y > model.height - BallDiameter * 2) {y = model.height - BallDiameter * 2;}
+
+    moveBall({x, y, viewId: myViewId, id: info.ballId}, true);
+  
+    publishMove(info.ballId, {x, y});
+  }, [grabInfo, moveBall, publishMove, model.height, model.balls, myViewId]);
+
+```
+
+An important part is the condition in the middle.
+```
+    const ball = model.balls.get(info.ballId);
+    if (!ball) {return;}
+    if (ball.grabbed && ball.grabbed !== myViewId) {return;}
+```
+
+Imagine if two or more participants tried to click on the same ball almost at the same time.  The `pointerDown` handler for each participant would successfully store data into `grabInfo`, and then publishes the `grab` message. However, the reflector decides who actually get there first. Other participants need to stop dragging the ball if the reflector decided against their favor. In the line above, `pointerMove` checks if the data in the model agrees with the local view state, and if not, avoid executing further logic in `pointerMove`.
+
+(Note that this kind of speculative execution is an optimization and may not be always necessary to implement. If you application does not require smooth movement, first write the logic as clean as possible without optimization and try it. Only then consider adding optimizations.)
+
 Because we want the bar to keep moving smoothly at 60 fps (or more), we need to tap into the `Croquet.View`'s `update()` method. The `useUpdateCallback` hook "injects" a function into `update()` and has it invoked from each `update()` call. The argument for the hook typically needs to be a fresh function, thus is defined as a function in the component.
 
 ```

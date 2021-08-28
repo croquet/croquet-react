@@ -110,7 +110,7 @@ export function useDetachCallback(callback) {}
 
 /** Main wrapper component that starts and manages a croquet session, enabling child elements to use the hooks described above.
  *
- * It Takes the same parameters as {@link Session.join} except that it doesn't need a root View class,
+ * It takes the same parameters as {@link Session.join} except that it doesn't need a root View class,
  * since croquet-react provides a suitable View class behind the scenes.
 
 @public

@@ -1,4 +1,4 @@
-In this tutorial, we implement a simple multiplayer music box to illustrate realtime view side update and how to use other hooks. We also use TypeScript in this example. The app has a number of "balls", each of which represents the timing and pitch of a note. A participants can manipulate them to compose a loop. The timing for the bar to wrap is synchronized by the model side logic, but the view interpolates the position of the bar and play sound when the bar passes a ball.
+In this tutorial, we implement a simple multiplayer music box to illustrate realtime view side update and how to use other hooks. We also use TypeScript in this example. The app has a number of "balls", each of which represents the timing and pitch of a note. A participant can manipulate them to compose a loop. The timing for the bar to wrap is synchronized by the model side logic, but the view interpolates the position of the bar and plays a sound when the bar passes a ball.
 
 <iframe src="https://codesandbox.io/embed/purple-silence-ikqiv?fontsize=14&hidenavigation=1&theme=dark"
      style="width:80%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
@@ -57,7 +57,7 @@ function MusicBoxApp() {
 }
 ```
 
-The view side logic is written in the `MusicBoxField` component. For the view to rerender without having to wait for a network round trip, the component has a state called `viewBalls`, which is "almost" the copy of the model's `balls`, except that modifications occur in the local view is included. Because balls may be added and deleted, the data structure is a `Map`, but to obey React's state update rule, we wrap it in an object.
+The view side logic is written in the `MusicBoxField` component. For the view to rerender without having to wait for a network round trip, the component has a state called `viewBalls`, which is "almost" the copy of the model's `balls`, except that modifications occur in the local view are included. Because balls may be added and deleted, the data structure is a `Map`, but to obey React's state update rule, we wrap it in an object.
 
 ```
  const [viewBalls, setViewBalls]
@@ -99,7 +99,7 @@ A message handler, such as `moveBall`, is defined as follows.
   }, [myViewId]);
 ```
 
-As described later, the same `moveBall` function is called directly from the view side user event handler as well. The second argument specifies if it is handling the view side event or a Croquet message from the model. The call to `setViewBalls` state updater mutates the wrapped `Map` but creates a new object to trigger rerendering
+As described later, the same `moveBall` function is called directly from the view side user event handler as well. The second argument specifies if it is handling the view side event or a Croquet message from the model. The call to `setViewBalls` state updater mutates the wrapped `Map` but creates a new object to trigger rerendering.
 
 We also define publish hooks.
 
@@ -116,9 +116,9 @@ We also define publish hooks.
     model.id, 'removeBall', {id, viewId: myViewId}]);
 ```
 
-The functions take some arguments such as `id`, or `x, y` and publish a message. The type parameter for `usePublish` ensures that the data to be publised conforms the type. 
+The functions take some arguments such as `id`, or `x, y` and publish a message. The type parameter for `usePublish` ensures that the data to be publised conforms to the type. 
 
-There are three user event handlers, namely `pointerDown`, `pointerMove` and `pointerUp`. We use `pointerEvents` to support multi touch interaction . Due to React's platform-neutral synthetic event restrictions, and due to the need for allowing the `MusicBoxField` to be transformed to fit in different screen sizes of participants, we need to attach the event handlers to MusicBoxField, and implement the hit detection logic by ourselves in the `findBall()` function. The `pointerDown` callback, for example, computes the original translation in the reference of the MusicBoxField, updates the grabInfo state, first by directly mutating data in the wrapped `Map` then, calling `setGrabInfo``. The call to `grabBall()` has the second argument (`viewSide`) so it updates the `viewBalls` data before publishing a message by calling `publishGrab`.
+There are three user event handlers, namely `pointerDown`, `pointerMove` and `pointerUp`. We use `pointerEvents` to support multi touch interaction . Due to React's platform-neutral synthetic event restrictions, and due to the need for allowing the `MusicBoxField` to be transformed to fit into different screen sizes of participants, we need to attach the event handlers to the `MusicBoxField` component, and implement the hit detection logic ourselves in the `findBall()` function. The `pointerDown` callback, for example, computes the original translation in the reference of the MusicBoxField, updates the grabInfo state, first by directly mutating data in the wrapped `Map`, then by calling `setGrabInfo`. The call to `grabBall()` has the second argument (`viewSide`) so it updates the `viewBalls` data before publishing a message by calling `publishGrab`.
 
 ```
   const pointerDown = useCallback((evt) => {
@@ -145,7 +145,7 @@ There are three user event handlers, namely `pointerDown`, `pointerMove` and `po
   }, [grabInfo, findBall, grabBall, model.balls, publishGrab, myViewId]);
 ```
 
-Because we want the bar to keep moving smoothly at 60 fps (or more), we need to tap into the `Croquet.View`'s `update()` method. The `useUpdateCallback` hook "injects" a function into `update()` and have it invoked from each `update()` call. The argument for the hook typically needs to be a fresh function, thus defined as a function in the component.
+Because we want the bar to keep moving smoothly at 60 fps (or more), we need to tap into the `Croquet.View`'s `update()` method. The `useUpdateCallback` hook "injects" a function into `update()` and has it invoked from each `update()` call. The argument for the hook typically needs to be a fresh function, thus is defined as a function in the component.
 
 ```
 useUpdateCallback(update);
@@ -159,7 +159,7 @@ There are other hooks to handle `synced` event and `detach()` method invocation.
   });
 ```
 
-The `updateCallback` effectively invokes `MusicBoxField` for each animation frmae. `MusicBoxField` returns a `Fragment` with an appropriate scale and other style parameters and updated list of `Ball` components and include them.
+The `updateCallback` effectively invokes `MusicBoxField` for each animation frame. `MusicBoxField` returns a `Fragment` with an appropriate scale and other style parameters and updated list of `Ball` components.
 
 ```
 return (
@@ -179,4 +179,4 @@ return (
   );
 ```
 
-A word of caution here, however, is that a Croquet application may as well be easier to develop on top of the vanilla Croquet library or the Virtual DOM framework. As you can see above, the view side smoothing logic requires a separate data source for components and makes imperative style of udpate on the data source.  Handling a list of components whose properties may be changed by more than one client requires more computation than simply setting values into elements. A careful deliberation on the trade-offs between frameworks is something one should do before picking the `@croquet/react` framework.
+A word of caution here, however, is that a Croquet application may as well be easier to develop on top of the vanilla Croquet library or the Virtual DOM framework. As you can see above, the view side smoothing logic requires a separate data source for components and makes imperative udpates on the data source. Handling a list of components whose properties may be changed by more than one client requires more computation than simply setting values into elements. A careful deliberation on the trade-offs between frameworks is something one should do before picking the `@croquet/react` framework.

@@ -1,6 +1,6 @@
 {
   "name": "croquet-doc-react",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "Croquet React Bindings",
   "scripts": {
     "start": "npm-watch",

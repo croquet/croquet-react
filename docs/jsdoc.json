@@ -8,11 +8,17 @@
   "opts": {
     "access": ["public"],
     "tutorials": "./tutorials",
-    "template": "../template",
+    "template": "../clean-jsdoc-theme",
     "encoding": "utf8",
     "recurse": false,
     "verbose": true,
-    "destination": "../build/croquet-react/"
+    "destination": "../build/croquet-react/",
+    "theme_opts": {
+        "title": "Croquet React Bindings @CROQUET_VERSION@ References",
+        "theme": "light",
+        "static_dir": ["../static"],
+        "include_css": ["../clean-jsdoc-theme/static/styles/index.css"]
+    }
   },
   "plugins": ["plugins/markdown"],
   "markdown": {
@@ -31,21 +37,5 @@
         "includePattern": "\\.(png|jpg)$"
       }
     }
-  },
-  "docdash": {
-    "static": true,
-    "sort": false,
-    "disqus": "",
-    "meta": {
-      "title": "Croquet React Bindings @CROQUET_VERSION@ References",
-      "description": "Documentation for the Croquet React bindings",
-      "keyword": "croquet,"
-    },
-    "search": true,
-    "collapse": true,
-    "typedefs": true,
-    "removeQuotes": "none",
-    "scripts": [],
-    "menuHome": "Home: <b>Croquet React Bindings</b>"
   }
 }

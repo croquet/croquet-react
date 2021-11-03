@@ -16,7 +16,6 @@
     "theme_opts": {
         "title": "Croquet React Bindings @CROQUET_VERSION@ References",
         "theme": "light",
-        "static_dir": ["../static"],
         "include_css": ["../clean-jsdoc-theme/static/styles/index.css"]
     }
   },

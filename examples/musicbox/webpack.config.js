@@ -9,6 +9,7 @@ module.exports = {
         alias: {
             'react': path.join(__dirname, 'node_modules/react')
         },
+        fallback: {"crypto": false},
         extensions: ['.ts', '.tsx', '.js', '.css']
     },
     module: {

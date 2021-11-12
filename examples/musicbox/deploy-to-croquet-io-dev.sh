@@ -1,6 +1,8 @@
 #!/bin/sh
 
-. ./build-files.sh $1
+cd `dirname "$0"`
+
+. ./build-files.sh
 
 DIR=../../servers/croquet-io-dev/react-musicbox
 

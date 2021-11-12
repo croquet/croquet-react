@@ -1,20 +1,12 @@
 #!/bin/sh
 
-if [ -d dist ]
-then
-       rm -rf dist
-fi
-
-if [ -d copy ]
-then
-       rm -rf copy
-fi
+rm -rf dist
+rm -rf copy
 
 META=`git log --no-walk|grep -v '^Author' |head -2 |tr '\n' ' '`
 COMMIT=`echo ${META} | awk '{print $2}'`
 
-mkdir -p copy/${COMMIT}
-mkdir -p copy/meta
+mkdir -p copy/${COMMIT} copy/meta
 
 echo ${COMMIT}> copy/meta/version.txt
 

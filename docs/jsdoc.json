@@ -13,8 +13,8 @@
     "recurse": false,
     "verbose": true,
     "destination": "../build/croquet-react/",
+    "mainpagetitle": "Croquet React Bindings @CROQUET_VERSION@ References",
     "theme_opts": {
-        "title": "Croquet React Bindings @CROQUET_VERSION@ References",
         "theme": "light",
         "include_css": ["../clean-jsdoc-theme/static/styles/index.css"]
     }

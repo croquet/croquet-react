@@ -49,11 +49,92 @@ export function useSessionId(): string {
     return croquetContext.id;
 }
 
-/** Hook that gives access to the root Model of this croquet session.
- * Can be used to read Model properties (including other referenced Models),
+const builtinModelProps = Object.keys(Model.prototype);
+
+type WatchableProps<M extends Model> = Exclude<keyof M, keyof Model>;
+type WatchablePartial<M extends Model> = { [key in WatchableProps<M>]: M[key] };
+
+function watchableProps<M extends Model>(model: M): WatchableProps<M>[] {
+    return Object.keys(model).filter(
+        (prop) => !builtinModelProps.includes(prop),
+    ) as WatchableProps<M>[];
+}
+
+function watchablePartial<M extends Model>(model: M): WatchablePartial<M> {
+    const partial = {} as WatchablePartial<M>;
+    for (const prop of watchableProps(model)) {
+        partial[prop] = model[prop];
+    }
+    return partial;
+}
+
+export function useWatchModelRoot<M extends Model>(): M {
+    return useWatchModelHelper(useRawModelRoot() as M);
+}
+
+export function useWatchModelById<M extends Model>(id: string): M | undefined {
+    return useWatchModelHelper(useRawModelById(id) as M | undefined);
+}
+
+function useWatchModelHelper<M extends Model>(rawModel: M): M;
+function useWatchModelHelper<M extends Model>(
+    rawModel: M | undefined,
+): M | undefined;
+function useWatchModelHelper<M extends Model>(
+    rawModel: M | undefined,
+): M | undefined {
+    const initialWatchablePartial = useMemo(
+        () => rawModel && watchablePartial(rawModel as M),
+        [rawModel],
+    );
+    const [lastState, setLastState] = useState(initialWatchablePartial);
+
+    useEffect(() => {
+        const handle = requestAnimationFrame(() => {
+            if (!rawModel) return;
+            if (
+                watchableProps(rawModel).some(
+                    (prop) => lastState?.[prop] !== rawModel[prop],
+                )
+            ) {
+                setLastState(watchablePartial(rawModel as M));
+            }
+        });
+        return () => {
+            cancelAnimationFrame(handle);
+        };
+    }, [lastState, rawModel]);
+
+    const proxy = useMemo(() => {
+        return new Proxy(rawModel as M, {
+            get: function (target, prop) {
+                if (
+                    lastState &&
+                    Object.getOwnPropertyDescriptor(lastState, prop)
+                ) {
+                    return lastState[prop as WatchableProps<M>];
+                } else {
+                    return target[prop as keyof M];
+                }
+            },
+            set: function (_target, prop) {
+                throw new Error(
+                    `Can't set model property ${String(
+                        prop,
+                    )} directly from view`,
+                );
+            },
+        });
+    }, [lastState, rawModel]);
+
+    return lastState && proxy;
+}
+
+/** Hook that gives access to the raw root Model of this croquet session.
+ * Can be used to read Model properties *once* (including other referenced Models),
  * and to publish events to the Model or to subscribe to Model events using the other hooks.
  */
-export function useModelRoot(): Model {
+export function useRawModelRoot(): Model {
     const croquetContext = useContext(CroquetContext);
     if (!croquetContext || !croquetContext.view) {
         throw new Error('No Crouqet Session found');
@@ -62,10 +143,10 @@ export function useModelRoot(): Model {
 }
 
 /** Hook that gives access to the Model specified by an id of this croquet session.
- * Can be used to read Model properties (including other referenced Models),
+ * Can be used to read Model properties *once* (including other referenced Models),
  * and to publish events to the Model or to subscribe to Model events using the other hooks.
  */
-export function useModelById(id: string): Model | undefined {
+export function useRawModelById(id: string): Model | undefined {
     const croquetContext = useContext(CroquetContext);
     if (!croquetContext || !croquetContext.view) {
         throw new Error('No Crouqet Session found');
@@ -244,7 +325,7 @@ class CroquetReactView extends View {
 }
 
 /** Main wrapper component that starts and manages a croquet session, enabling child elements to use the
- * {@link usePublish}, {@link useSubscribe}, {@link useObservable}, {@link useViewId} and {@link useModelRoot} hooks.
+ * {@link usePublish}, {@link useSubscribe}, {@link useObservable}, {@link useViewId} and {@link useRawModelRoot} hooks.
  *
  * Takes the same parameters as {@link Session.join} except that it doesn't need a root View class,
  * since croquet-react provides a suitable View class behind the scenes.

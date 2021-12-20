@@ -10,10 +10,8 @@
   },
   "author": "Croquet Corporation",
   "license": "ISC",
-  "dependencies": {
-    "@croquet/croquet": "^1.0.4"
-  },
   "peerDependencies": {
+    "@croquet/croquet": "^1.0.5",
     "react": "^17.0.1"
   },
   "devDependencies": {

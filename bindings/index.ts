@@ -6,6 +6,7 @@ import React, {
     useContext,
     useCallback,
     useMemo,
+    useRef,
 } from 'react';
 
 import {
@@ -52,7 +53,6 @@ export function useSessionId(): string {
 const builtinModelProps = Object.keys(Model.prototype);
 
 type WatchableProps<M extends Model> = Exclude<keyof M, keyof Model>;
-type WatchablePartial<M extends Model> = { [key in WatchableProps<M>]: M[key] };
 
 function watchableProps<M extends Model>(model: M): WatchableProps<M>[] {
     return Object.keys(model).filter(
@@ -60,93 +60,56 @@ function watchableProps<M extends Model>(model: M): WatchableProps<M>[] {
     ) as WatchableProps<M>[];
 }
 
-function watchablePartial<M extends Model>(model: M): WatchablePartial<M> {
-    const partial = {} as WatchablePartial<M>;
-    for (const prop of watchableProps(model)) {
-        partial[prop] = model[prop];
-    }
-    return partial;
-}
-
-export function useWatchModelRoot<M extends Model>(): M {
-    return useWatchModelHelper(useRawModelRoot() as M);
-}
-
-export function useWatchModelById<M extends Model>(id: string): M | undefined {
-    return useWatchModelHelper(useRawModelById(id) as M | undefined);
-}
-
-function useWatchModelHelper<M extends Model>(rawModel: M): M;
-function useWatchModelHelper<M extends Model>(
-    rawModel: M | undefined,
+export function useWatchModel<M extends Model>(model: M): M;
+export function useWatchModel<M extends Model>(
+    model: M | undefined,
 ): M | undefined;
-function useWatchModelHelper<M extends Model>(
-    rawModel: M | undefined,
+export function useWatchModel<M extends Model>(
+    model: M | undefined,
 ): M | undefined {
-    const initialWatchablePartial = useMemo(
-        () => rawModel && watchablePartial(rawModel as M),
-        [rawModel],
-    );
-    const [lastState, setLastState] = useState(initialWatchablePartial);
+    const initialModel = useMemo(() => ({ ...model } as M), [model]);
+    const [lastState, setLastState] = useState(initialModel);
+
+    const onFrameHandle = useRef<number>();
 
     useEffect(() => {
-        const handle = requestAnimationFrame(() => {
-            if (!rawModel) return;
+        const onFrame = () => {
+            if (!model) return;
             if (
-                watchableProps(rawModel).some(
-                    (prop) => lastState?.[prop] !== rawModel[prop],
+                watchableProps(model).some(
+                    (prop) => lastState?.[prop] !== model[prop],
                 )
             ) {
-                setLastState(watchablePartial(rawModel as M));
+                setLastState({ ...model } as M);
             }
-        });
-        return () => {
-            cancelAnimationFrame(handle);
+            onFrameHandle.current = requestAnimationFrame(onFrame);
         };
-    }, [lastState, rawModel]);
+        onFrameHandle.current = requestAnimationFrame(onFrame);
+        return () => {
+            onFrameHandle.current && cancelAnimationFrame(onFrameHandle.current);
+        };
+    }, [lastState, model]);
 
-    const proxy = useMemo(() => {
-        return new Proxy(rawModel as M, {
-            get: function (target, prop) {
-                if (
-                    lastState &&
-                    Object.getOwnPropertyDescriptor(lastState, prop)
-                ) {
-                    return lastState[prop as WatchableProps<M>];
-                } else {
-                    return target[prop as keyof M];
-                }
-            },
-            set: function (_target, prop) {
-                throw new Error(
-                    `Can't set model property ${String(
-                        prop,
-                    )} directly from view`,
-                );
-            },
-        });
-    }, [lastState, rawModel]);
-
-    return lastState && proxy;
+    return model;
 }
 
 /** Hook that gives access to the raw root Model of this croquet session.
  * Can be used to read Model properties *once* (including other referenced Models),
  * and to publish events to the Model or to subscribe to Model events using the other hooks.
  */
-export function useRawModelRoot(): Model {
+export function useModelRoot<M extends Model>(): M {
     const croquetContext = useContext(CroquetContext);
     if (!croquetContext || !croquetContext.view) {
         throw new Error('No Crouqet Session found');
     }
-    return croquetContext.view.model;
+    return croquetContext.view.model as M;
 }
 
 /** Hook that gives access to the Model specified by an id of this croquet session.
  * Can be used to read Model properties *once* (including other referenced Models),
  * and to publish events to the Model or to subscribe to Model events using the other hooks.
  */
-export function useRawModelById(id: string): Model | undefined {
+export function useModelById<M extends Model>(id: string): M | undefined {
     const croquetContext = useContext(CroquetContext);
     if (!croquetContext || !croquetContext.view) {
         throw new Error('No Crouqet Session found');
@@ -325,7 +288,7 @@ class CroquetReactView extends View {
 }
 
 /** Main wrapper component that starts and manages a croquet session, enabling child elements to use the
- * {@link usePublish}, {@link useSubscribe}, {@link useObservable}, {@link useViewId} and {@link useRawModelRoot} hooks.
+ * {@link usePublish}, {@link useSubscribe}, {@link useObservable}, {@link useViewId} and {@link useModelRoot} hooks.
  *
  * Takes the same parameters as {@link Session.join} except that it doesn't need a root View class,
  * since croquet-react provides a suitable View class behind the scenes.

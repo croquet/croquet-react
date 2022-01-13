@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@croquet/croquet": "^1.0.5",
-    "@croquet/react": "../../bindings",
+    "@croquet/react": "^1.0.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   }

@@ -1,4 +1,4 @@
 {
   "private": true,
-  "workspaces": ["bindings", "examples/counter"]
+  "workspaces": ["bindings", "examples/counter", "examples/poll", "examples/tldraw", "examples/colab-form"]
 }

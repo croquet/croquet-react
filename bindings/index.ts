@@ -17,6 +17,9 @@ import {
     CroquetSessionParameters,
 } from '@croquet/croquet';
 
+import deepEqual from 'fast-deep-equal';
+import clone from 'clone';
+
 // InCroquetSession parameter is almost the same but omits `view`,
 // which is defaulted to CroquetReactView, but adds children
 type CroquetReactSessionParameters = Omit<
@@ -67,7 +70,7 @@ export function useWatchModel<M extends Model>(
 export function useWatchModel<M extends Model>(
     model: M | undefined,
 ): M | undefined {
-    const initialModel = useMemo(() => ({ ...model } as M), [model]);
+    const initialModel = useMemo(() => (clone(model)), [model]);
     const [lastState, setLastState] = useState(initialModel);
 
     const onFrameHandle = useRef<number>();
@@ -77,10 +80,16 @@ export function useWatchModel<M extends Model>(
             if (!model) return;
             if (
                 watchableProps(model).some(
-                    (prop) => lastState?.[prop] !== model[prop],
+                    (prop) => {
+                        if (model[prop] instanceof Model) {
+                            return lastState?.[prop] !== model[prop]
+                        } else {
+                            return !deepEqual(lastState?.[prop], model[prop]);
+                        }
+                    },
                 )
             ) {
-                setLastState({ ...model } as M);
+                setLastState(clone(model));
             }
             onFrameHandle.current = requestAnimationFrame(onFrame);
         };
@@ -90,7 +99,7 @@ export function useWatchModel<M extends Model>(
         };
     }, [lastState, model]);
 
-    return model;
+    return lastState;
 }
 
 /** Hook that gives access to the raw root Model of this croquet session.
@@ -313,6 +322,7 @@ class CroquetReactView extends View {
 export function InCroquetSession(
     params: CroquetReactSessionParameters,
 ): JSX.Element {
+    // TODO: deal with dormant tabs / leaving
     const children = params.children;
 
     const sessionParams = useMemo(() => {

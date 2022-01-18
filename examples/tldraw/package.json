@@ -1,0 +1,28 @@
+{
+  "name": "croquet-react-example-tldraw",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "esbuild src/index.tsx --bundle --preserve-symlinks --outfile=dist/index.js --watch",
+    "build": "esbuild src/index.tsx --bundle --preserve-symlinks --outfile=dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react": "^17.0.37",
+    "@types/react-dom": "^17.0.11",
+    "esbuild": "^0.14.6",
+    "typescript": "^4.5.4"
+  },
+  "dependencies": {
+    "@croquet/croquet": "^1.0.5",
+    "@croquet/react": "^1.0.3",
+    "@tldraw/tldraw": "^1.5.0",
+    "mobx": "^6.3.12",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
+}

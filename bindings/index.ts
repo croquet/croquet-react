@@ -77,6 +77,7 @@ function watchableProps<M extends Model>(model: M): WatchableProps<M>[] {
  *  The perforance overhead of this should be negligible in most cases, but if it turns out to be a bottleneck,
  *  consider instead using `useSubscribe` to only rerender on certain events.
  */
+// TODO: handle passing in already watched model
 export function useWatchModel<M extends Model>(model: M): M;
 export function useWatchModel<M extends Model>(
     model: M | undefined,

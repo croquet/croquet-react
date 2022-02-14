@@ -1,5 +1,5 @@
 {
-  "name": "croquet-react-example-counter",
+  "name": "croquet-react-example-cursors",
   "private": true,
   "version": "1.0.0",
   "description": "",
@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/randomcolor": "^0.5.6",
     "@types/react": "^17.0.37",
     "@types/react-dom": "^17.0.11",
     "esbuild": "^0.14.6",
@@ -20,6 +21,7 @@
   "dependencies": {
     "@croquet/croquet": "^1.0.5",
     "@croquet/react": "^1.0.3",
+    "randomcolor": "^0.6.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   }

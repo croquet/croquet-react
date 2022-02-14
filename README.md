@@ -2,6 +2,8 @@
 
 React bindings for [Croquet](https://croquet.io/docs/croquet/).
 
+Magically synced app state for no-backend multiplayer experiences.
+
 ## Installation
 
 ```npm i @croquet/croquet-react @croquet/croquet```

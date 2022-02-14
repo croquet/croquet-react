@@ -63,6 +63,20 @@ function watchableProps<M extends Model>(model: M): WatchableProps<M>[] {
     ) as WatchableProps<M>[];
 }
 
+/** Hook that rerenders the calling component whenever properties of a Model change.
+ *
+ *  Use it around the `useModelRoot` or `useModelById` hooks like so:
+ *
+ *  ```const model = useWatchModel(useModelRoot());```
+ *
+ *  or around a sub-Model reference:
+ *
+ *  ```const child = useWatchModel(parent.child);```
+ *
+ *  This hook does one deep property comparison per frame to check if rerendering is necessary.
+ *  The perforance overhead of this should be negligible in most cases, but if it turns out to be a bottleneck,
+ *  consider instead using `useSubscribe` to only rerender on certain events.
+ */
 export function useWatchModel<M extends Model>(model: M): M;
 export function useWatchModel<M extends Model>(
     model: M | undefined,
@@ -70,7 +84,7 @@ export function useWatchModel<M extends Model>(
 export function useWatchModel<M extends Model>(
     model: M | undefined,
 ): M | undefined {
-    const initialModel = useMemo(() => (clone(model)), [model]);
+    const initialModel = useMemo(() => clone(model), [model]);
     const [lastState, setLastState] = useState(initialModel);
 
     const onFrameHandle = useRef<number>();
@@ -79,15 +93,13 @@ export function useWatchModel<M extends Model>(
         const onFrame = () => {
             if (!model) return;
             if (
-                watchableProps(model).some(
-                    (prop) => {
-                        if (model[prop] instanceof Model) {
-                            return lastState?.[prop] !== model[prop]
-                        } else {
-                            return !deepEqual(lastState?.[prop], model[prop]);
-                        }
-                    },
-                )
+                watchableProps(model).some((prop) => {
+                    if (model[prop] instanceof Model) {
+                        return lastState?.[prop] !== model[prop];
+                    } else {
+                        return !deepEqual(lastState?.[prop], model[prop]);
+                    }
+                })
             ) {
                 setLastState(clone(model));
             }
@@ -95,7 +107,8 @@ export function useWatchModel<M extends Model>(
         };
         onFrameHandle.current = requestAnimationFrame(onFrame);
         return () => {
-            onFrameHandle.current && cancelAnimationFrame(onFrameHandle.current);
+            onFrameHandle.current &&
+                cancelAnimationFrame(onFrameHandle.current);
         };
     }, [lastState, model]);
 
@@ -103,8 +116,10 @@ export function useWatchModel<M extends Model>(
 }
 
 /** Hook that gives access to the raw root Model of this croquet session.
- * Can be used to read Model properties *once* (including other referenced Models),
+ * Can be used to read the current Model properties *once* (including other referenced Models),
  * and to publish events to the Model or to subscribe to Model events using the other hooks.
+ *
+ * To rerender whenever Model properties change, wrap this hook additionally with the `useWatchModel` hook.
  */
 export function useModelRoot<M extends Model>(): M {
     const croquetContext = useContext(CroquetContext);
@@ -115,8 +130,10 @@ export function useModelRoot<M extends Model>(): M {
 }
 
 /** Hook that gives access to the Model specified by an id of this croquet session.
- * Can be used to read Model properties *once* (including other referenced Models),
+ * Can be used to read the current Model properties *once* (including other referenced Models),
  * and to publish events to the Model or to subscribe to Model events using the other hooks.
+ *
+ * To rerender whenever Model properties change, wrap this hook additionally with the `useWatchModel` hook.
  */
 export function useModelById<M extends Model>(id: string): M | undefined {
     const croquetContext = useContext(CroquetContext);

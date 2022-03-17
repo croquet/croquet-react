@@ -1,4 +1,7 @@
 {
   "private": true,
-  "workspaces": ["bindings", "examples/counter", "examples/poll", "examples/tldraw", "examples/colab-form", "examples/drumloop", "examples/cursors", "examples/airhockey"]
+  "name": "croquet-react",
+  "devDependencies": {
+    "lerna": "^4.0.0"
+  }
 }

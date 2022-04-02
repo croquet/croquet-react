@@ -55,9 +55,7 @@ const App = function () {
         <InCroquetSession
             model={PollModel}
             apiKey="1_9oolgb5b5wc5kju39lx8brrrhm82log9xvdn34uq"
-            appId="io.croquet.react-poll"
-            name="react-poll"
-            password="secret"
+            appId="io.croquet.react-example-poll"
         >
             <PollView />
         </InCroquetSession>

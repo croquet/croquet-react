@@ -15,6 +15,7 @@ import {
     CroquetSession,
     Model,
     CroquetSessionParameters,
+    App,
 } from '@croquet/croquet';
 
 import deepEqual from 'fast-deep-equal';
@@ -24,8 +25,12 @@ import clone from 'clone';
 // which is defaulted to CroquetReactView, but adds children
 type CroquetReactSessionParameters = Omit<
     CroquetSessionParameters<Model, CroquetReactView>,
-    'view'
-> & { children: React.ReactNode | React.ReactNode[] };
+    'view' | 'name' | 'password'
+> & {
+    name?: CroquetSessionParameters<any, any>['name'],
+    password?: CroquetSessionParameters<any, any>['password'],
+    children: React.ReactNode | React.ReactNode[]
+};
 
 // A React context that stores the croquet session
 // Provided by `InCroquetSession`, consumed by all the hooks.
@@ -320,14 +325,14 @@ class CroquetReactView extends View {
  * Takes the same parameters as {@link Session.join} except that it doesn't need a root View class,
  * since croquet-react provides a suitable View class behind the scenes.
  *
+ * Defaults to using autoSession (room name based on appId) and autoPassword, although these can be set explicitly as well
+ *
  * ```
  * function MyApp() {
  *    return (
  *      <InCroquetSession
  *        apiKey="1_123abc",
  *        appId="com.example.myapp"
- *        name="mySession"
- *        password="secret"
  *        model={MyRootModel}
           ...
  *      >
@@ -344,7 +349,12 @@ export function InCroquetSession(
     const children = params.children;
 
     const sessionParams = useMemo(() => {
-        const p = { ...params, view: CroquetReactView };
+        const p = {
+            ...params,
+            name: params.name || App.autoSession(params.appId),
+            password: params.password || App.autoPassword(),
+            view: CroquetReactView,
+        };
         delete p.children;
         return p;
     }, [params]);

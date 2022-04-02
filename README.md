@@ -9,7 +9,7 @@ The main readme is in [./packages/bindings/README.md](./packages/bindings/README
 This repo uses lerna to link the bindings into the example projects
 `npm install -g lerna`
 
-Make sure to install dependencies with hoisting:
+**⚠️ Important:** Make sure to install dependencies with hoisting:
 
 `lerna bootstrap --hoist`
 

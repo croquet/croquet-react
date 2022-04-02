@@ -40,9 +40,7 @@ const App = function () {
         <InCroquetSession
             model={SequenceModel}
             apiKey="1_9oolgb5b5wc5kju39lx8brrrhm82log9xvdn34uq"
-            appId="io.croquet.react-drumloop"
-            name="react-drumloop"
-            password="secret"
+            appId="io.croquet.react-example-drumloop"
         >
             <CounterView />
         </InCroquetSession>

@@ -166,9 +166,7 @@ const App = function () {
         <InCroquetSession
             model={CursorModel}
             apiKey="1_9oolgb5b5wc5kju39lx8brrrhm82log9xvdn34uq"
-            appId="io.croquet.react-cursors"
-            name="react-counter"
-            password="secret"
+            appId="io.croquet.react-example-cursors"
         >
             <CursorView />
         </InCroquetSession>

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { InCroquetSession, useModelRoot, usePublish, useWatchModel } from '@croquet/react';
-import { Model } from '@croquet/croquet';
+import { Model, App as CroquetApp } from '@croquet/croquet';
 
 class CounterModel extends Model {
     count!: number;
@@ -29,9 +29,7 @@ const App = function () {
         <InCroquetSession
             model={CounterModel}
             apiKey="1_9oolgb5b5wc5kju39lx8brrrhm82log9xvdn34uq"
-            appId="io.croquet.react-counter"
-            name="react-counter"
-            password="secret"
+            appId="io.croquet.react-example-counter"
         >
             <CounterView/>
         </InCroquetSession>

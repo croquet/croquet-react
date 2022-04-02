@@ -133,9 +133,7 @@ const App = function () {
         <InCroquetSession
             model={AirhockeyModel}
             apiKey="1_9oolgb5b5wc5kju39lx8brrrhm82log9xvdn34uq"
-            appId="io.croquet.react-airhockey"
-            name="react-airhockey"
-            password="secret"
+            appId="io.croquet.react-example-airhockey"
         >
             <AirHockeyView />
         </InCroquetSession>

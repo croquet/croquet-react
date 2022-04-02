@@ -42,9 +42,7 @@ const App = function () {
         <InCroquetSession
             model={CollabFormModel}
             apiKey="1_9oolgb5b5wc5kju39lx8brrrhm82log9xvdn34uq"
-            appId="io.croquet.react-collab-form"
-            name="react-collab-form"
-            password="secret"
+            appId="io.croquet.react-example-collab-form"
         >
             <FormView />
         </InCroquetSession>

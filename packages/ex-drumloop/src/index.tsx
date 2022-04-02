@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import {
     InCroquetSession,
     useModelRoot,
-    usePublish,
     useModelState,
 } from '@croquet/react';
 import { Model } from '@croquet/croquet';
@@ -18,18 +17,18 @@ class SequenceModel extends Model {
     }
 
     setNote({
-        track,
+        trackIdx,
         offset16th,
         on,
     }: {
-        track: number;
+        trackIdx: number;
         offset16th: number;
         on: boolean;
     }) {
-        if (!this.tracks[track]) {
-            this.tracks[track] = [];
+        if (!this.tracks[trackIdx]) {
+            this.tracks[trackIdx] = [];
         }
-        this.tracks[track][offset16th] = on;
+        this.tracks[trackIdx][offset16th] = on;
     }
 }
 
@@ -51,13 +50,6 @@ const offsets16ths = Array.from({ length: 4 * 4 }, (x, i) => i);
 
 const CounterView = function () {
     const sequence = useModelState(useModelRoot<SequenceModel>());
-    const setNote = usePublish(
-        (track: number, offset16th: number, on: boolean) => [
-            sequence.id,
-            'setNote',
-            { track, offset16th, on },
-        ],
-    );
 
     const sampler = useMemo(
         () =>
@@ -100,11 +92,11 @@ const CounterView = function () {
                         <div
                             key={offset16th}
                             onClick={() =>
-                                setNote(
+                                sequence.change.setNote({
                                     trackIdx,
                                     offset16th,
-                                    !track[offset16th],
-                                )
+                                    on: !track[offset16th],
+                                })
                             }
                             style={{
                                 width: '2em',

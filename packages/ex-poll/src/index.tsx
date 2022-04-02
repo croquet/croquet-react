@@ -3,8 +3,6 @@ import ReactDOM from 'react-dom';
 import {
     InCroquetSession,
     useModelRoot,
-    usePublish,
-    useSubscribe,
     useViewId,
     useModelState,
 } from '@croquet/react';
@@ -64,40 +62,20 @@ const App = function () {
 
 const PollView = function () {
     const poll = useModelState(useModelRoot<PollModel>());
-
-    const setPrompt = usePublish((prompt) => [
-        poll.id,
-        'setPrompt',
-        { prompt },
-    ]);
-    const addOption = usePublish(() => [poll.id, 'addOption']);
-    const setOption = usePublish((optionIdx, value) => [
-        poll.id,
-        'setOption',
-        { optionIdx, value },
-    ]);
-    const create = usePublish(() => [poll.id, 'create']);
-
     const clientId = useViewId();
-
-    const vote = usePublish((optionIdx) => [
-        poll.id,
-        'vote',
-        { clientId, optionIdx },
-    ]);
 
     return poll.created ? (
         <div>
             <h1>{poll.prompt}</h1>
             <ol>
-                {poll.options?.map((option, idx) => (
-                    <li key={idx}>
+                {poll.options?.map((option, optionIdx) => (
+                    <li key={optionIdx}>
                         {option}{' '}
                         {poll.votes?.[clientId] === undefined ? (
-                            <button onClick={() => vote(idx)}>Vote</button>
+                            <button onClick={() => poll.change.vote({clientId, optionIdx})}>Vote</button>
                         ) : (
                             Object.values(poll.votes).filter(
-                                (vote) => vote === idx,
+                                (vote) => vote === optionIdx,
                             ).length
                         )}
                     </li>
@@ -110,23 +88,23 @@ const PollView = function () {
             <input
                 type="text"
                 value={poll.prompt}
-                onChange={(event) => setPrompt(event.target.value)}
+                onChange={(event) => poll.change.setPrompt({prompt: event.target.value})}
             />
             <ol>
-                {poll.options?.map((option, idx) => (
-                    <li key={idx}>
+                {poll.options?.map((option, optionIdx) => (
+                    <li key={optionIdx}>
                         <input
                             type="text"
                             value={option}
                             onChange={(event) =>
-                                setOption(idx, event.target.value)
+                                poll.change.setOption({optionIdx, value: event.target.value})
                             }
                         />
                     </li>
                 ))}
             </ol>
-            <button onClick={addOption}>Add Option</button>
-            <button onClick={create}>Create Poll</button>
+            <button onClick={() => poll.change.addOption()}>Add Option</button>
+            <button onClick={() => poll.change.create()}>Create Poll</button>
         </div>
     );
 };

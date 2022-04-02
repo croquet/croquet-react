@@ -73,7 +73,7 @@ type PublishProxy<M extends Model> = {
     [K in keyof M as M[K] extends Function ? (K extends keyof Model ? never : K) : never]: M[K]
 }
 
-type ModelWithChanger<M extends Model> = M & {change: PublishProxy<M>}
+export type ModelWithChanger<M extends Model> = M & {change: PublishProxy<M>}
 
 function publishProxyHandler<M extends Model>(modelId: typeof Model.prototype.id, publish: typeof View.prototype.publish): ProxyHandler<M> {
     return {

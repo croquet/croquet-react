@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { InCroquetSession, useModelRoot, usePublish, useModelState } from '@croquet/react';
+import { InCroquetSession, useModelRoot, useModelState } from '@croquet/react';
 import { Model } from '@croquet/croquet';
 import { Tldraw, TDDocument, TldrawApp, TDShape} from '@tldraw/tldraw'
 
@@ -70,8 +70,6 @@ const TldrawView = function () {
         setDocument(document => ({...document, pages: {page1: {...document.pages.page1, shapes: documentFromCroquet.shapes}}}));
     }, [documentFromCroquet]);
 
-    const updateShape = usePublish((id: string, shape: TDShape | undefined) => [documentFromCroquet.id, "updateShape", {id, shape}])
-
     return <Tldraw
         showPages={false}
         showMenu={false}
@@ -81,7 +79,7 @@ const TldrawView = function () {
             // setDocument(app.document);
 
             for (let [id, shape] of Object.entries(shapes)) {
-                updateShape(id, shape)
+                documentFromCroquet.change.updateShape({id, shape})
             }
         }}
         disableAssets={true}

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { InCroquetSession, useModelRoot, usePublish, useModelState } from '@croquet/react';
+import { InCroquetSession, useModelRoot, useModelState } from '@croquet/react';
 import { Model } from '@croquet/croquet';
 
 class CounterModel extends Model {

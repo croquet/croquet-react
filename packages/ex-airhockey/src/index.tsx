@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import {
     InCroquetSession,
     useModelRoot,
-    usePublish,
     useModelState,
 } from '@croquet/react';
 import { Model } from '@croquet/croquet';
@@ -142,11 +141,6 @@ const App = function () {
 
 const AirHockeyView = function () {
     const game = useModelState(useModelRoot<AirhockeyModel>());
-    const moveStriker = usePublish((newPosition: vec2) => [
-        game.id,
-        'moveStriker',
-        { strikerIdx: 0, newPosition },
-    ]);
 
     return (
         <div
@@ -167,7 +161,7 @@ const AirHockeyView = function () {
                 console.log(event.clientX, event.clientY);
                 console.log(newPosition);
 
-                moveStriker(newPosition);
+                game.change.moveStriker(newPosition);
                 event.stopPropagation();
             }}
         >

@@ -3,36 +3,21 @@ import ReactDOM from 'react-dom';
 import {
     InCroquetSession,
     useModelRoot,
-    usePublish,
     useModelState,
 } from '@croquet/react';
 import { Model } from '@croquet/croquet';
 
 class CollabFormModel<F extends { [fieldName: string]: any }> extends Model {
-    fieldState!: Partial<F>;
+    fields!: Partial<F>;
 
     init() {
-        this.fieldState = {};
+        this.fields = {};
         this.subscribe(this.id, 'setField', this.setField);
     }
 
     setField<N extends keyof F>({ name, value }: { name: N; value: F[N] }) {
-        this.fieldState[name] = value;
+        this.fields[name] = value;
     }
-}
-
-function useCollabForm<F extends { [fieldName: string]: any }>(
-    model: CollabFormModel<F>,
-): [Partial<F>, <N extends keyof F>(name: N, value: F[N]) => void] {
-    const watched = useModelState(model);
-
-    const setField = usePublish((name, value) => [
-        model.id,
-        'setField',
-        { name, value },
-    ]) as <N extends keyof F>(name: N, value: F[N]) => void;
-
-    return [watched.fieldState, setField];
 }
 
 CollabFormModel.register('CollabFormModel');
@@ -50,11 +35,9 @@ const App = function () {
 };
 
 const FormView = function () {
-    const [form, setField] = useCollabForm(
-        useModelRoot<
-            CollabFormModel<{ name: string; email: string; age: number }>
-        >(),
-    );
+    const form = useModelState(useModelRoot<
+        CollabFormModel<{ name: string; email: string; age: number }>
+    >());
 
     return (
         <form
@@ -68,8 +51,8 @@ const FormView = function () {
                     Name
                     <input
                         type="text"
-                        value={form.name}
-                        onChange={(e) => setField('name', e.target.value)}
+                        value={form.fields.name}
+                        onChange={(e) => form.change.setField({name: 'name', value: e.target.value})}
                     />
                 </label>
             </p>
@@ -78,8 +61,8 @@ const FormView = function () {
                     Email
                     <input
                         type="email"
-                        value={form.email}
-                        onChange={(e) => setField('email', e.target.value)}
+                        value={form.fields.email}
+                        onChange={(e) => form.change.setField({name: 'email', value: e.target.value})}
                     />
                 </label>
             </p>
@@ -88,9 +71,9 @@ const FormView = function () {
                     Age
                     <input
                         type="number"
-                        value={form.age}
+                        value={form.fields.age}
                         onChange={(e) =>
-                            setField('age', parseInt(e.target.value, 10))
+                            form.change.setField({name: 'age', value: parseInt(e.target.value, 10)})
                         }
                     />
                 </label>

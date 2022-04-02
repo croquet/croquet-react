@@ -1,11 +1,11 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import {
     InCroquetSession,
     useModelRoot,
-    usePublish,
     useViewId,
     useModelState,
+    ModelWithChanger,
 } from '@croquet/react';
 import { Model } from '@croquet/croquet';
 import randomcolor from 'randomcolor';
@@ -36,17 +36,15 @@ class CursorModel extends Model {
 CursorModel.register('CounterModel');
 
 function useMultiplayerHoverable<E extends HTMLElement>(
-    cursorModel: CursorModel,
+    cursorModel: ModelWithChanger<CursorModel>,
 ) {
     const elem = useRef<E | null>(null);
     const [elemPath, setElemPath] = useState('');
     const viewId = useViewId();
 
-    const moveCursor = usePublish((xRatio: number, yRatio: number) => [
-        cursorModel.id,
-        'moveCursor',
-        { viewId, name: viewId, position: { elemPath, xRatio, yRatio } },
-    ]);
+    const moveCursor = useCallback((xRatio: number, yRatio: number) => cursorModel.change.moveCursor(
+        { viewId, name: viewId, position: { elemPath, xRatio, yRatio } },)
+    , [cursorModel]);
 
     useLayoutEffect(() => {
         if (!elem.current) return;
@@ -174,7 +172,7 @@ const App = function () {
 };
 
 const CursorView = function () {
-    const cursors = useModelRoot<CursorModel>();
+    const cursors = useModelState(useModelRoot<CursorModel>());
 
     return (
         <WithCursors cursors={cursors}>

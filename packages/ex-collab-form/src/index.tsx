@@ -4,7 +4,7 @@ import {
     InCroquetSession,
     useModelRoot,
     usePublish,
-    useWatchModel,
+    useModelState,
 } from '@croquet/react';
 import { Model } from '@croquet/croquet';
 
@@ -24,7 +24,7 @@ class CollabFormModel<F extends { [fieldName: string]: any }> extends Model {
 function useCollabForm<F extends { [fieldName: string]: any }>(
     model: CollabFormModel<F>,
 ): [Partial<F>, <N extends keyof F>(name: N, value: F[N]) => void] {
-    const watched = useWatchModel(model);
+    const watched = useModelState(model);
 
     const setField = usePublish((name, value) => [
         model.id,

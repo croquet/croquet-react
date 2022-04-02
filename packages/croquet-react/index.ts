@@ -68,30 +68,68 @@ function watchableProps<M extends Model>(model: M): WatchableProps<M>[] {
     ) as WatchableProps<M>[];
 }
 
+type PublishProxy<M extends Model> = {
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    [K in keyof M as M[K] extends Function ? (K extends keyof Model ? never : K) : never]: M[K]
+}
+
+type ModelWithChanger<M extends Model> = M & {change: PublishProxy<M>}
+
+function publishProxyHandler<M extends Model>(modelId: typeof Model.prototype.id, publish: typeof View.prototype.publish): ProxyHandler<M> {
+    return {
+        get(_target, method, _) {
+            if (typeof method === 'string') {
+                return function(arg: any) {
+                    publish(modelId, method, arg);
+                }
+            }
+        }
+    }
+}
+
 /** Hook that rerenders the calling component whenever properties of a Model change.
  *
  *  Use it around the `useModelRoot` or `useModelById` hooks like so:
  *
- *  ```const model = useWatchModel(useModelRoot());```
+ *  ```const model = useModelState(useModelRoot());```
  *
  *  or around a sub-Model reference:
  *
- *  ```const child = useWatchModel(parent.child);```
+ *  ```const child = useModelState(parent.child);```
  *
  *  This hook does one deep property comparison per frame to check if rerendering is necessary.
  *  The perforance overhead of this should be negligible in most cases, but if it turns out to be a bottleneck,
  *  consider instead using `useSubscribe` to only rerender on certain events.
  */
 // TODO: handle passing in already watched model
-export function useWatchModel<M extends Model>(model: M): M;
-export function useWatchModel<M extends Model>(
+export function useModelState<M extends Model>(model: M): ModelWithChanger<M>;
+export function useModelState<M extends Model>(
     model: M | undefined,
-): M | undefined;
-export function useWatchModel<M extends Model>(
+): ModelWithChanger<M> | undefined;
+export function useModelState<M extends Model>(
     model: M | undefined,
-): M | undefined {
+): ModelWithChanger<M> | undefined {
+    const context = useContext(CroquetContext);
     const initialModel = useMemo(() => clone(model), [model]);
     const [lastState, setLastState] = useState(initialModel);
+
+    const modelWithChanger = useMemo<ModelWithChanger<M> | undefined>(
+        () =>
+            context?.view &&
+            lastState && {
+                ...lastState,
+                get change() {
+                    return new Proxy(
+                        lastState,
+                        publishProxyHandler(
+                            lastState.id,
+                            context.view.publish.bind(context.view),
+                        ),
+                    ) as PublishProxy<M>;
+                },
+            },
+        [context?.view, lastState],
+    );
 
     const onFrameHandle = useRef<number>();
 
@@ -118,14 +156,14 @@ export function useWatchModel<M extends Model>(
         };
     }, [lastState, model]);
 
-    return lastState;
+    return modelWithChanger;
 }
 
 /** Hook that gives access to the raw root Model of this croquet session.
  * Can be used to read the current Model properties *once* (including other referenced Models),
  * and to publish events to the Model or to subscribe to Model events using the other hooks.
  *
- * To rerender whenever Model properties change, wrap this hook additionally with the `useWatchModel` hook.
+ * To rerender whenever Model properties change, wrap this hook additionally with the `useModelState` hook.
  */
 export function useModelRoot<M extends Model>(): M {
     const croquetContext = useContext(CroquetContext);
@@ -139,7 +177,7 @@ export function useModelRoot<M extends Model>(): M {
  * Can be used to read the current Model properties *once* (including other referenced Models),
  * and to publish events to the Model or to subscribe to Model events using the other hooks.
  *
- * To rerender whenever Model properties change, wrap this hook additionally with the `useWatchModel` hook.
+ * To rerender whenever Model properties change, wrap this hook additionally with the `useModelState` hook.
  */
 export function useModelById<M extends Model>(id: string): M | undefined {
     const croquetContext = useContext(CroquetContext);

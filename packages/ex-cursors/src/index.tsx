@@ -5,7 +5,7 @@ import {
     useModelRoot,
     usePublish,
     useViewId,
-    useWatchModel,
+    useModelState,
 } from '@croquet/react';
 import { Model } from '@croquet/croquet';
 import randomcolor from 'randomcolor';
@@ -83,7 +83,7 @@ function WithCursors({
     cursors: CursorModel;
     children: React.ReactNode;
 }) {
-    const cursorsWatched = useWatchModel(cursors);
+    const cursorsWatched = useModelState(cursors);
     const root = useRef<HTMLDivElement>(null);
 
     return (

@@ -11,7 +11,7 @@ Magically synced app state for no-backend multiplayer experiences.
 ## What's included
 
 `croquet-react` is a thin wrapper around `croquet`, providing mainly:
-- the `useWatchModel` hook for conveniently **rerendering** components **on Model changes**
+- the `useModelState` hook for conveniently **rerendering** components **on Model changes**
 - the `useSubscribe` hook for **rerendering** components **when Croquet events are fired**
 - the `usePublish` that returns a stable **callback which fires Croquet events**, similar to the `useCallback` builtin hook
 - the `InCroquetSession` component, providing Croquet session context and configuration to its children, which may then use the hooks mentioned above.

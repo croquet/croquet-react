@@ -4,7 +4,7 @@ import {
     InCroquetSession,
     useModelRoot,
     usePublish,
-    useWatchModel,
+    useModelState,
 } from '@croquet/react';
 import { Model } from '@croquet/croquet';
 import { vec2 } from 'gl-matrix';
@@ -141,7 +141,7 @@ const App = function () {
 };
 
 const AirHockeyView = function () {
-    const game = useWatchModel(useModelRoot<AirhockeyModel>());
+    const game = useModelState(useModelRoot<AirhockeyModel>());
     const moveStriker = usePublish((newPosition: vec2) => [
         game.id,
         'moveStriker',

@@ -1,19 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { InCroquetSession, useModelRoot, usePublish, useWatchModel } from '@croquet/react';
-import { Model, App as CroquetApp } from '@croquet/croquet';
+import { InCroquetSession, useModelRoot, usePublish, useModelState } from '@croquet/react';
+import { Model } from '@croquet/croquet';
 
 class CounterModel extends Model {
     count!: number;
 
     init() {
         this.count = 0;
-        this.subscribe(this.id, 'reset', this.resetCounter);
+        this.subscribe(this.id, 'resetCounter', 'resetCounter');
         this.future(1000).tick();
     }
 
-    resetCounter() {
-        this.count = 0;
+    resetCounter({to}: {to: number}) {
+        this.count = to;
     }
 
     tick() {
@@ -37,12 +37,8 @@ const App = function () {
 };
 
 const CounterView = function () {
-    const counter = useWatchModel(useModelRoot<CounterModel>());
-    const reset = usePublish(() =>
-        [counter.id, 'reset']
-    )
-
-    return <div onClick={reset}>Count: {counter.count}</div>
+    const counter = useModelState(useModelRoot<CounterModel>());
+    return <div onClick={() => counter.change.resetCounter({to: 42})}>Count: {counter.count}</div>
 }
 
 ReactDOM.render(<App />, document.getElementById('app'));

@@ -4,7 +4,7 @@ import {
     InCroquetSession,
     useModelRoot,
     usePublish,
-    useWatchModel,
+    useModelState,
 } from '@croquet/react';
 import { Model } from '@croquet/croquet';
 import * as Tone from 'tone';
@@ -50,7 +50,7 @@ const App = function () {
 const offsets16ths = Array.from({ length: 4 * 4 }, (x, i) => i);
 
 const CounterView = function () {
-    const sequence = useWatchModel(useModelRoot<SequenceModel>());
+    const sequence = useModelState(useModelRoot<SequenceModel>());
     const setNote = usePublish(
         (track: number, offset16th: number, on: boolean) => [
             sequence.id,

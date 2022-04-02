@@ -6,7 +6,7 @@ import {
     usePublish,
     useSubscribe,
     useViewId,
-    useWatchModel,
+    useModelState,
 } from '@croquet/react';
 import { Model } from '@croquet/croquet';
 
@@ -63,7 +63,7 @@ const App = function () {
 };
 
 const PollView = function () {
-    const poll = useWatchModel(useModelRoot<PollModel>());
+    const poll = useModelState(useModelRoot<PollModel>());
 
     const setPrompt = usePublish((prompt) => [
         poll.id,

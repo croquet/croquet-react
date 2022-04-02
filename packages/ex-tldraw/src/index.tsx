@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { InCroquetSession, useModelRoot, usePublish, useWatchModel } from '@croquet/react';
+import { InCroquetSession, useModelRoot, usePublish, useModelState } from '@croquet/react';
 import { Model } from '@croquet/croquet';
 import { Tldraw, TDDocument, TldrawApp, TDShape} from '@tldraw/tldraw'
 
@@ -39,7 +39,7 @@ const App = function () {
 };
 
 const TldrawView = function () {
-    const documentFromCroquet = useWatchModel(useModelRoot<TldrawModel>());
+    const documentFromCroquet = useModelState(useModelRoot<TldrawModel>());
 
     const [document, setDocument] = useState<TDDocument>({
         id: "doc1",

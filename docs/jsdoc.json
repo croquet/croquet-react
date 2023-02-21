@@ -33,7 +33,7 @@
       "includeDate": false,
       "useLongnameInNav": true,
       "staticFiles": {
-        "includePattern": "\\.(png|jpg)$"
+        "includePattern": "\\.(png|jpg|svg|gif)$"
       }
     }
   }

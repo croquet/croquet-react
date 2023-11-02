@@ -9,4 +9,5 @@ fi
 
 (cd $1; npm run build)
 
-rsync --delete -r "$1"/dist/ $DIR
+rsync --delete -r "$1"/dist/assets "$1"/dist/index.html $DIR
+## this keeps .env file in $DIR

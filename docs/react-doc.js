@@ -132,3 +132,38 @@ export function useDetachCallback(callback) {}
  * }
  */
 export function InCroquetSession(params) {}
+
+/** When Croquet is used in a component that is a part of a bigger application, it is sometimes better to establish the Croquet session instance outside, and then pass it in to the Croquet-powered part.
+@public
+@returns - the Croquet session object.
+
+@example
+ * const [croquetSession, setCroquetSession] = useState(null);
+ * const calledOnce = useRef(false);
+ * useEffect(() => {
+ *   if (!calledOnce.current) {
+ *     calledOnce.current = true;
+ *     const sessionParams = {
+ *       name: projectId,
+ *       apiKey: import.meta.env.VITE_CROQUET_API_KEY,
+ *       tps: 0.5,
+ *       appId: import.meta.env.VITE_CROQUET_APP_ID,
+ *       password: "abc",
+ *       model: MyCroquetModel,
+ *       eventRateLimit: import.meta.env.EVENT_RATE_LIMIT || 60,
+ *     };
+ *     createCroquetSession(sessionParams as any).then((session) => {
+ *       console.log(`session created`);
+ *       setCroquetSession(session);
+ *     });
+ *   }
+ * }, [...]);
+ * return (
+ *   <CroquetRoot session={croquetSession}>
+ *     <MyCroquetComponent/>
+ *   </CroquetRoot>
+ * );
+*/
+
+export function createCroquetSession(params) {}
+export function CroquetRoot(props) {}

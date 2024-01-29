@@ -1,24 +1,25 @@
 This tutorial directly corresponds to the ["Hello World" tutorial](../croquet/tutorial-1_1_hello_world.html) of the Croquet Library. In fact the model side looks exactly the same. The following document assumes you are familiar with the main concepts presented there.
 
-The tutorials for the `@croquet/react` package makes use of CodeSandbox to show a whole React project for each example, with the same structure as your own project would have locally. The bundler used for this CodeSandBox is `parcel`, but `@croquet/react` is bundler-agnostic.
+The following example uses [Vite](https://vitejs.dev) for build. Other bundlers work fine also, but Vite is easy to get started as of writing in early 2024.
 
-<iframe src="https://codesandbox.io/embed/blissful-rain-4rpql?fontsize=14&hidenavigation=1&theme=dark"
-     style="width:80%; height:500px; border:1; border-radius: 4px; overflow:hidden;"
-     title="blissful-rain-4rpql"
-     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-   ></iframe>
+<iframe src="https://../../croquet-react-counter"
+     style="width:60%; height:500px; border:1; border-radius: 4px; overflow:hidden;"
+></iframe>
+
+The source code is available on [Github](https://github.com/croquet/react-croquet-counter).
 
 We start by importing React and Croquet Library here as npm dependencies.
 
 ```
-import ReactDom from "react-dom";
+import ReactDOM from "react-dom/client";
 import React, { useState } from "react";
 import { Model } from "@croquet/croquet";
 import {
   usePublish,
   useModelRoot,
   InCroquetSession,
-  useSubscribe
+  useSubscribe,
+  Model
 } from "@croquet/react";
 ```
 
@@ -45,16 +46,19 @@ class CounterModel extends Croquet.Model {
 }
 ```
 
-After the model, we define `CounterApp` as our top level React component. In it, we use the `InCroquetSession` component, which takes the role of `Session.join` in `@croquet/croquet`, takes the same parameters and then provides the running Croquet session to its child components.
+After the model, we define `CounterApp` as our top level React component. In it, we use the `InCroquetSession` component, which takes the role of `Session.join` in `@croquet/croquet`, takes the same parameters and then provides the running Croquet session to its child components. We use Vite's feature to configure parameters. You can use different mechanismsor just hardcode your configuration if you use a different bundler.
 
 ```
 function CounterApp() {
+  const appId = import.meta.env["VITE_CROQUET_APP_ID"] || CroquetApp.autoSession("q");
+  const apiKey = import.meta.env["VITE_CROQUET_API_KEY"];
   return (
     <InCroquetSession
       name="counter"
-      appId="io.croquet.react.counter"
-      apiKey: "1_k2xgbwsmtplovtjbknerd53i73otnqvlwwjvix0f"
-      password="abc" model={CounterModel}>
+      apiKey={apiKey}
+      appId={appId}
+      password="abc"
+      model={CounterModel}>
       <CounterDisplay />
     </InCroquetSession>
   );

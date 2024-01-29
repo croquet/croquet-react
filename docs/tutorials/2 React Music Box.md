@@ -1,11 +1,12 @@
 In this tutorial, we implement a simple multiplayer music box to illustrate realtime view side update and how to use other hooks. We also use TypeScript in this example. The app has a number of "balls", each of which represents the timing and pitch of a note. A participant can manipulate them to compose a loop. The timing for the bar to wrap is synchronized by the model side logic, but the view interpolates the position of the bar and plays a sound when the bar passes a ball.
 
-<iframe src="https://codesandbox.io/embed/purple-silence-ikqiv?fontsize=14&hidenavigation=1&theme=dark"
+<iframe src="../../react-musicbox"
      style="width:80%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
-     title="purple-silence-ikqiv"
      allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
      sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-   ></iframe>
+></iframe>
+
+The source code is available on [Github](https://github.com/yoshikiohshima/react-musicbox).
 
 We define our main model class, `MusicBoxModel` as a subclass of `Model`. The model contains a set of balls stored in `Map<BallId, BallData>`, keyed by a `BallId`-type value and logical position and the state of interaction of the ball as the value. The balls may be added and deleted and we still have to enumerate them in deterministic order; this is another reason why we use a Map.
 
@@ -38,20 +39,20 @@ move(data: MoveData) {
   }
 ```
 
-Moving over to the view side, we first define our top-level component, `MusicBoxApp`, which starts a Croquet session.
+Moving over to the view side, we first define our top-level component, `MusicBoxApp`, which starts a Croquet session. We use Vite's feature to configure parameters. You can use different mechanismsor just hardcode your configuration if you use a different bundler.
 
 ```
 function MusicBoxApp() {
   return (
     <InCroquetSession
-      name="musicbox"
-      tps={10}
-      apiKey="1_k2xgbwsmtplovtjbknerd53i73otnqvlwwjvix0f"
-      appId="io.croquet.react.codesandbox.musicbox"
-      password="abc"
+      name={import.meta.env["VITE_CROQUET_APP_NAME"] || CroquetApp.autoSession("q")}
+      apiKey={import.meta.env["VITE_CROQUET_API_KEY"]}
+      tps={0.5}
+      appId={import.meta.env["VITE_CROQUET_APP_ID"] || "io.croquet.react.musicbox"}
+      password={import.meta.env["VITE_CROQUET_PASSWORD"] || CroquetApp.autoPassword()}
       model={MusicBoxModel}
-      eventRateLimit={60}}>
-      <MusicBoxField/>
+      eventRateLimit={import.meta.env["EVENT_RATE_LIMIT"] || 60}>
+       <MusicBoxField />
     </InCroquetSession>
   );
 }

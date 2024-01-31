@@ -1,10 +1,10 @@
 /**
-  The react context to store the object returned from Session.join(). You can obtrain the value by calling `useContext(CroquetContext)`. You can access useful values such as view, model, etc. from the value of this context.
+  The react context to store the CroquetReactView instance. You can obtrain the value by calling `useContext(CroquetContext)`. You can access useful values such as view, model, etc. from the value of this context.
 
 @public
 @example
-const croquetContext = useContext(CroquetContext);
-const sessionId = croquetContext.id;
+const croquetView = useContext(CroquetContext);
+const model = croquetView.model;
 
 */
 
@@ -166,4 +166,11 @@ export function InCroquetSession(params) {}
 */
 
 export function createCroquetSession(params) {}
+
+/** CroquetRoot component implements the default implementation of the logic described for createCroquetSession function. props.sessionParams is the session parameter object that is passed to Session.join via createCroquetSesion().
+
+@public
+@returns - A React component
+
+*/
 export function CroquetRoot(props) {}

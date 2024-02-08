@@ -1,6 +1,6 @@
-# A Shard Counter Demo in Croquet
+# A Collaborative Musicbox demo based on Croquet
 
-This demo illustrates simple shared counter.
+This is a multiplayer application to compose a 2 second looping music. See the [tutorial](https://croquet.io/docs/croquet-react/tutorial-2%20React%20Music%20Box.html).
 
 You can test it on your local computer by making a copy of dot-env-example:
 
@@ -25,10 +25,3 @@ Then run:
 
 and files generated in the `dist` directory to your server.
 
-# Deployment to Croquet server
-
-To deploy:
-
-   # npm run deploy
-
-This repo uses vite to build things. Values in .env.local are used for development and values in .env.production are used when `npm run build` is executed (and subsequently dist is copied to the deployment location.)

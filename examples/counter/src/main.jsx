@@ -5,7 +5,8 @@ import {
   useModelRoot,
   InCroquetSession,
   useSubscribe,
-  Model,    
+    Model,
+    App as CroquetApp
 } from "@croquet/react";
 
 class CounterModel extends Model {

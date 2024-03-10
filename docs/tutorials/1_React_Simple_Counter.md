@@ -65,8 +65,8 @@ CounterModel.register("CounterModel");
 Now, we define the `CounterApp`, which will be our top level React component.
 We use the `InCroquetSession` component to provide the running Croquet session to its children.
 This component takes the role of the [`Session.join`](../croquet/Session.html#.join) method in `@croquet/croquet`, and can be configured with the same parameters.
-We recommend using environment variables to configure them.
-If you use a different bundler, check their documentation on how to set them up.
+We recommend specifying those values in environment variables, since it would make those values more secure and easier to maintain.
+For more information about this topic, feel free to check out [this article](https://kinsta.com/knowledgebase/what-is-an-environment-variable/).
 
 ```
 function CounterApp() {

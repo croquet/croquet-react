@@ -19,6 +19,7 @@ import {
   usePublish,
   useModelRoot,
   CroquetRoot,
+  App as CroquetApp,
   useSubscribe,
   Model
 } from "@croquet/react";

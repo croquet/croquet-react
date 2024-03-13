@@ -18,7 +18,7 @@ import { Model } from "@croquet/croquet";
 import {
   usePublish,
   useModelRoot,
-  InCroquetSession,
+  CroquetRoot,
   useSubscribe,
   Model
 } from "@croquet/react";
@@ -70,19 +70,21 @@ For more information about this topic, feel free to check out [this article](htt
 
 ```
 function CounterApp() {
-  const appId = import.meta.env["VITE_CROQUET_APP_ID"] || CroquetApp.autoSession("q");
-  const apiKey = import.meta.env["VITE_CROQUET_API_KEY"];
   return (
-    <InCroquetSession
-      name="counter"
-      apiKey={apiKey}
-      appId={appId}
-      password="abc"
-      model={CounterModel}>
+    <CroquetRoot
+      sessionParams={{
+        name: "counter",
+        model: CounterModel,
+        appId: import.meta.env["VITE_CROQUET_APP_ID"] || CroquetApp.autoSession("q"),
+        apiKey: import.meta.env["VITE_CROQUET_API_KEY"],
+        password: "abc",
+      }}
+    >
       <CounterDisplay />
-    </InCroquetSession>
+    </CroquetRoot>
   );
 }
+
 ```
 
 Next, we define the `CounterDisplay` component, which represents a view of the model defined above.

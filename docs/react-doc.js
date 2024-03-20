@@ -1,5 +1,5 @@
 /**
-  The react context to store the CroquetReactView instance. You can obtrain the value by calling `useContext(CroquetContext)`. You can access useful values such as view, model, etc. from the value of this context.
+  The react context to store the CroquetReactView instance. You can obtain the value by calling `useContext(CroquetContext)`. You can access useful values such as view, model, etc. from the value of this context.
 
 @public
 @example

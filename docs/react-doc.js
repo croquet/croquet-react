@@ -116,9 +116,14 @@ export function useUpdateCallback(callback) {}
 
 /** Hook that sets up a callback for Croquet.View.synced().
  * The callback function is called when a Croquet synced event occurs.
-@public
-@example
-useSyncedCallback(synced:() => void);
+ * @public
+ * @param {function(): void} callback The function to be called when a `synced` event occurs
+ * @example
+ * 
+ * function onSynced(): void  {
+ *  // Callback logic here
+ * }
+ * useSyncedCallback(onSynced);
 */
 
 export function useSyncedCallback(callback) {}

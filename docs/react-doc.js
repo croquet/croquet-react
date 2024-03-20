@@ -87,7 +87,7 @@ export function usePublish(callback) {}
 
 /**
  * A hook to set up a subscription to a Croquet message.
- * 
+ *
  * @public
  * @template T The type of data being received
  * @param {string} scope The scope in which we are subscribing to the event
@@ -98,8 +98,8 @@ export function usePublish(callback) {}
  *  // Callback logic here
  * }
  * useSubscribe<GrabData>(model.id, "grabbed", grabBall);
- * 
-*/
+ *
+ */
 
 export function useSubscribe(scope, eventSpec, callback) {}
 

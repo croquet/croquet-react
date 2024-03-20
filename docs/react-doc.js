@@ -130,10 +130,13 @@ export function useSyncedCallback(callback) {}
 
 /** Hook that sets up a callback for Croquet.View.detach().
  * The callback function is called when the root View is detached.
-
-@public
-@example
-useDetachCallback(detach:() => void);
+ * @public
+ * @param {function(): void} callback The function to be called when the root View is detached
+ * @example
+ * function onDetached(): void  {
+ *  // Callback logic here
+ * }
+ * useDetachCallback(onDetached);
  */
 
 export function useDetachCallback(callback) {}

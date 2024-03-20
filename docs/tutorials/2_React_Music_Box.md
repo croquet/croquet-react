@@ -1,4 +1,8 @@
-In this tutorial, we implement a simple multiplayer music box to illustrate realtime view side update and how to use other hooks. We also use TypeScript in this example. The app has a number of "balls", each of which represents the timing and pitch of a note. A participant can manipulate them to compose a loop. The timing for the bar to wrap is synchronized by the model side logic, but the view interpolates the position of the bar and plays a sound when the bar passes a ball.
+In this tutorial, we implement a simple multiplayer music box to illustrate realtime view side update and how to use other hooks.
+We also use TypeScript in this example.
+The source code is available on [Github](https://github.com/yoshikiohshima/react-musicbox).
+
+The app has a number of "balls", each of which represents the timing and pitch of a note. A participant can manipulate them to compose a loop. The timing for the bar to wrap is synchronized by the model side logic, but the view interpolates the position of the bar and plays a sound when the bar passes a ball.
 
 <iframe src="../../react-musicbox"
      style="width:80%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
@@ -6,7 +10,6 @@ In this tutorial, we implement a simple multiplayer music box to illustrate real
      sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
 
-The source code is available on [Github](https://github.com/yoshikiohshima/react-musicbox).
 
 We define our main model class, `MusicBoxModel` as a subclass of `Model`. The model contains a set of balls stored in `Map<BallId, BallData>`, keyed by a `BallId`-type value and logical position and the state of interaction of the ball as the value. The balls may be added and deleted and we still have to enumerate them in deterministic order; this is another reason why we use a Map.
 
@@ -39,7 +42,7 @@ move(data: MoveData) {
   }
 ```
 
-Moving over to the view side, we first define our top-level component, `MusicBoxApp`, which starts a Croquet session. We use Vite's feature to configure parameters. You can use different mechanismsor just hardcode your configuration if you use a different bundler.
+Moving over to the view side, we first define our top-level component, `MusicBoxApp`, which starts a Croquet session. We use Vite's feature to configure parameters. You can use different mechanisms or just hardcode your configuration if you use a different bundler.
 
 ```
 function MusicBoxApp() {

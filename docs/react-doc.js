@@ -55,19 +55,31 @@ const submodel = useModelById(rootModel.someData.id);
 
 export function useModelById(id) {}
 
-/** 
- * A hook to create a function that publishes a view event.
+/**
+ * A hook for generating a function that publishes a view event.
+ * 
+ * The callback function provided takes one argument, `data`, and returns an array
+ * containing three elements that describe the event to be published:
+ *
+ * 1. The scope to which the event is being emitted.
+ * 2. The name of the event.
+ * 3. The data attached to the event.
+ *
+ * The `data` argument corresponds to the value passed to the function returned by this hook.
  *
  * @public
  * @template T The type of data being published.
  * @param {function(string): T} callback The callback function used to construct the event data.
  * @returns {function(): void} The function to be used to publish the event.
  * @example
+ * 
  * type GrabData = { viewId: string, id: string };
+ * 
  * const publishRelease = usePublish<GrabData>(
  *  (data) => [model.id, 'release', data]
  * );
- * // ...
+ * 
+ * // Call the generated function to publish the 'release' event with specific data
  * publishRelease({ viewId: myViewId, id });
  */
 

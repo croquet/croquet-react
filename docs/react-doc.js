@@ -105,13 +105,13 @@ export function useSubscribe(scope, eventSpec, callback) {}
 
 /** Hook that sets up a callback for Croquet.View.update().
  * The callback function is called at each simulation cycle.
-
-@public
-@example
-useUpdateCallback((update_time: number) => console.log(`Updated at ${update_time}!`));
-
+ * 
+ * @public
+ * @param {function(): void} callback The function to be called at each simulation cycle
+ * @example
+ * useUpdateCallback((update_time: number) => console.log(`Updated at ${update_time}!`));
+ * 
  */
-
 export function useUpdateCallback(callback) {}
 
 /** Hook that sets up a callback for Croquet.View.synced().

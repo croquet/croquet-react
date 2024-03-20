@@ -16,7 +16,7 @@ A hook to obtain the viewId.
 @public
 @returns {string}
 @example
-const myViewId:string = useViewId();
+const myViewId: string = useViewId();
 
 */
 
@@ -28,7 +28,7 @@ A hook to obtain the sessionid.
 @public
 @returns {string}
 @example
-const sessionId:string = useSessionId();
+const sessionId: string = useSessionId();
  */
 export function useSessionId() {}
 
@@ -36,7 +36,7 @@ export function useSessionId() {}
 A hook to obtain the root model object.
 
 @public
-@returns {Model} - The instance of a subclass of Model used as the root Model.
+@returns {Model} The instance of a subclass of Model used as the root Model.
 @example
 const model = useModelRoot();
 */
@@ -46,34 +46,47 @@ export function useModelRoot() {}
 /** 
 A hook to obtain a sub model object.
 @public
-@returns {Model} the model object of a subclass of Model with id.
+@argument {number} id The id of the model to retrieve
+@returns {Model} The instance of a subclass of Model with the given id.
 @example
-const submodel = useModelRoot(rootModel.someData.id);
+const submodel = useModelById(rootModel.someData.id);
 
 */
 
 export function useModelById(id) {}
 
 /** 
-A hook to create a function that publishes a view event.
-
-@public
-@example
-type GrabData = {viewId:string, id:string};
-const publishRelease = usePublish<GrabData>((id) => 
-  [model.id, 'release', {viewId: myViewId, id}]);
-*/
+ * A hook to create a function that publishes a view event.
+ *
+ * @public
+ * @template T The type of data being published.
+ * @param {function(string): T} callback The callback function used to construct the event data.
+ * @returns {function(): void} The function to be used to publish the event.
+ * @example
+ * type GrabData = { viewId: string, id: string };
+ * const publishRelease = usePublish<GrabData>(
+ *  (data) => [model.id, 'release', data]
+ * );
+ * // ...
+ * publishRelease({ viewId: myViewId, id });
+ */
 
 export function usePublish(callback) {}
 
 /**
-A hook to set up a subscription to a Croquet message.
-
-@public
-@example
-function grabBall(data:GrabData):void  {}
-useSubscribe<GrabData>(model.id, "grabbed", grabBall);
-
+ * A hook to set up a subscription to a Croquet message.
+ * 
+ * @public
+ * @template T The type of data being received
+ * @param {string} scope The scope in which we are subscribing to the event
+ * @param {string} eventSpec The name of the event we are subscribing to
+ * @param {function(T): void} callback The function to be called when the event is received
+ * @example
+ * function grabBall(data:GrabData): void  {
+ *  // Callback logic here
+ * }
+ * useSubscribe<GrabData>(model.id, "grabbed", grabBall);
+ * 
 */
 
 export function useSubscribe(scope, eventSpec, callback) {}
@@ -83,7 +96,7 @@ export function useSubscribe(scope, eventSpec, callback) {}
 
 @public
 @example
-useUpdateCallback((update:time:number) => void);
+useUpdateCallback((update_time: number) => console.log(`Updated at ${update_time}!`));
 
  */
 

@@ -8,7 +8,7 @@ React components interact with Croquet using **hooks** for accessing the feature
 
 ## Tutorials
 
-You can start by taking the tutorials of simple application examples in the "TUTORIALS" section in the navigation bar.
+You can start by taking the tutorials of simple application examples in the "Tutorials" section in the navigation bar.
 
 * [Simple Counter]{@tutorial 1_React_Simple_Counter}
 * [Music Box]{@tutorial 2_React_Music_Box}

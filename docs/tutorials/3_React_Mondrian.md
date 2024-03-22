@@ -93,10 +93,10 @@ export default class PaintingModel extends Model {
    To reset a model, we just set the cells to their default state.
    We also publish a `paintingReset` view event, so that the view will update its state accordingly.
 
- * The `paintCell` method is called whenever a `paint` event is emmitted.
+ * The `paintCell` method is called whenever a `paint` event is emitted.
    The data sent in that event is assumed to have a `cellId`, identifying the cell to be painted, and `newColor`, a string with the new color to be set in the respective cell.
    We use the [map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map) method to create a new array of cells from the previous one:
-   For each cell, if it is the cell to be updated (`cell.id === cellId`), we return that cell, overriding the `color` field (`{ ...cell, color: newColor }`);
+   For each cell, if the cell is to be updated (`cell.id === cellId`), we return that cell, overriding the `color` field (`{ ...cell, color: newColor }`);
    Otherwise, we return the original cell.
 
 3. ⚠️ **Make sure you don't forget to register the model!**
@@ -115,7 +115,7 @@ Our next step is to build the View element, which will be the interface between 
 
 ## Building the View
 
-Now we will be creating the React components that will render the shared painting model.
+Now we will make the React components that will render the shared painting model.
 Let's start by creating the `Painting` component, which will display the actual painting.
 We assume it receives the model `cell` data in the `paintingCell` props.
 
@@ -127,6 +127,7 @@ type LayoutProps = {
     w?: number,
     h?: number
 }
+
 function Row({ children, w, h }: LayoutProps) {
   return (
     <div className='row h-100 w-100' style={{ width: `${w}%`, height: `${h}%` }}>
@@ -234,7 +235,7 @@ export default function Painting({ paintingCells, onClick }: PaintingProps) {
 
 ```
 
- * `Row` and `Col` are helper components that will be useful to create the Painting Layout.
+ * `Row` and `Col` are helper components that will be useful in creating the Painting Layout.
 
  * The `Painting` component will display the actual painting, and uses the `Row`, `Col` and `Cell` components to create the painting layout.
 
@@ -320,7 +321,7 @@ Create a new file `styles.css` with the following content:
 }
 ```
 
-Now we need to create the `<App/>` component.
+Now we need to make the `<App/>` component.
 Create a new file `App.tsx` with the following contents
 
 ```tsx
@@ -385,7 +386,7 @@ createRoot(container!).render(
 ```
 
 The `<CroquetRoot/>` component provides the Croquet Session context to its children.
-That is why it is required to use Croquet hooks.
+That is why it is required in order to use Croquet hooks.
 For more information about this component, please refer to the [API Documentation](./global.html#CroquetRoot).
 
 
@@ -411,7 +412,7 @@ The next step is to add the logic to change the painting colors!!
 
 ## Changing the painting colors
 
-First, let's create the `<Colors/>` component, where users will be able to select the color they want to paint with, and where will be the reset button.
+First, let's create the `<Colors/>` component, where users will be able to select the color they want to paint with, as well as reset the painting to its original state.
 
 1. **Create the `components/Colors.tsx` file with the following contents**
 ```tsx
@@ -465,7 +466,7 @@ export default function App() {
 }
 ```
 
-Now we need to render the `<Colors/>` component we just created
+Now we need to render the `<Colors/>` component we just created.
 Change the `return` statement as follows:
 
 ```tsx
@@ -513,7 +514,7 @@ export default function Painting({ paintingCells, onClick }: Props) {
 
 Note that we pass the cell `id` to the received `onClick` function.
 
-Now, we need to create the function that will change the clicked square to the selected color.
+Now, we need to create the function that will change the clicked cell to the selected color.
 
 Update the `App.tsx` file as follows:
 
@@ -544,13 +545,13 @@ export default function App() {
 }
 ```
 
-To paint a cell we need to make sure there is a color selected, and then we need to emit the `paint` event the model subscribed to.
+To paint a cell we need to make sure a color is selected, and then we need to emit the `paint` event the model subscribed to.
 
 To emit an event to a model, we just need to use the `usePublish` hook.
 For more information about this hook, feel free to check out the [Api Documentation](global.html#usePublish).
 
 
-3. **Subscribe the view to model updates**
+4. **Subscribe the view to model updates**
 
 Now if you select a color and then you click on a painting square, you won't immediately see the square changing colors.
 Don't worry, we will make it work in this step!!
@@ -646,4 +647,4 @@ export default function App() {
 }
 ```
 
-That's it!! Now when you click the reset button, the painting should return to its original state!!
+That's it! Now when you click the reset button, the painting should return to its original state!

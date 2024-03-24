@@ -1,25 +1,51 @@
 /**
-  The react context to store the CroquetReactView instance. You can obtain the value by calling `useContext(CroquetContext)`. You can access useful values such as view, model, etc. from the value of this context.
-
-@public
-@example
-const croquetView = useContext(CroquetContext);
-const model = croquetView.model;
-
-*/
+ * The react context to store the `CroquetReactView` instance.
+ * You can obtain the value by calling `useContext(CroquetContext)`.
+ * You can access useful values such as view, model, etc. from the value of this context.
+ *
+ * @public
+ * @example
+ * const croquetView = useContext(CroquetContext);
+ * const model = croquetView.model;
+ */
 
 let CroquetContext = {};
 
 /**
-A hook to obtain the viewId.
+ * Main wrapper component that starts and manages a croquet session, enabling child elements to use the hooks described below.
+ * It takes the same parameters as [Session.join](../croquet/Session.html#.join) except that it doesn't need a root View class,
+ * since croquet-react provides a suitable View class behind the scenes.
+ * 
+ * @public
+ * @argument {object} sessionParams The session parameter object that is passed to [Session.join](../croquet/Session.html#.join).
+ * @returns - A React component
+ * @example
+ * function CounterApp() {
+ *   return (
+ *     <CroquetRoot
+ *       sessionParams={{
+ *         name: import.meta.env["VITE_CROQUET_NAME"],
+ *         password: import.meta.env["VITE_CROQUET_PASSWORD"],
+ *         appId: import.meta.env["VITE_CROQUET_APP_ID"],
+ *         apiKey: import.meta.env["VITE_CROQUET_API_KEY"],
+ *         model: CounterModel,
+ *       }}
+ *     >
+ *       <p>Your application here</p>
+ *     </CroquetRoot>
+ *   );
+ * }
+ */
+export function CroquetRoot(props) {}
 
-@public
-@returns {string}
-@example
-const myViewId: string = useViewId();
-
-*/
-
+/**
+ * A hook to obtain the viewId.
+ *
+ * @public
+ * @returns {string}
+ * @example
+ * const myViewId: string = useViewId();
+ */
 export function useViewId() {}
 
 /**
@@ -43,21 +69,19 @@ const model = useModelRoot();
 
 export function useModelRoot() {}
 
-/** 
-A hook to obtain a sub model object.
-@public
-@argument {number} id The id of the model to retrieve
-@returns {Model} The instance of a subclass of Model with the given id.
-@example
-const submodel = useModelById(rootModel.someData.id);
-
-*/
-
+/**
+ * A hook to obtain a sub model object.
+ * @public
+ * @argument {number} id The id of the model to retrieve
+ * @returns {Model} The instance of a subclass of Model with the given id.
+ * @example
+ * const submodel = useModelById(rootModel.someData.id);
+ */
 export function useModelById(id) {}
 
 /**
  * A hook for generating a function that publishes a view event.
- * 
+ *
  * The callback function provided takes one argument, `data`, and returns an array
  * containing three elements that describe the event to be published:
  *
@@ -72,13 +96,13 @@ export function useModelById(id) {}
  * @param {function(string): T} callback The callback function used to construct the event data.
  * @returns {function(): void} The function to be used to publish the event.
  * @example
- * 
+ *
  * type GrabData = { viewId: string, id: string };
- * 
+ *
  * const publishRelease = usePublish<GrabData>(
  *  (data) => [model.id, 'release', data]
  * );
- * 
+ *
  * // Call the generated function to publish the 'release' event with specific data
  * publishRelease({ viewId: myViewId, id });
  */
@@ -105,12 +129,12 @@ export function useSubscribe(scope, eventSpec, callback) {}
 
 /** Hook that sets up a callback for Croquet.View.update().
  * The callback function is called at each simulation cycle.
- * 
+ *
  * @public
  * @param {function(): void} callback The function to be called at each simulation cycle
  * @example
  * useUpdateCallback((update_time: number) => console.log(`Updated at ${update_time}!`));
- * 
+ *
  */
 export function useUpdateCallback(callback) {}
 
@@ -119,13 +143,12 @@ export function useUpdateCallback(callback) {}
  * @public
  * @param {function(): void} callback The function to be called when a `synced` event occurs
  * @example
- * 
+ *
  * function onSynced(): void  {
  *  // Callback logic here
  * }
  * useSyncedCallback(onSynced);
-*/
-
+ */
 export function useSyncedCallback(callback) {}
 
 /** Hook that sets up a callback for Croquet.View.detach().
@@ -138,16 +161,16 @@ export function useSyncedCallback(callback) {}
  * }
  * useDetachCallback(onDetached);
  */
-
 export function useDetachCallback(callback) {}
 
-/** Main wrapper component that starts and manages a croquet session, enabling child elements to use the hooks described above.
- *
- * It takes the same parameters as {@link Session.join} except that it doesn't need a root View class,
+/**
+ * Main wrapper component that starts and manages a croquet session, enabling child elements to use the hooks described above.
+ * It takes the same parameters as [Session.join](../croquet/Session.html#.join) except that it doesn't need a root View class,
  * since croquet-react provides a suitable View class behind the scenes.
-
-@public
-@example
+ *
+ * @public
+ * @deprecated Use {@link CroquetRoot} instead.
+ * @example
  * function MyApp() {
  *    return (
  *      <InCroquetSession
@@ -156,7 +179,7 @@ export function useDetachCallback(callback) {}
  *        name="mySession"
  *        password="secret"
  *        model={MyRootModel}
-          ...
+ *         ...
  *      >
  *        // child elements that use hooks go here...
  *        <MyComponent/>
@@ -166,11 +189,14 @@ export function useDetachCallback(callback) {}
  */
 export function InCroquetSession(params) {}
 
-/** When Croquet is used in a component that is a part of a bigger application, it is sometimes better to establish the Croquet session instance outside, and then pass it in to the Croquet-powered part.
-@public
-@returns - the Croquet session object.
-
-@example
+/**
+ * When Croquet is used in a component that is a part of a bigger application, it is sometimes better
+ * to establish the Croquet session instance outside,and then pass it in to the Croquet-powered part.
+ *
+ * @public
+ * @deprecated Use {@link CroquetRoot} instead.
+ * @returns - the Croquet session object.
+ * @example
  * const [croquetSession, setCroquetSession] = useState(null);
  * const calledOnce = useRef(false);
  * useEffect(() => {
@@ -196,14 +222,5 @@ export function InCroquetSession(params) {}
  *     <MyCroquetComponent/>
  *   </CroquetRoot>
  * );
-*/
-
+ */
 export function createCroquetSession(params) {}
-
-/** CroquetRoot component implements the default implementation of the logic described for createCroquetSession function. props.sessionParams is the session parameter object that is passed to Session.join via createCroquetSesion().
-
-@public
-@returns - A React component
-
-*/
-export function CroquetRoot(props) {}

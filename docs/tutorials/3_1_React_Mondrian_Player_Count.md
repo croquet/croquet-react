@@ -6,9 +6,9 @@ Now, we will extend it to display the number of connected users!
 In order to track the number of connected users, we have to update our models.
 However, keeping the user count inside the `Painting` model is not the best approach.
 
-We will start by creating a `Root` model where we will store the painting model and the set of connected users.
-
 1. **Create a new file `models/root.ts`**
+
+We will start by creating a `Root` model where we will store both the painting model and the set of connected users.
 
 ```ts
 import { Model } from "@croquet/react";
@@ -30,10 +30,10 @@ export default class RootModel extends Model {
 RootModel.register("RootModel");
 ```
 
-This model has two attributes:
+This `RootModel` contains two attributes:
 
-- `painting`: It stores the `Painting` model we created in the previous tutorial.
-- `users`: It stores a set of `viewId`s that are connected to this session.
+- `painting`: Stores the `Painting` model we created in the previous tutorial.
+- `users`: Stores a set of `viewId`s representing connected users.
   We opted to store these values instead of a simple count because it gives us more information that may be useful in the future.
 
 These attributes are initialized in the [init](../croquet/Model.html#init) method.
@@ -67,9 +67,9 @@ createRoot(container!).render(
 This udpate will change the model that will be returned by the `useModelRoot` hook in the `App.tsx` file.
 For this reason, we have to update that file to use the `RootModel` instead of the `PaintingModel`.
 
-Whenever we access the painting cells, we have to use `model.painting.cells`.
+Whenever we access the painting cells, we have to use `model.painting.cells` attribute.
 Since the painting related events are still associated to the `PaintingModel`, they need to be associated with the `PaintingModel`'s `id`.
-Thus, those events must be in the scope of `model.painting.id`.
+Thus, those events must be bound to the scope of `model.painting.id`.
 Make sure you change the following lines:
 
 ```tsx
@@ -79,8 +79,8 @@ import RootModel from "./models/root";
 export default function App() {
   const model: RootModel = useModelRoot() as RootModel;
 
+  // ...Other state declarations
   const [paintingCells, set_paintingCells] = useState(model.painting.cells);
-  // Other state declarations
 
   useSubscribe(model.painting.id, "cellPainted", () =>
     set_paintingCells(model.painting.cells)
@@ -103,7 +103,7 @@ Now that our application is working using the new `RootModel`, it's time to moni
 Croquet provides two events that are fired whenever a new view connects or disconnects from the session: [view-join](../croquet/global.html#event:view-join) and [view-exit](../croquet/global.html#event:view-exit).
 These events can only be subscribed on the Model side.
 
-We can update our `models/root.ts` file to subscribe to these events:
+Update yur `models/root.ts` file to subscribe to these events:
 
 ```ts
 class RootModel extends Model {

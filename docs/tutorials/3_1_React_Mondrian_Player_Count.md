@@ -1,5 +1,5 @@
 We built the foundation for our Mondrian application in the [previous tutorial](./tutorial-3_0_React_Mondrian.html).
-Now, we will extend it to display the number of connected users!
+We will now extend it to display the number of connected users!
 
 ## Updating the Models
 

@@ -126,12 +126,12 @@ class RootModel extends Model {
 ```
 
 Note that the `view-join` and `view-exit` events are bound to the `sessionId`, and not to the model itself.
-As seen in the previous tutorial, we have to publish an Output event whenever the model is updated.
+As seen in the previous tutorial, we have to publish an [Output event](../croquet/index.html#events) whenever the model is updated.
 
 ## Displaying the user count
 
 Finally we need to display the number of connected users.
-This involves creating a new state (`users`), and subscribing to the Output events emitted by the `RootModel`.
+This involves creating a new state (`users`), and subscribing to the [Output events](../croquet/index.html#events) emitted by the `RootModel`.
 
 1. **Store connected users in state**
 

@@ -1,14 +1,14 @@
-In the [previous tutorial](./tutorial-3_0_React_Mondrian.html), we built the basis of our Mondrian application.
+In the [previous tutorial](./tutorial-3_0_React_Mondrian.html), we built the foundation for our Mondrian application.
 Now, we will extend it to display the number of connected users!
 
 ## Updating the Models
 
-In order to track the number of connected users, we have to update our models.
+In order to track the number of connected users we have to update our models.
 However, keeping the user count inside the `Painting` model is not the best approach.
 
 1. **Create a new file `models/root.ts`**
 
-We will start by creating a `Root` model where we will store both the painting model and the set of connected users.
+We start by creating a `Root` model where we will store both the painting model and the set of connected users.
 
 ```ts
 import { Model } from "@croquet/react";
@@ -64,10 +64,10 @@ createRoot(container!).render(
 );
 ```
 
-This udpate will change the model that will be returned by the `useModelRoot` hook in the `App.tsx` file.
+This udpate will change the model that is returned by the `useModelRoot` hook in the `App.tsx` file.
 For this reason, we have to update that file to use the `RootModel` instead of the `PaintingModel`.
 
-Whenever we access the painting cells, we have to use `model.painting.cells` attribute.
+Whenever we access the painting cells, we have to use the `model.painting.cells` attribute.
 Since the painting related events are still associated to the `PaintingModel`, they need to be associated with the `PaintingModel`'s `id`.
 Thus, those events must be bound to the scope of `model.painting.id`.
 Make sure you change the following lines:
@@ -96,12 +96,12 @@ export default function App() {
 }
 ```
 
-## Subscribing to user dis/connections
+## Subscribing to user (dis)connections
 
 Now that our application is working using the new `RootModel`, it's time to monitor user connection and disconnection.
 
 Croquet provides two events that are fired whenever a new view connects or disconnects from the session: [view-join](../croquet/global.html#event:view-join) and [view-exit](../croquet/global.html#event:view-exit).
-These events can only be subscribed on the Model side.
+These events can only be subscribed to on the Model side.
 
 Update yur `models/root.ts` file to subscribe to these events:
 

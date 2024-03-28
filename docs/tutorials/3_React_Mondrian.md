@@ -5,7 +5,7 @@ This tutorial assumes you have basic knowledge of [React](https://react.dev/lear
 The source code for this example is available on [Github](https://github.com/albuquerquedematos/react-croquet-mondrian).
 
 <iframe src="https://react-croquet-mondrian.pages.dev/"
-     style="width:80%; height:700px; border:0; border-radius: 4px; overflow:hidden;"
+     style="width:100%; height:700px; border:0; border-radius: 4px; overflow:scroll;"
      allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
      sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>

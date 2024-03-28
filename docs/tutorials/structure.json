@@ -5,7 +5,10 @@
     "2_React_Music_Box": {
         "title": "🎵 Music Box"
     },
-    "3_React_Mondrian": {
+    "3_0_React_Mondrian": {
         "title": "🎨 Mondrian"
+    },
+    "3_1_React_Mondrian_Player_Count": {
+        "title": "🎨 Mondrian Pt. 2"
     }
 }

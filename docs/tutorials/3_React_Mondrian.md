@@ -4,8 +4,8 @@ This tutorial assumes you have basic knowledge of [React](https://react.dev/lear
 
 The source code for this example is available on [Github](https://github.com/albuquerquedematos/react-croquet-mondrian).
 
-<iframe src="https://react-croquet-mondrian.pages.dev/"
-     style="width:80%; height:700px; border:0; border-radius: 4px; overflow:hidden;"
+<iframe src="https://croquet.io/dev/mondrian"
+     style="width:100%; height:700px; border:0; border-radius: 4px; overflow:scroll;"
      allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
      sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
@@ -266,24 +266,17 @@ Create a new file `styles.css` with the following content:
   gap: 1rem;
   height: 100vh;
   width: 100%;
+  min-height: 28rem;
+  min-width: 10rem;
 }
 
-.cell {
-  width: 100%;
-  min-width: 1rem;
-  min-height: 1rem;
-  margin: 0;
-  padding: 0;
-  flex-grow: 1;
-}
-
+.painting,
 .row,
 .col {
   display: flex;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
+  gap: 2px;
   align-items: stretch;
-  align-content: stretch;
+  align-content: space-between;
 }
 
 .row {
@@ -291,7 +284,6 @@ Create a new file `styles.css` with the following content:
 }
 
 .col {
-  flex-grow: 1;
   flex-direction: column;
 }
 
@@ -309,7 +301,9 @@ Create a new file `styles.css` with the following content:
 
 .colors {
   display: flex;
-  gap: 0.5rem;
+  gap: 2vw;
+  max-width: 35rem;
+  justify-content: center;
 }
 
 .color {
@@ -360,8 +354,9 @@ To fix this, we need to encapsulate the `<App/>` inside `<CroquetRoot/>`.
 
 3. **Insert your App inside the Croquet Session context provider**
 
-Make sure your `main.ts` file looks like the following:
-```ts
+Make sure your `main.tsx` file looks like the following:
+```tsx
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import { CroquetRoot } from '@croquet/react'
@@ -371,17 +366,19 @@ import App from './src/App'
 
 const container = document.getElementById('root')
 createRoot(container!).render(
-  <CroquetRoot
-    sessionParams={{
-      model: PaintingModel,
-      name: import.meta.env['VITE_CROQUET_NAME'],
-      appId: import.meta.env['VITE_CROQUET_APP_ID'],
-      apiKey: import.meta.env['VITE_CROQUET_API_KEY'],
-      password: import.meta.env['VITE_CROQUET_PASSWORD'],
-    }}
-  >
-    <App />
-  </CroquetRoot>
+  <StrictMode>
+    <CroquetRoot
+      sessionParams={{
+        model: PaintingModel,
+        name: import.meta.env['VITE_CROQUET_NAME'],
+        appId: import.meta.env['VITE_CROQUET_APP_ID'],
+        apiKey: import.meta.env['VITE_CROQUET_API_KEY'],
+        password: import.meta.env['VITE_CROQUET_PASSWORD'],
+      }}
+    >
+      <App />
+    </CroquetRoot>
+  </StrictMode>
 )
 ```
 

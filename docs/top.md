@@ -15,7 +15,7 @@ You can start by taking the tutorials of simple application examples in the "Tut
 
 * [Simple Counter]{@tutorial 1_React_Simple_Counter}
 * [Music Box]{@tutorial 2_React_Music_Box}
-* [Mondrian]{@tutorial 3_React_Mondrian}
+* [Mondrian]{@tutorial 3_0_React_Mondrian}
 
 ## Documentation
 

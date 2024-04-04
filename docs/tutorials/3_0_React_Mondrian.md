@@ -54,7 +54,7 @@ Now we can create our painting model.
 
 2. **Create a new file `models/PaintingModel.ts`**
 
-```tsx
+```ts
 import { Model } from '@croquet/react'
 import { defaultPaintingCells } from '../data/paintingCells'
 
@@ -248,14 +248,16 @@ We are almost done! The next step is to create the `<App/>` component that will 
 2. **Create the App component**
 
 First let's create the styles that will be used in this application.
-For simplicity, we included all the styles that will be required in this tutorial.
+For simplicity, we included all the styles that will be required in this tutorial series.
 
 Create a new file `styles.css` with the following content:
 
 ```css
-.painting {
-  max-width: 40rem;
-  max-height: 40rem;
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
 }
 
 .App {
@@ -312,6 +314,29 @@ Create a new file `styles.css` with the following content:
   outline: 0.1rem solid black;
   border-radius: 50%;
   cursor: pointer;
+  align-self: center;
+  min-width: 1rem;
+  min-height: 1rem;
+  max-width: 3rem;
+  max-height: 3rem;
+
+  svg {
+    padding: 1vw;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.user-count {
+  align-self: flex-end;
+  padding: 0.5rem;
+  background-color: gray;
+  color: white;
+  border-radius: 0.5rem 0 0 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
 }
 ```
 
@@ -645,3 +670,11 @@ export default function App() {
 ```
 
 That's it! Now when you click the reset button, the painting should return to its original state!
+
+## Next steps
+
+Congratulations!
+You've created a multi-user painting editor that lets any user edit a shared painting!
+
+Throughout this tutorial, you've touched on several Croquet concepts including Models, Views and Events.
+Now that you've seen how these concepts work, check out [Adding the Player Count](./tutorial-3_1_React_Mondrian_Player_Count.html) to see how to work with multiple models at the same time.

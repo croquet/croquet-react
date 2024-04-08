@@ -39,7 +39,7 @@ export const CroquetContext = createContext<CroquetReactView | undefined>(undefi
  */
 export function useViewId():string {
     const croquetView = useContext(CroquetContext);
-    if (!croquetView) {throw new Error("No Crouqet Session found");}
+    if (!croquetView) {throw new Error("No Croquet Session found");}
     return croquetView.viewId;
 }
 
@@ -47,7 +47,7 @@ export function useViewId():string {
  */
 export function useSessionId():string {
     const croquetView = useContext(CroquetContext);
-    if (!croquetView) {throw new Error("No Crouqet Session found");}
+    if (!croquetView) {throw new Error("No Croquet Session found");}
     return croquetView.model.sessionId;
 }
 
@@ -57,7 +57,7 @@ export function useSessionId():string {
  */
 export function useModelRoot(): Model {
     const croquetView = useContext(CroquetContext);
-    if (!croquetView) {throw new Error("No Crouqet Session found");}
+    if (!croquetView) {throw new Error("No Croquet Session found");}
     return croquetView.model;
 }
 
@@ -67,7 +67,7 @@ export function useModelRoot(): Model {
  */
 export function useModelById(id:string): Model|undefined {
     const croquetView = useContext(CroquetContext);
-    if (!croquetView) {throw new Error("No Crouqet Session found");}
+    if (!croquetView) {throw new Error("No Croquet Session found");}
     return croquetView.model.getModel(id);
 }
 
@@ -106,7 +106,7 @@ export function usePublish<T>(
     const croquetView = useContext(CroquetContext);
     return useCallback(
         (...args) => {
-            if (!croquetView) {throw new Error("No Crouqet Session found");;}
+            if (!croquetView) {throw new Error("No Croquet Session found");;}
             const result = publishCallback(...args);
             let ret:T|undefined;
             if (result && result.length >= 2) {
@@ -144,11 +144,11 @@ export function usePublish<T>(
 export function useSubscribe<T>(scope: string, eventSpec: string, callback: (data: T) => void):void {
     const croquetView = useContext(CroquetContext);
     useEffect(() => {
-        if (!croquetView) {throw new Error("No Crouqet Session found");}
+        if (!croquetView) {throw new Error("No Croquet Session found");}
         croquetView.subscribe(scope, eventSpec, callback);
         // cleanup on component unmount
         return () => {
-            if (!croquetView) {throw new Error("No Crouqet Session found");}
+            if (!croquetView) {throw new Error("No Croquet Session found");}
             croquetView.unsubscribe(scope, eventSpec);
         }
     }, [scope, eventSpec, callback, croquetView]);
@@ -166,7 +166,7 @@ let storedSyncedCallback:((flag:boolean) => void)|null = null;
 
 export function useUpdateCallback(callback:UpdateCallback|null):void {
     const croquetView = useContext(CroquetContext);
-    if (!croquetView) {throw new Error("No Crouqet Session found");}
+    if (!croquetView) {throw new Error("No Croquet Session found");}
     croquetView.updateCallback = callback;
 }
 
@@ -176,7 +176,7 @@ export function useUpdateCallback(callback:UpdateCallback|null):void {
 
 export function useSyncedCallback(callback:SyncedCallback|null):void {
     const croquetView = useContext(CroquetContext);
-    if (!croquetView) {throw new Error("No Crouqet Session found");}
+    if (!croquetView) {throw new Error("No Croquet Session found");}
     croquetView.syncedCallback = callback;
 }
 
@@ -206,7 +206,7 @@ export function setSyncedCallback(func:(flag:boolean) => void) {
 
 export function useDetachCallback(callback:DetachCallback|null):void {
     const croquetView = useContext(CroquetContext);
-    if (!croquetView) {throw new Error("No Crouqet Session found");}
+    if (!croquetView) {throw new Error("No Croquet Session found");}
     croquetView.detachCallback = callback;
 }
 

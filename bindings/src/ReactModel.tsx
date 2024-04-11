@@ -33,7 +33,7 @@ export class ReactModel extends Model {
       // @ts-ignore
       this.methodName(data);
       // @ts-ignore
-      this.publish(this.id, "react-updated");
+      this.publish(this.sessionId, "react-updated");
     }
 
     const hackString = hack

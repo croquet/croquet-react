@@ -33,7 +33,7 @@ export function useReactModelRoot<T extends ReactModel>(): T {
 
   const [modelState, setModelState] = useState({ ...model });
 
-  useSubscribe(model.id, "react-updated", () => {
+  useSubscribe(model.sessionId, "react-updated", () => {
     setModelState({ ...model });
   });
 

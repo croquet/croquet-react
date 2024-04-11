@@ -373,59 +373,87 @@ type CroquetRootProps = {
   sessionParams: CroquetSessionParameters<Model, CroquetReactView>
   children: JSX.Element | JSX.Element[]
 }
-export function CroquetRoot(props:CroquetRootProps):JSX.Element|null {
-    const [croquetSession, setCroquetSession] = useState<object | null>(null);
-    const [croquetView, setCroquetView] = useState<CroquetReactView|null>(null);
-    const [croquetReady, setCroquetReady] = useState<boolean>(false);
+export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.Element | null {
+  const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView> | null>(null)
 
-    const sessionParams = props.sessionParams;
+  // TODO: croquetView should be extracted from croquetSession and should not be a React state
+  // const croquetView = croquetSession?.view
+  const [croquetView, setCroquetView] = useState<CroquetReactView | null>(null)
 
-    const croquetSessionState = useRef<object | 'joining' | null>(null);
-    useEffect(() => {
-        if (!croquetSessionState.current) {
-            croquetSessionState.current = `joining`;
-            // console.log(`calling createCroquetSession`);
-            createCroquetSession(sessionParams as any).then((session) => {
-                // console.log(`session created`, session.view);
-                croquetSessionState.current = session;
-                setCroquetSession(session);
-                setCroquetView(session.view);
-                setSyncedCallback((flag) => {
-                    // console.log(`synced`, flag);
-                    if (flag) {
-                        setCroquetView((old) => session.view);
-                    }
-                    session.view.detachCallback = () => {
-                        // console.log(`detached`);
-                        setCroquetView(null);
-                    };
-                });
-            });
-        }
-        return () => {
-            setCroquetView((prev) => {
-                console.log("Running destructor", prev, prev?.session)
-                if(prev?.session?.leave) {
-                    console.log("Leaving session")
-                    prev.session.leave()
-                }
-                return null;
-            })
-            // s?.leave()
-        }
-    }, []);
+  // Make sure we only create a new session once, even with strict mode
+  // const joining = useRef(false)
+  const croquetSessionState = useRef<CroquetSession<CroquetReactView> | 'joining' | null>(null)
 
-    if (croquetView) {
-        // return (
-        //     <CroquetContext.Provider value={sessionParams}>
-        //         {props.children}
-        //     </CroquetContext.Provider>
-        // )
-        return createElement(
-            CroquetContext.Provider,
-            { value: croquetView },
-            props.children,
-        )
+  useEffect(() => {
+    console.log(`----- Running effect -----`)
+
+    async function connect(): Promise<void> {
+      // If already connected, do nothing
+      if (croquetSessionState.current) {
+        console.log(`Already connected...`)
+        return
+      }
+      croquetSessionState.current = 'joining'
+      console.log(`+ Creating new session`)
+      const session = await createCroquetSession(sessionParams as any)
+      croquetSessionState.current = session
+      setCroquetSession(session)
+      setCroquetView(session.view)
+
+      console.log(`Session created with view`, session.view) // Both view and model are not null
+
+      // // We should add these callbacks, but doing so
+      // // does not automatically trigger a re-render as expected.
+      // // Because of some unknown race condition
+      // setSyncedCallback((flag) => {
+      //   console.log('synced', flag)
+      //   setCroquetView((old) => old)
+      // })
+
+      // if (session.view) {
+      //   session.view.detachCallback = () => {
+      //     console.log('detached')
+      //   }
+      // }
     }
-    return null;
+
+    connect()
+
+    return () => {
+      console.log(`----- Running cleanup -----`)
+      if (croquetSessionState.current !== null && croquetSessionState.current !== 'joining') {
+        
+        // leave changes the session, and occurs concurrently with the 
+        // other join. If leave is executed after the new session is established,
+        // the new session is overwritten and ends with view and model set to null
+        // that's why we are using the ref, and not setState((prev) => prev?.leave())
+        // Additionally, the callback passed to setState is not executed synchronously, i.e.
+        // 
+        // ```
+        // setState((prev) => {
+        //   console.log("Log 1")
+        // }
+        // console.log("Log 2")
+        // ```
+        // 
+        // Because of this, "Log 2" will print before "Log 1".
+        // Not sure if this happens always or just sometimes...
+        
+        croquetSessionState.current.leave()
+        croquetSessionState.current = null
+      }
+    }
+  }, [sessionParams])
+
+  if (croquetView) {
+    // It would be nice if we could render the provider like this
+    // return (
+    //     <CroquetContext.Provider value={sessionParams}>
+    //         {props.children}
+    //     </CroquetContext.Provider>
+    // )
+    return createElement(CroquetContext.Provider, { value: croquetView }, children)
+  }
+  console.log('croquetView is null, rendering blank...', croquetView)
+  return null
 }

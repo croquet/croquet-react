@@ -37,19 +37,33 @@ type CroquetReactSessionParameters = Omit<CroquetSessionParameters<Model, Croque
 // A React context that stores the croquet view. Session and model are stored in its properties, when the view object is valid.
 export const CroquetContext = createContext<CroquetReactView | undefined>(undefined);
 
+function useCroquetView(): CroquetReactView {
+    const croquetView = useContext(CroquetContext)
+    console.log("Using croquet View!", croquetView)
+    if (!croquetView) throw new Error("No Croquet Session found")
+    return croquetView
+}
+
+export function useCroquetSession(): CroquetSession<View> {
+    const croquetView = useCroquetView();
+    return croquetView.session    
+}
+
+export function useLeaveSession() {
+    return useCroquetSession().leave
+}
+
 /** Hook that gives access to the id of the client. This can be used as an identifier for different clients.
  */
 export function useViewId():string {
-    const croquetView = useContext(CroquetContext);
-    if (!croquetView) {throw new Error("No Croquet Session found");}
+    const croquetView = useCroquetView()
     return croquetView.viewId;
 }
 
 /** Hook that gives access to the sessionId.
  */
 export function useSessionId():string {
-    const croquetView = useContext(CroquetContext);
-    if (!croquetView) {throw new Error("No Croquet Session found");}
+    const croquetView = useCroquetView()
     return croquetView.model.sessionId;
 }
 
@@ -58,8 +72,7 @@ export function useSessionId():string {
  * and to publish events to the Model or to subscribe to Model events using the other hooks.
  */
 export function useModelRoot(): Model {
-    const croquetView = useContext(CroquetContext);
-    if (!croquetView) {throw new Error("No Croquet Session found");}
+    const croquetView = useCroquetView()
     return croquetView.model;
 }
 
@@ -68,8 +81,7 @@ export function useModelRoot(): Model {
  * and to publish events to the Model or to subscribe to Model events using the other hooks.
  */
 export function useModelById(id:string): Model|undefined {
-    const croquetView = useContext(CroquetContext);
-    if (!croquetView) {throw new Error("No Croquet Session found");}
+    const croquetView = useCroquetView()
     return croquetView.model.getModel(id);
 }
 
@@ -105,10 +117,9 @@ export function useModelById(id:string): Model|undefined {
 export function usePublish<T>(
     publishCallback: (...args: any[]) => [string, string] | [string, string, T]
 ): (...args: any[]) => T|undefined {
-    const croquetView = useContext(CroquetContext);
+    const croquetView = useCroquetView()
     return useCallback(
         (...args) => {
-            if (!croquetView) {throw new Error("No Croquet Session found");;}
             const result = publishCallback(...args);
             let ret:T|undefined;
             if (result && result.length >= 2) {
@@ -144,9 +155,8 @@ export function usePublish<T>(
  *  }
  * ``` */
 export function useSubscribe<T>(scope: string, eventSpec: string, callback: (data: T) => void):void {
-    const croquetView = useContext(CroquetContext);
+    const croquetView = useCroquetView()
     useEffect(() => {
-        if (!croquetView) {throw new Error("No Croquet Session found");}
         croquetView.subscribe(scope, eventSpec, callback);
         // cleanup on component unmount
         return () => {
@@ -167,8 +177,7 @@ let storedSyncedCallback:((flag:boolean) => void)|null = null;
  */
 
 export function useUpdateCallback(callback:UpdateCallback|null):void {
-    const croquetView = useContext(CroquetContext);
-    if (!croquetView) {throw new Error("No Croquet Session found");}
+    const croquetView = useCroquetView()
     croquetView.updateCallback = callback;
 }
 
@@ -177,8 +186,7 @@ export function useUpdateCallback(callback:UpdateCallback|null):void {
  * ``` */
 
 export function useSyncedCallback(callback:SyncedCallback|null):void {
-    const croquetView = useContext(CroquetContext);
-    if (!croquetView) {throw new Error("No Croquet Session found");}
+    const croquetView = useCroquetView()
     croquetView.syncedCallback = callback;
 }
 
@@ -207,8 +215,7 @@ export function setSyncedCallback(func:(flag:boolean) => void) {
  */
 
 export function useDetachCallback(callback:DetachCallback|null):void {
-    const croquetView = useContext(CroquetContext);
-    if (!croquetView) {throw new Error("No Croquet Session found");}
+    const croquetView = useCroquetView()
     croquetView.detachCallback = callback;
 }
 
@@ -357,7 +364,11 @@ export function createCroquetSession(params:CroquetReactSessionParameters) {
 /** CroquetRoot component implements the default implementation of the logic described for createCroquetSession function.
 */
 
-export function CroquetRoot(props:any):JSX.Element|null {
+type CroquetRootProps = {
+    sessionParams: CroquetSessionParameters<Model, CroquetReactView>,
+    children: JSX.Element | JSX.Element[]
+}
+export function CroquetRoot(props:CroquetRootProps):JSX.Element|null {
     const [croquetSession, setCroquetSession] = useState<object | null>(null);
     const [croquetView, setCroquetView] = useState<CroquetReactView|null>(null);
     const [croquetReady, setCroquetReady] = useState<boolean>(false);
@@ -386,14 +397,30 @@ export function CroquetRoot(props:any):JSX.Element|null {
                 });
             });
         }
+        return () => {
+            setCroquetView((prev) => {
+                console.log("Running destructor", prev, prev?.session)
+                if(prev?.session?.leave) {
+                    console.log("Leaving session")
+                    prev.session.leave()
+                }
+                return null;
+            })
+            // s?.leave()
+        }
     }, []);
 
     if (croquetView) {
+        // return (
+        //     <CroquetContext.Provider value={sessionParams}>
+        //         {props.children}
+        //     </CroquetContext.Provider>
+        // )
         return createElement(
             CroquetContext.Provider,
             { value: croquetView },
-            props.children
-        );
+            props.children,
+        )
     }
     return null;
 }

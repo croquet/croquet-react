@@ -27,6 +27,8 @@ export {
     CroquetSessionParameters,
   } from "@croquet/croquet";
 
+export { ReactModel } from './src/ReactModel'
+export { useReactModelRoot } from './src/useReactModelRoot'
 
 // InCroquetSession parameter is almost the same but omits `view`,
 // which is defaulted to CroquetReactView, but adds children

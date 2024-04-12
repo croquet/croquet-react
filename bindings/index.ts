@@ -16,6 +16,8 @@ import {
   CroquetSessionParameters
 } from '@croquet/croquet' //prettier-ignore
 
+export * as Helpers from './src/helpers'
+
 export {
   Model,
   View,

@@ -27,7 +27,8 @@ export {
   CroquetSessionParameters
 } from '@croquet/croquet' //prettier-ignore
 
-export { ReactModel } from './src/ReactModel'
+import { ReactModel } from './src/ReactModel'
+export { ReactModel }
 export { useReactModelRoot } from './src/useReactModelRoot'
 
 // InCroquetSession parameter is almost the same but omits `view`,

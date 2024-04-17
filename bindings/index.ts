@@ -304,7 +304,7 @@ class CroquetReactView extends View {
  */
 export function InCroquetSession(params: CroquetReactSessionParameters): JSX.Element | null {
   const children = params.children
-  const [croquetContext, setCroquetContext] = useState<CroquetSession<CroquetReactView> | undefined>(undefined)
+  const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView> | undefined>(undefined)
   const [joining, setJoining] = useState<boolean>(false)
   useEffect(() => {
     console.log('InCroquetSession effect')
@@ -315,7 +315,7 @@ export function InCroquetSession(params: CroquetReactSessionParameters): JSX.Ele
       const sessionParams = { ...params, view: CroquetReactView }
       delete sessionParams.children
       console.log('calling Session.join()')
-      Session.join({ ...sessionParams }).then(setCroquetContext)
+      Session.join({ ...sessionParams }).then(setCroquetSession)
       return true
     })
     return () => {
@@ -326,8 +326,13 @@ export function InCroquetSession(params: CroquetReactSessionParameters): JSX.Ele
     }
   }, [joining, params])
 
-  if (croquetContext) {
-    return createElement(CroquetContext.Provider, { value: croquetContext.view }, children)
+  if (croquetSession) {
+    const contextValue = {
+      session: croquetSession,
+      view: croquetSession.view,
+      model: croquetSession.view.model,
+    }
+    return createElement(CroquetContext.Provider, { value: contextValue }, children)
   }
   return null
 }
@@ -407,7 +412,7 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
     view.subscribe(session.id, 'react-updated', () => {
       // Here we are creating a shallow copy of model to
       // force react to rerender with the updated data
-      setCroquetModel({ ...model })
+      setCroquetModel({ ...model } as ReactModel)
     })
 
     setCroquetSession(session)

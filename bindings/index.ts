@@ -391,7 +391,7 @@ export function createCroquetSession(params: CroquetReactSessionParameters) {
  */
 
 type CroquetRootProps = {
-  sessionParams: CroquetSessionParameters<Model, CroquetReactView>
+  sessionParams: Omit<CroquetSessionParameters<Model, CroquetReactView>, 'view'>
   children: JSX.Element | JSX.Element[]
 }
 export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.Element | null {

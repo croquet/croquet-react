@@ -31,11 +31,5 @@ function getModelObject<T extends ReactModel>(model: T): T {
 export function useReactModelRoot<T extends ReactModel>(): T {
   const model = useModelRoot() as T
 
-  const [modelState, setModelState] = useState({ ...model });
-
-  useSubscribe(model.sessionId, "react-updated", () => {
-    setModelState({ ...model });
-  });
-
-  return getModelObject(modelState);
+  return getModelObject(model)
 }

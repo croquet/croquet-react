@@ -37,45 +37,51 @@ type CroquetReactSessionParameters = Omit<CroquetSessionParameters<Model, Croque
   children: React.ReactNode | React.ReactNode[]
 }
 
-// A React context that stores the croquet view. Session and model are stored in its properties, when the view object is valid.
-export const CroquetContext = createContext<CroquetReactView | undefined>(undefined)
+// A React context that stores the croquet session, view, and model
+type ContextType = {
+  session: CroquetSession<CroquetReactView> | null
+  view: CroquetReactView | null
+  model: ReactModel | null
+}
+export const CroquetContext = createContext<ContextType | undefined>(undefined)
 
-function useCroquetView(): CroquetReactView {
-  const croquetView = useContext(CroquetContext)
-  if (!croquetView) throw new Error('No Croquet Session found')
-  return croquetView
+function useCroquetContext(): ContextType {
+  const contextValue = useContext(CroquetContext)
+  if (!contextValue) throw new Error('Not inside Croquet context')
+  return contextValue
 }
 
-export function useCroquetSession(): CroquetSession<View> {
-  const croquetView = useCroquetView()
-  return croquetView.session
+function useCroquetView(): CroquetReactView | null {
+  const { view } = useCroquetContext()
+  return view
 }
 
-export function useLeaveSession() {
-  return useCroquetSession().leave
+export function useCroquetSession(): CroquetSession<CroquetReactView> | null {
+  const { session } = useCroquetContext()
+  return session
 }
 
 /** Hook that gives access to the id of the client. This can be used as an identifier for different clients.
  */
-export function useViewId(): string {
+export function useViewId(): string | undefined {
   const croquetView = useCroquetView()
-  return croquetView.viewId
+  return croquetView?.viewId
 }
 
 /** Hook that gives access to the sessionId.
  */
-export function useSessionId(): string {
-  const croquetView = useCroquetView()
-  return croquetView.model.sessionId
+export function useSessionId(): string | undefined {
+  const session = useCroquetSession()
+  return session?.id
 }
 
 /** Hook that gives access to the root Model of this croquet session.
  * Can be used to read Model properties (including other referenced Models),
  * and to publish events to the Model or to subscribe to Model events using the other hooks.
  */
-export function useModelRoot(): Model {
-  const croquetView = useCroquetView()
-  return croquetView.model
+export function useModelRoot(): ReactModel | null {
+  const { model } = useCroquetContext()
+  return model
 }
 
 /** Hook that gives access to the Model specified by an id of this croquet session.
@@ -83,8 +89,8 @@ export function useModelRoot(): Model {
  * and to publish events to the Model or to subscribe to Model events using the other hooks.
  */
 export function useModelById(id: string): Model | undefined {
-  const croquetView = useCroquetView()
-  return croquetView.model.getModel(id)
+  const model = useModelRoot()
+  return model?.getModel(id)
 }
 
 /** Hook that returns a function that will have an event publishing effect.
@@ -123,6 +129,7 @@ export function usePublish<T>(
   const croquetView = useCroquetView()
   return useCallback(
     (...args) => {
+      if (croquetView === null) return
       const result = publishCallback(...args)
       let ret: T | undefined
       if (result && result.length >= 2) {
@@ -160,13 +167,15 @@ export function usePublish<T>(
 export function useSubscribe<T>(scope: string, eventSpec: string, callback: (data: T) => void): void {
   const croquetView = useCroquetView()
   useEffect(() => {
+    if (croquetView === null) return
+
     croquetView.subscribe(scope, eventSpec, callback)
+
     // cleanup on component unmount
     return () => {
-      if (!croquetView) {
-        throw new Error('No Croquet Session found')
+      if (croquetView !== null) {
+        croquetView.unsubscribe(scope, eventSpec)
       }
-      croquetView.unsubscribe(scope, eventSpec)
     }
   }, [scope, eventSpec, callback, croquetView])
 }
@@ -183,7 +192,9 @@ let storedSyncedCallback: ((flag: boolean) => void) | null = null
 
 export function useUpdateCallback(callback: UpdateCallback | null): void {
   const croquetView = useCroquetView()
-  croquetView.updateCallback = callback
+  if (croquetView !== null) {
+    croquetView.updateCallback = callback
+  }
 }
 
 /** Hook that sets up a callback for Croquet.View.synced().
@@ -192,7 +203,9 @@ export function useUpdateCallback(callback: UpdateCallback | null): void {
 
 export function useSyncedCallback(callback: SyncedCallback | null): void {
   const croquetView = useCroquetView()
-  croquetView.syncedCallback = callback
+  if (croquetView !== null) {
+    croquetView.syncedCallback = callback
+  }
 }
 
 /** A function to set up the handler for the synced event. 
@@ -223,18 +236,20 @@ export function setSyncedCallback(func: (flag: boolean) => void) {
 
 export function useDetachCallback(callback: DetachCallback | null): void {
   const croquetView = useCroquetView()
-  croquetView.detachCallback = callback
+  if (croquetView !== null) {
+    croquetView.detachCallback = callback
+  }
 }
 
 // our top level view that gets the root model
 // and from which we create our one-time-use views per component
 class CroquetReactView extends View {
-  model: Model
+  model: ReactModel
   updateCallback: UpdateCallback | null
   syncedCallback: SyncedCallback | null
   detachCallback: DetachCallback | null
 
-  constructor(model: Model) {
+  constructor(model: ReactModel) {
     super(model)
     this.model = model
     this.updateCallback = null
@@ -279,7 +294,7 @@ class CroquetReactView extends View {
  *        name='mySession'
  *        password='secret'
  *        model={MyRootModel}
-          ...
+ *        ...
  *      >
  *        // child elements that use hooks go here...
  *      </InCroquetSession>
@@ -376,14 +391,29 @@ type CroquetRootProps = {
 }
 export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.Element | null {
   const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView> | null>(null)
-
-  // TODO: croquetView should be extracted from croquetSession and should not be a React state
-  // const croquetView = croquetSession?.view
   const [croquetView, setCroquetView] = useState<CroquetReactView | null>(null)
+  const [croquetModel, setCroquetModel] = useState<ReactModel | null>(null)
 
   // Make sure we only create a new session once, even with strict mode
   // const joining = useRef(false)
   const croquetSessionState = useRef<CroquetSession<CroquetReactView> | 'joining' | null>(null)
+
+  // This function updates the state (session, view and model) and subscribes the view
+  // to react-upated events to refresh the model state whenever there is a model change.
+  function updateState(session: CroquetSession<CroquetReactView>): void {
+    const view = session?.view
+    const model = view.model
+
+    view.subscribe(session.id, 'react-updated', () => {
+      // Here we are creating a shallow copy of model to
+      // force react to rerender with the updated data
+      setCroquetModel({ ...model })
+    })
+
+    setCroquetSession(session)
+    setCroquetView(view)
+    setCroquetModel(model)
+  }
 
   useEffect(() => {
     console.log(`----- Running effect -----`)
@@ -394,28 +424,30 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
         console.log(`Already connected...`)
         return
       }
+
       croquetSessionState.current = 'joining'
       console.log(`+ Creating new session`)
       const session = await createCroquetSession(sessionParams as any)
       croquetSessionState.current = session
-      setCroquetSession(session)
-      setCroquetView(session.view)
 
-      console.log(`Session created with view`, session.view) // Both view and model are not null
+      updateState(session)
 
-      // // We should add these callbacks, but doing so
-      // // does not automatically trigger a re-render as expected.
-      // // Because of some unknown race condition
-      // setSyncedCallback((flag) => {
-      //   console.log('synced', flag)
-      //   setCroquetView((old) => old)
-      // })
+      console.log(`Session created with view`, session.view)
 
-      // if (session.view) {
-      //   session.view.detachCallback = () => {
-      //     console.log('detached')
-      //   }
-      // }
+      setSyncedCallback((flag) => {
+        // console.log(`synced`, flag);
+        const session = croquetSessionState.current
+        if (session !== null && session !== 'joining') {
+          if (flag) {
+            updateState(session)
+          }
+          session.view.detachCallback = () => {
+            // console.log(`detached`);
+            setCroquetView(null)
+            setCroquetModel(null)
+          }
+        }
+      })
     }
 
     connect()
@@ -423,37 +455,26 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
     return () => {
       console.log(`----- Running cleanup -----`)
       if (croquetSessionState.current !== null && croquetSessionState.current !== 'joining') {
-        
-        // leave changes the session, and occurs concurrently with the 
-        // other join. If leave is executed after the new session is established,
-        // the new session is overwritten and ends with view and model set to null
-        // that's why we are using the ref, and not setState((prev) => prev?.leave())
-        // Additionally, the callback passed to setState is not executed synchronously, i.e.
-        // 
-        // ```
-        // setState((prev) => {
-        //   console.log("Log 1")
-        // }
-        // console.log("Log 2")
-        // ```
-        // 
-        // Because of this, "Log 2" will print before "Log 1".
-        // Not sure if this happens always or just sometimes...
-        
-        croquetSessionState.current.leave()
+        croquetSessionState.current.leave().then(() => console.log('Successfully left session...'))
         croquetSessionState.current = null
       }
     }
   }, [sessionParams])
 
+  console.log('Rendering CroquetRoot component', croquetSession)
   if (croquetView) {
     // It would be nice if we could render the provider like this
     // return (
-    //     <CroquetContext.Provider value={sessionParams}>
+    //     <CroquetContext.Provider value={contextValue}>
     //         {props.children}
     //     </CroquetContext.Provider>
     // )
-    return createElement(CroquetContext.Provider, { value: croquetView }, children)
+    const contextValue = {
+      session: croquetSession,
+      view: croquetView,
+      model: croquetModel,
+    }
+    return createElement(CroquetContext.Provider, { value: contextValue }, children)
   }
   console.log('croquetView is null, rendering blank...', croquetView)
   return null

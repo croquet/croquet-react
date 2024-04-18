@@ -35,6 +35,7 @@ export {
 
 type CroquetReactSessionParameters = Omit<CroquetSessionParameters<Model, CroquetReactView>, 'view'>
 
+
 // InCroquetSession parameter is almost the same but omits `view`,
 // which is defaulted to CroquetReactView, but adds children
 type InCroquetSessionProps = CroquetReactSessionParameters & {
@@ -46,7 +47,7 @@ type ContextType = {
   session: CroquetSession<CroquetReactView> | null
   view: CroquetReactView | null
   model: ReactModel | null
-  changeSession: (newParams: Partial<CroquetReactSessionParameters>) => void
+  changeSession: (newParams: ChangeSessionParameters) => void
 }
 export const CroquetContext = createContext<ContextType | undefined>(undefined)
 
@@ -61,7 +62,6 @@ function useCroquetView(): CroquetReactView | null {
   return view
 }
 
-
 /** Hook that gives access to the Croquet Session the user is currently connected to.
  */
 export function useCroquetSession(): CroquetSession<CroquetReactView> | null {
@@ -69,8 +69,11 @@ export function useCroquetSession(): CroquetSession<CroquetReactView> | null {
   return session
 }
 
-/** This hook returns a function that allows to change the CroquetSession the user is connected to
+/** This hook returns a function that changes the CroquetSession the user is connected to
+ * @param name
+ * @param password
  */
+// partial should only allow name and password
 export function useChangeSession() {
   const { changeSession } = useCroquetContext()
   return changeSession
@@ -410,14 +413,20 @@ type CroquetRootProps = {
   sessionParams: CroquetReactSessionParameters
   children: JSX.Element | JSX.Element[]
 }
+
+type ChangeSessionParameters = Partial<Pick<CroquetReactSessionParameters, 'name' | 'password'>>
 export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.Element | null {
   const [currentSessionParams, setCurrentSessionParams] = useState(sessionParams)
   const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView> | null>(null)
   const [croquetView, setCroquetView] = useState<CroquetReactView | null>(null)
   const [croquetModel, setCroquetModel] = useState<ReactModel | null>(null)
 
-  const changeSession = (newParams: Partial<CroquetReactSessionParameters>) => {
-    setCurrentSessionParams({ ...currentSessionParams, ...newParams })
+  const changeSession = (newParams: ChangeSessionParameters = {}) => {
+    setCurrentSessionParams({
+      ...currentSessionParams,
+      name: newParams.name || currentSessionParams.name,
+      password: newParams.password || currentSessionParams.password,
+    })
   }
 
   // Make sure we only create a new session once, even with strict mode

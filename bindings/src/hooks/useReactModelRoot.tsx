@@ -1,4 +1,5 @@
-import { useModelRoot, usePublish } from '../..'
+import { useModelRoot } from './useModelRoot'
+import { usePublish } from './usePublish'
 import { ReactModel } from '../..'
 
 function getModelObject<T extends ReactModel>(model: T): T {

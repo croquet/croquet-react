@@ -9,7 +9,7 @@
     "prepare": "tsc"
   },
   "author": "Croquet Corporation",
-  "license": "Apatch-2.0",
+  "license": "Apache-2.0",
   "dependencies": {
     "@croquet/croquet": "^1.1.0-43"
   },

@@ -404,7 +404,7 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
   const croquetSessionState = useRef<CroquetSession<CroquetReactView> | 'joining' | null>(null)
 
   // This function updates the state (session, view and model) and subscribes the view
-  // to react-upated events to refresh the model state whenever there is a model change.
+  // to react-updated events to refresh the model state whenever there is a model change.
   function updateState(session: CroquetSession<CroquetReactView>): void {
     const view = session?.view
     const model = view.model
@@ -421,33 +421,21 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
   }
 
   useEffect(() => {
-    console.log(`----- Running effect -----`)
-
     async function connect(): Promise<void> {
       // If already connected, do nothing
-      if (croquetSessionState.current) {
-        console.log(`Already connected...`)
-        return
-      }
+      if (croquetSessionState.current) return
 
       croquetSessionState.current = 'joining'
-      console.log(`+ Creating new session`)
       const session = await createCroquetSession(sessionParams as any)
       croquetSessionState.current = session
 
       updateState(session)
 
-      console.log(`Session created with view`, session.view)
-
       setSyncedCallback((flag) => {
-        // console.log(`synced`, flag);
         const session = croquetSessionState.current
         if (session !== null && session !== 'joining') {
-          if (flag) {
-            updateState(session)
-          }
+          if (flag) updateState(session)
           session.view.detachCallback = () => {
-            // console.log(`detached`);
             setCroquetView(null)
             setCroquetModel(null)
           }
@@ -458,22 +446,15 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
     connect()
 
     return () => {
-      console.log(`----- Running cleanup -----`)
-      if (croquetSessionState.current !== null && croquetSessionState.current !== 'joining') {
-        croquetSessionState.current.leave().then(() => console.log('Successfully left session...'))
+      const session = croquetSessionState.current
+      if (session !== null && session !== 'joining') {
+        session.leave()
         croquetSessionState.current = null
       }
     }
   }, [sessionParams])
 
-  console.log('Rendering CroquetRoot component', croquetSession)
   if (croquetView) {
-    // It would be nice if we could render the provider like this
-    // return (
-    //     <CroquetContext.Provider value={contextValue}>
-    //         {props.children}
-    //     </CroquetContext.Provider>
-    // )
     const contextValue = {
       session: croquetSession,
       view: croquetView,
@@ -481,6 +462,5 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
     }
     return createElement(CroquetContext.Provider, { value: contextValue }, children)
   }
-  console.log('croquetView is null, rendering blank...', croquetView)
   return null
 }

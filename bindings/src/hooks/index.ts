@@ -1,5 +1,6 @@
 export { useChangeSession } from './useChangeSession'
 export { useCroquetContext } from './useCroquetContext'
+export { useCroquetSession } from './useCroquetSession'
 export { useCroquetView } from './useCroquetView'
 export { useDetachCallback } from './useDetachCallback'
 export { useModelById } from './useModelById'

@@ -28,6 +28,7 @@ export {
 export {
   useChangeSession,
   useCroquetContext,
+  useCroquetSession,
   useCroquetView,
   useDetachCallback,
   useModelById,

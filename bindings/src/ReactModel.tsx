@@ -1,22 +1,18 @@
-import { Model } from "@croquet/croquet";
+import { Model } from '@croquet/croquet'
 
 export class ReactModel extends Model {
-  __reactEvents: { scope: string; event: string }[] = [];
+  __reactEvents: { scope: string; event: string }[] = []
 
   init(options: any) {
-    super.init(options);
-    this.__reactEvents = [];
+    super.init(options)
+    this.__reactEvents = []
   }
 
-  subscribe<T>(
-    scope: string,
-    event: string,
-    methodName: string | ((e: T) => void)
-  ): void {
-    this.__reactEvents.push({ scope, event });
+  subscribe<T>(scope: string, event: string, methodName: string | ((e: T) => void)): void {
+    this.__reactEvents.push({ scope, event })
 
-    if (typeof methodName === "function") {
-      methodName = methodName.name;
+    if (typeof methodName === 'function') {
+      methodName = methodName.name
     }
 
     // This is a hacky (and maybe dubious) way to add
@@ -31,25 +27,25 @@ export class ReactModel extends Model {
 
     function hack(data: any) {
       // @ts-ignore
-      this.methodName(data);
+      this.methodName(data)
       // @ts-ignore
-      this.publish(this.sessionId, "react-updated");
+      this.publish(this.sessionId, 'react-updated')
     }
 
     const hackString = hack
       .toString()
       //
       // replace methodName by the actual method name
-      .replace("methodName", methodName)
+      .replace('methodName', methodName)
       //
       // extract only the function body
-      .replace(/^[^{]+\{/, "")
-      .replace(/\}[^}]*$/, "");
+      .replace(/^[^{]+\{/, '')
+      .replace(/\}[^}]*$/, '')
 
     // this function will receive a single argument: data
-    const func = new Function("data", hackString) as (e: unknown) => void;
+    const func = new Function('data', hackString) as (e: unknown) => void
 
-    super.subscribe(scope, event, func);
+    super.subscribe(scope, event, func)
   }
 }
-ReactModel.register("ReactModel");
+ReactModel.register('ReactModel')

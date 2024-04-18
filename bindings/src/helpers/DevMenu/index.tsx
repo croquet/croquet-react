@@ -1,5 +1,5 @@
 import './index.css'
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 import { croquet, closeIcon } from '../../img' 
 import { updateUrlParams } from '../../utils'

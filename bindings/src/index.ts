@@ -9,9 +9,9 @@ export {
   CroquetSessionParameters,
 } from '@croquet/croquet' //prettier-ignore
 
-import { ReactModel } from './src/ReactModel'
-import { CroquetReactView } from './src/CroquetReactView'
-import { createCroquetSession } from './src/createCroquetSession'
+import { ReactModel } from './ReactModel'
+import { CroquetReactView } from './CroquetReactView'
+import { createCroquetSession } from './createCroquetSession'
 
 
 export {
@@ -23,7 +23,7 @@ export {
 export {
   CroquetRoot,
   InCroquetSession
-} from './src/components' //prettier-ignore
+} from './components' //prettier-ignore
 
 export {
   useChangeSession,
@@ -39,4 +39,4 @@ export {
   useSyncedCallback,
   useUpdateCallback,
   useViewId,
-} from './src/hooks' //prettier-ignore
+} from './hooks' //prettier-ignore

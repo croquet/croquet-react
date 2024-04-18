@@ -4,7 +4,6 @@ import { ReactModel } from './ReactModel'
 
 export type CroquetReactSessionParameters = Omit<CroquetSessionParameters<ReactModel, CroquetReactView>, 'view'>
 
-
 /** When Croquet is used in a component that is a part of a bigger application,
  * it is sometimes better to establish the Croquet session instance outside,
  * and then pass it in to the Croquet-powered part.

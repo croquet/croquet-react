@@ -6,7 +6,6 @@ import { setSyncedCallback } from '../CroquetReactView'
 import { CroquetContext } from './CroquetContext'
 import { createCroquetSession, CroquetReactSessionParameters } from '../createCroquetSession'
 
-
 export type ChangeSessionParameters = Partial<Pick<CroquetReactSessionParameters, 'name' | 'password'>>
 
 type CroquetRootProps = {

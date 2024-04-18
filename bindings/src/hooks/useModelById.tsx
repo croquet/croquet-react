@@ -1,4 +1,4 @@
-import { ReactModel } from '../ReactModel'
+import { ReactModel } from '..'
 import { useModelRoot } from './useModelRoot'
 
 /** Hook that gives access to the Model specified by an id of this croquet session.

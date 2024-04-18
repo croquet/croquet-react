@@ -1,5 +1,5 @@
-import { useModelRoot, usePublish } from '..'
-import { ReactModel } from '..'
+import { useModelRoot, usePublish } from '../..'
+import { ReactModel } from '../..'
 
 function getModelObject<T extends ReactModel>(model: T): T {
   const methods: Partial<T> = {}

@@ -1,6 +1,5 @@
-import { useState } from 'react'
-import { useModelRoot, useSubscribe, usePublish } from '..'
-import { ReactModel } from './ReactModel'
+import { useModelRoot, usePublish } from '..'
+import { ReactModel } from '..'
 
 function getModelObject<T extends ReactModel>(model: T): T {
   const methods: Partial<T> = {}
@@ -8,7 +7,7 @@ function getModelObject<T extends ReactModel>(model: T): T {
   model.__reactEvents
     .filter((e) => !excludeMethods.has(e.event))
     .forEach(({ scope, event }) => {
-      // @ts-ignore
+      // @ts-expect-error ---
       methods[event] = usePublish((data) => [scope, event, data])
     })
 

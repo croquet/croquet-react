@@ -26,9 +26,9 @@ export class ReactModel extends Model {
     // instead of a method.
 
     function hack(data: any) {
-      // @ts-ignore
+      // @ts-expect-error the this will exist when the function is executed
       this.methodName(data)
-      // @ts-ignore
+      // @ts-expect-error the this will exist when the function is executed
       this.publish(this.sessionId, 'react-updated')
     }
 

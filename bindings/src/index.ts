@@ -27,6 +27,7 @@ export {
 
 export {
   useChangeSession,
+  useConnectedViews,
   useCroquetContext,
   useCroquetSession,
   useCroquetView,

@@ -1,4 +1,5 @@
 export { useChangeSession } from './useChangeSession'
+export { useConnectedViews } from './useConnectedViews'
 export { useCroquetContext } from './useCroquetContext'
 export { useCroquetSession } from './useCroquetSession'
 export { useCroquetView } from './useCroquetView'

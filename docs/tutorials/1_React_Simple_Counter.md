@@ -5,7 +5,7 @@ The source code for this tutorial is available on [GitHub](https://github.com/cr
 
 The following example uses [Vite](https://vitejs.dev) for build. Other bundlers work fine also, but Vite is easy to get started as of writing in early 2024.
 
-<iframe src="../../croquet-react-counter"
+<iframe src="../../react-counter"
      style="width:60%; height:500px; border:1; border-radius: 4px; overflow:hidden;"
 ></iframe>
 

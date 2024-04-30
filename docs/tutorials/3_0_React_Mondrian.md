@@ -2,7 +2,7 @@ In this tutorial, we'll explore how to build a collaborative Mondrian-style pain
 The painting will be synchronized across multiple clients, allowing users to collaborate in real-time on creating a shared canvas.
 This tutorial assumes you have basic knowledge of [React](https://react.dev/learn) and familiarity with the [main concepts of Croquet](../croquet/index.html#main-concepts).
 
-The source code for this example is available on [Github](https://github.com/albuquerquedematos/react-croquet-mondrian).
+The source code for this example is available on [Github](https://github.com/croquet/croquet-react-mondrian/).
 
 <iframe src="https://croquet.io/dev/mondrian"
      style="width:100%; height:700px; border:0; border-radius: 4px; overflow:scroll;"

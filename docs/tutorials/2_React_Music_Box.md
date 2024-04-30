@@ -1,6 +1,6 @@
 In this tutorial, we implement a simple multiplayer music box to illustrate realtime view side update and how to use other hooks.
 We also use TypeScript in this example.
-The source code is available on [Github](https://github.com/yoshikiohshima/react-musicbox).
+The source code is available on [GitHub](https://github.com/yoshikiohshima/react-musicbox).
 
 The app has a number of "balls", each of which represents the timing and pitch of a note. A participant can manipulate them to compose a loop. The timing for the bar to wrap is synchronized by the model side logic, but the view interpolates the position of the bar and plays a sound when the bar passes a ball.
 
@@ -120,7 +120,7 @@ We also define publish hooks.
     model.id, 'removeBall', {id, viewId: myViewId}]);
 ```
 
-The functions take some arguments such as `id`, or `x, y` and publish a message. The type parameter for `usePublish` ensures that the data to be publised conforms to the type. 
+The functions take some arguments such as `id`, or `x, y` and publish a message. The type parameter for `usePublish` ensures that the data to be publised conforms to the type.
 
 There are three user event handlers, namely `pointerDown`, `pointerMove` and `pointerUp`. We use `pointerEvents` to support multi touch interaction . Due to React's platform-neutral synthetic event restrictions, and due to the need for allowing the `MusicBoxField` to be transformed to fit into different screen sizes of participants, we need to attach the event handlers to the `MusicBoxField` component, and implement the hit detection logic ourselves in the `findBall()` function. The `pointerDown` callback, for example, computes the original translation in the reference of the MusicBoxField, updates the grabInfo state, first by directly mutating data in the wrapped `Map`, then by calling `setGrabInfo`. The call to `grabBall()` has the second argument (`viewSide`) so it updates the `viewBalls` data before publishing a message by calling `publishGrab`.
 
@@ -157,7 +157,7 @@ The `pointerMove` handler follows the similar structure. The latter part compute
     const pointerId:PointerId = evt.pointerId;
     const info = grabInfo.data.get(pointerId);
     if (!info) {return;}
-  
+
     const ball = model.balls.get(info.ballId);
     if (!ball) {return;}
     if (ball.grabbed && ball.grabbed !== myViewId) {return;}
@@ -170,7 +170,7 @@ The `pointerMove` handler follows the similar structure. The latter part compute
     if (y > model.height - BallDiameter * 2) {y = model.height - BallDiameter * 2;}
 
     moveBall({x, y, viewId: myViewId, id: info.ballId}, true);
-  
+
     publishMove(info.ballId, {x, y});
   }, [grabInfo, moveBall, publishMove, model.height, model.balls, myViewId]);
 

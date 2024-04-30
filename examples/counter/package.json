@@ -1,5 +1,5 @@
 {
-  "name": "react-croquet-counter",
+  "name": "croquet-react-counter",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "deploy": "vite build; rsync -r dist/ ../../servers/croquet-io-dev/react-croquet-counter/"
+    "deploy": "vite build; rsync -r dist/ ../../servers/croquet-io-dev/croquet-react-counter/"
   },
   "dependencies": {
     "@croquet/react": "^1.4.2",

@@ -1,11 +1,11 @@
 {@link top.md}
 
 This tutorial directly corresponds to the ["Hello World" tutorial](../croquet/tutorial-1_1_hello_world.html) of the Croquet Library. In fact the model side looks exactly the same. The following document assumes you are familiar with the main concepts presented there.
-The source code for this tutorial is available on [Github](https://github.com/croquet/react-croquet-counter).
+The source code for this tutorial is available on [Github](https://github.com/croquet/croquet-react-counter).
 
 The following example uses [Vite](https://vitejs.dev) for build. Other bundlers work fine also, but Vite is easy to get started as of writing in early 2024.
 
-<iframe src="../../react-croquet-counter"
+<iframe src="../../croquet-react-counter"
      style="width:60%; height:500px; border:1; border-radius: 4px; overflow:hidden;"
 ></iframe>
 
@@ -94,7 +94,7 @@ For now, it only has the logic to render the live count of the replicated counte
 We use the `useModelRoot` hook to get hold of the `CounterModel` in our session, and use its `count` attribute to initialize the component's state, with the `useState` hook.
 Then, we use the `useSubscribe` hook to listen to `count` events within the `model.id`'s scope.
 Note that the passed callback sets the `count` state to the value defined in the model.
-Finally, the component simply returns the value of the stored counter to display its value. 
+Finally, the component simply returns the value of the stored counter to display its value.
 
 ```
 function CounterDisplay() {

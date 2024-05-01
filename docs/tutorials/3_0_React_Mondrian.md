@@ -731,4 +731,4 @@ Congratulations!
 You've created a multi-user painting editor that lets any user edit a shared painting!
 
 Throughout this tutorial, you've touched on several Croquet concepts including Models, Views and Events.
-Now that you've seen how these concepts work, check out [Adding the Player Count](./tutorial-3_1_React_Mondrian_Player_Count.html) to see how to work with multiple models at the same time.
+Now that you've seen how these concepts work, check out [Adding the View Count](./tutorial-3_1_React_Mondrian_Player_Count.html) to see how to work with multiple models at the same time.

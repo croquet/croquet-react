@@ -2,7 +2,7 @@ In this tutorial, we'll explore how to build a collaborative Mondrian-style pain
 The painting will be synchronized across multiple clients, allowing users to collaborate in real-time on creating a shared canvas.
 This tutorial assumes you have basic knowledge of [React](https://react.dev/learn) and familiarity with the [main concepts of Croquet](../croquet/index.html#main-concepts).
 
-The source code for this example is available on [Github](https://github.com/albuquerquedematos/react-croquet-mondrian).
+The source code for this example is available on [GitHub](https://github.com/albuquerquedematos/react-croquet-mondrian).
 
 <iframe src="https://croquet.io/dev/mondrian"
      style="width:100%; height:700px; border:0; border-radius: 4px; overflow:scroll;"
@@ -156,7 +156,7 @@ type CellProps = {
   className?: string
 }
 export default function Painting({ paintingCells, onClick }: PaintingProps) {
-  
+
   const gapSize = 0.25
   const size = `calc(100vw - (${gapSize}rem * 2))`
 
@@ -449,7 +449,7 @@ export default function Colors({ selectedColor, set_selectedColor }) {
     return (
       <div
         className='color'
-        style={{ 
+        style={{
           backgroundColor: color,
           border: color === selectedColor ? '2px solid black' : '2px solid white',
           width: `${size}rem`,
@@ -483,7 +483,7 @@ export default function App() {
   // Other code here...
 
   const [selectedColor, set_selectedColor] = useState(null)
-  
+
   // Other code here...
 }
 ```
@@ -550,7 +550,7 @@ export default function App() {
 
   // Add the following lines
   const publishPaint  = usePublish((data) => [model.id, 'paint', data])
-  
+
   const paintCell = (cellId) => {
     if(selectedColor === null) return
     const payload = { cellId, newColor: selectedColor }
@@ -624,8 +624,8 @@ export default function Colors({ ...otherProps, resetPainting }) {
 
   function Button({onClick, icon}: {onClick: () => void, icon: JSX.Element}){
     return (
-      <div 
-        className='color d-flex align-items-center justify-content-center' 
+      <div
+        className='color d-flex align-items-center justify-content-center'
         style={{ width: `${size}rem`, height:`${size}rem`}}
         onClick={onClick}
       >

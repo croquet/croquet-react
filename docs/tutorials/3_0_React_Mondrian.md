@@ -378,7 +378,7 @@ body {
   }
 }
 
-.user-count {
+.view-count {
   align-self: flex-end;
   padding: 0.5rem;
   background-color: gray;

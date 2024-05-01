@@ -96,7 +96,7 @@ import { ReactModel } from '@croquet/react'
 import { defaultPaintingCells } from '../data/paintingCells'
 
 export default class PaintingModel extends ReactModel {
-  cells: { id: number; color: string }[] = []
+  cells: { id: number; color: string }[]
 
   init(options: any) {
     super.init(options)
@@ -134,6 +134,22 @@ export default class PaintingModel extends ReactModel {
 - The `paint` method is called whenever a `paint` event is emitted.
   The data sent in that event is assumed to have a `cellId`, identifying the cell to be painted, and `newColor`, a string with the new color to be set in the respective cell.
   In this method we just need to change the color of the targeted cell.
+
+You will probably see typescript linting errors.
+This is because the class properties are being initialized in the `init` method, and not in the constructor nor in the class declaration.
+To fix this error, we can ignore this check in the `models` directory.
+Create a file `src/models/tsconfig.json` with the following contents:
+
+```json
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "strictPropertyInitialization": false
+  }
+}
+```
+
+You may need to reload/restart your code editor to include the updated configuration.
 
 3. ⚠️ **Make sure you don't forget to register the model!**
 

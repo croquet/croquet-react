@@ -56,34 +56,34 @@ Before that, we create a small utility file where we define the colors that will
 1. **Create a new file `src/data/paintingCells.ts` with the following content**
 
 ```tsx
-export const SCARLET    = '#DB3F27'
-export const MACARONI   = '#F1BD47'
-export const BLUE       = '#003F75'
-export const BLACK      = '#060700'
-export const PALE_GREY  = '#CBD2DA'
+export const SCARLET = '#DB3F27'
+export const MACARONI = '#F1BD47'
+export const BLUE = '#003F75'
+export const BLACK = '#060700'
+export const PALE_GREY = '#CBD2DA'
 export const LIGHT_GREY = '#E7E3DD'
 
 export const defaultPaintingCells = [
-  { id: 0, color:  PALE_GREY  },
-  { id: 1, color:  LIGHT_GREY },
-  { id: 2, color:  MACARONI   },
-  { id: 3, color:  LIGHT_GREY },
-  { id: 4, color:  PALE_GREY  },
-  { id: 5, color:  MACARONI   },
-  { id: 6, color:  SCARLET    },
-  { id: 7, color:  MACARONI   },
-  { id: 8, color:  LIGHT_GREY },
-  { id: 9, color:  LIGHT_GREY },
-  { id: 10, color: BLACK      },
-  { id: 11, color: PALE_GREY  },
-  { id: 12, color: PALE_GREY  },
-  { id: 13, color: PALE_GREY  },
-  { id: 14, color: BLACK      },
+  { id: 0, color: PALE_GREY },
+  { id: 1, color: LIGHT_GREY },
+  { id: 2, color: MACARONI },
+  { id: 3, color: LIGHT_GREY },
+  { id: 4, color: PALE_GREY },
+  { id: 5, color: MACARONI },
+  { id: 6, color: SCARLET },
+  { id: 7, color: MACARONI },
+  { id: 8, color: LIGHT_GREY },
+  { id: 9, color: LIGHT_GREY },
+  { id: 10, color: BLACK },
+  { id: 11, color: PALE_GREY },
+  { id: 12, color: PALE_GREY },
+  { id: 13, color: PALE_GREY },
+  { id: 14, color: BLACK },
   { id: 15, color: LIGHT_GREY },
-  { id: 16, color: BLUE       },
+  { id: 16, color: BLUE },
   { id: 17, color: LIGHT_GREY },
   { id: 18, color: LIGHT_GREY },
-  { id: 19, color: SCARLET    },
+  { id: 19, color: SCARLET },
 ]
 ```
 
@@ -270,10 +270,10 @@ We are almost done! The next step is to create the `<App/>` component that will 
 
 2. **Create the App component**
 
-First let's create the styles that will be used in this application.
+First let's setup the styles that will be used in this application.
 For simplicity, we included all the styles that will be required in this tutorial series.
 
-Create a new file `src/styles.css` with the following content:
+Update the file `src/index.css` with the following content:
 
 ```css
 html,
@@ -430,7 +430,6 @@ It then passes the cell data to the `<Painting/>` component created in the previ
 Now we need to add it to our `<App/>` component:
 
 ```tsx
-import './index.css'
 import Mondrian from './components/Mondrian'
 
 export default function App() {
@@ -454,9 +453,8 @@ Make sure your `src/App.tsx` file looks like the following:
 ```tsx
 import { CroquetRoot } from '@croquet/react'
 
-import './index.css'
-import Mondrian from './Mondrian'
-import PaintingModel from './models/painting'
+import Mondrian from './components/Mondrian'
+import PaintingModel from './models/PaintingModel'
 
 export default function App() {
   return (
@@ -560,7 +558,7 @@ import Colors from './Colors'
 export default function Mondrian() {
   // ... Other code
 
-  const [selectedColor, setSelectedColor] = useState(null)
+  const [selectedColor, setSelectedColor] = useState<string | null>(null)
 
   return (
     <div className='App'>
@@ -613,7 +611,7 @@ Update the `src/Mondrian.tsx` file as follows:
 export default function Mondrian() {
   // Other code...
 
-  const paintCell = (cellId) => {
+  const paintCell = (cellId: number) => {
     if (selectedColor === null) return
     const payload = { cellId, newColor: selectedColor }
     model.paint(payload)
@@ -621,8 +619,12 @@ export default function Mondrian() {
 
   return (
     <div className='App'>
-      <Colors {...{ selectedColor, setSelectedColor, reset }} />
-      {/* Pass the paintCell function as the onClick prop */}
+      <Colors
+        {...{
+          selectedColor,
+          selectColor: (color: string) => setSelectedColor(color),
+        }}
+      />
       <Painting {...{ paintingCells, onClick: paintCell }} />
     </div>
   )

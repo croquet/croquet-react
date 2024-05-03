@@ -81,23 +81,54 @@ export function CroquetRoot(props) {}
 export function useViewId() {}
 
 /**
-A hook to obtain the sessionid.
-
-@public
-@returns {string}
-@example
-const sessionId: string = useSessionId();
+ * A hook to obtain the sessionid.
+ * 
+ * @public
+ * @returns {string}
+ * @example
+ * const sessionId: string = useSessionId();
  */
 export function useSessionId() {}
 
 /** 
-A hook to obtain the root model object.
+ * A hook to obtain the root model data.
+ * This data comes from a React state, meaning that any change to the
+ * model data will cause the components that depend on it to be rerendered.
+ * 
+ * To use this hook, the application **models must inherit from {@link ReactModel}**
+ * 
+ * @public
+ * @returns {object} An object containing the same properties as the root model object.
+ * Additionally, it has one method for each event the model is subscribed to.
+ * Calling those methods will broadcast the respective event.
+ * 
+ * If the model has a property with the same name as one of the events it is subscribed to,
+ * the returned object will have the property value.
+ * 
+ * @example
+ * // Any changes to the model will trigger a rerender
+ * const model = useReactModelRoot<RootModel>();
+ * 
+ * // access model properties
+ * const prop1 = model.property1
+ * 
+ * // publish an event this model is subscribed to
+ * model.event1()
+ * model.event2(event2Data)
+ */
+export function useReactModelRoot() {}
 
-@public
-@returns {Model} The instance of a subclass of Model used as the root Model.
-@example
-const model = useModelRoot();
-*/
+/** 
+ * A hook to obtain the root model object.
+ * Keep in mind that even if the model data changes, React will not rerender
+ * the components that depend on it.
+ * To achieve this behavior use {@link useReactModelRoot} instead
+ * 
+ * @public
+ * @returns {Model} The instance of a subclass of Model used as the root Model.
+ * @example
+ * const model = useModelRoot();
+ */
 export function useModelRoot() {}
 
 /**

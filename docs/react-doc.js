@@ -90,6 +90,20 @@ export function useViewId() {}
  */
 export function useSessionId() {}
 
+/**
+ * This hook returns a function that allows components within the {@link CroquetRoot} context to connect to a new session.
+ * 
+ * @public
+ * @returns {function} The returned function accepts a single parameter with the following properties:
+ *  - **name**: `string` - The name of the new session.
+ *  - **password**?: `string` | `undefined` - (_Optional_) The password for accessing the new session, if required.
+ * @example
+ * // Usage example:
+ * const changeSession = useChangeSession();
+ * changeSession({ name: 'new-session', password: 'password' });
+ */
+export function useChangeSession() {}
+
 /** 
  * A hook to obtain the root model data.
  * This data comes from a React state, meaning that any change to the
@@ -122,7 +136,7 @@ export function useReactModelRoot() {}
  * A hook to obtain the root model object.
  * Keep in mind that even if the model data changes, React will not rerender
  * the components that depend on it.
- * To achieve this behavior use {@link useReactModelRoot} instead
+ * To achieve this behavior use {@link useReactModelRoot} instead.
  * 
  * @public
  * @returns {Model} The instance of a subclass of Model used as the root Model.

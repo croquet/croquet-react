@@ -77,7 +77,7 @@ export class ReactModel extends Model {
   }
 
   // Function that helps ReactModel publish a react-updated event
-  // everytime a future message is executed
+  // every time a future message is executed
   __future_wrapper(methodName: keyof this, ...args: any[]) {
     const value = this[methodName]
     if (typeof value === 'function') {
@@ -99,6 +99,7 @@ export class ReactModel extends Model {
     // To do so, we return a Proxy that invokes this function
     // with all the arguments for the non-proxy case
     return new Proxy(this, {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       get(target, prop, _) {
         return (...args: any[]) => target.future(tOffset, prop as string, ...args)
       },

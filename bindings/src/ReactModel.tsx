@@ -25,10 +25,10 @@ export class ReactModel extends Model {
 
   // Public function to assert that users do not subscribe directly to view-join/exit events
   subscribe<T>(scope: string, event: string, methodName: string | ((e: T) => void)): void {
-    if ((event === 'view-join' || event === 'view-exit')) {
+    if (event === 'view-join' || event === 'view-exit') {
       throw new Error(
-        `In @croquet/react you cannot directly subscribe to ${event}.\n`
-      + `Override ${event === 'view-join' ? 'handleViewJoin(viewId)' : 'handleViewExit(viewId)'} instead\n`
+        `In @croquet/react you cannot directly subscribe to ${event}.\n` +
+          `Override ${event === 'view-join' ? 'handleViewJoin(viewId)' : 'handleViewExit(viewId)'} instead\n`
       )
     }
     this.__subscribe(scope, event, methodName)
@@ -74,6 +74,35 @@ export class ReactModel extends Model {
     const func = new Function('data', hackString) as (e: unknown) => void
 
     super.subscribe(scope, event, func)
+  }
+
+  // Function that helps ReactModel publish a react-updated event
+  // everytime a future message is executed
+  __future_wrapper(methodName: keyof this, ...args: any[]) {
+    const value = this[methodName]
+    if (typeof value === 'function') {
+      value.apply(this, args)
+      this.publish(this.sessionId, 'react-updated')
+    } else {
+      console.error(`${methodName as string} is not a function of ${this}`)
+    }
+  }
+
+  future(tOffset?: number | undefined, methodName?: string | undefined, ...args: any[]): this {
+    // non-proxy case: we schedule the call to a __future_wrapper function
+    // that will call methodName, and then publish a react-updated event
+    if (methodName !== undefined) {
+      return super.future(tOffset, '__future_wrapper', methodName, ...args)
+    }
+
+    // We want to allow for the `this.future(tOffset).methodName(...args) syntax
+    // To do so, we return a Proxy that invokes this function
+    // with all the arguments for the non-proxy case
+    return new Proxy(this, {
+      get(target, prop, _) {
+        return (...args: any[]) => target.future(tOffset, prop as string, ...args)
+      },
+    })
   }
 }
 

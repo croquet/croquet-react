@@ -202,17 +202,8 @@ type CellProps = {
   grow?: number
   id: number
 }
-<<<<<<< HEAD
 export default function Painting({ paintingCells }: PaintingProps) {
   function Cell({ grow = 1, id }: CellProps) {
-=======
-export default function Painting({ paintingCells, onClick }: PaintingProps) {
-
-  const gapSize = 0.25
-  const size = `calc(100vw - (${gapSize}rem * 2))`
-
-  function Cell({ id, h, w, className = '' }: CellProps) {
->>>>>>> 0e912b52b9213c8a07b4fdb25ca606b0f7689ffc
     return (
       <div
         id={`cell-${id}`}
@@ -580,16 +571,8 @@ import { useState } from 'react'
 import Colors from './Colors'
 // ... Other imports
 
-<<<<<<< HEAD
 export default function Mondrian() {
   // ... Other code
-=======
-  const [selectedColor, set_selectedColor] = useState(null)
-
-  // Other code here...
-}
-```
->>>>>>> 0e912b52b9213c8a07b4fdb25ca606b0f7689ffc
 
   const [selectedColor, setSelectedColor] = useState<string | null>(null)
 
@@ -644,16 +627,8 @@ Update the `src/Mondrian.tsx` file as follows:
 export default function Mondrian() {
   // Other code...
 
-<<<<<<< HEAD
   const paintCell = (cellId: number) => {
     if (selectedColor === null) return
-=======
-  // Add the following lines
-  const publishPaint  = usePublish((data) => [model.id, 'paint', data])
-
-  const paintCell = (cellId) => {
-    if(selectedColor === null) return
->>>>>>> 0e912b52b9213c8a07b4fdb25ca606b0f7689ffc
     const payload = { cellId, newColor: selectedColor }
     model.paint(payload)
   }
@@ -700,11 +675,7 @@ export default function Colors({ ...otherProps, resetPainting }) {
     return (
       <div
         className='color d-flex align-items-center justify-content-center'
-<<<<<<< HEAD
         style={{ width: `${size}rem`, height: `${size}rem` }}
-=======
-        style={{ width: `${size}rem`, height:`${size}rem`}}
->>>>>>> 0e912b52b9213c8a07b4fdb25ca606b0f7689ffc
         onClick={onClick}
       >
         {icon}

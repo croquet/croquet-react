@@ -1,5 +1,3 @@
-{@link top.md}
-
 This tutorial directly corresponds to the ["Hello World" tutorial](../croquet/tutorial-1_1_hello_world.html) of the Croquet Library. In fact the model side looks exactly the same. The following document assumes you are familiar with the main concepts presented there.
 The source code for this tutorial is available on [GitHub](https://github.com/croquet/croquet-react-counter).
 

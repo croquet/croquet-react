@@ -19,4 +19,4 @@ You can start by taking the tutorials of simple application examples in the "Tut
 
 ## Documentation
 
-The [documentation](./global.html) contains minimal usage examples, which will also be displayed in IDE's such as VS Code with full TypeScript declarations.  The type annotations for `publish` and `subscribe` help to ensure the data sent and received conforms to the same type, for instance.
+The [documentation](./global.html) contains minimal usage examples, which will also be displayed in IDEs such as VS Code with full TypeScript declarations.  The type annotations for `publish` and `subscribe` help to ensure the data sent and received conforms to the same type, for instance.

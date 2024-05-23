@@ -104,6 +104,20 @@ export function useSessionId() {}
  */
 export function useChangeSession() {}
 
+/**
+ * This hook returns the views that are connected to the current session.
+ *
+ * @public
+ * @returns {object} An object containing an array of connected view IDs, and the number of connected views
+ *  - **views**: `string`[] - The array of connected view IDs
+ *  - **viewCount**?: `number` - The number of connected views
+ *
+ * @example
+ * // Usage example:
+ * const { views, viewCount } = useConnectedViews()
+ */
+export function useConnectedViews() {}
+
 /** 
  * A hook to obtain the root model data.
  * This data comes from a React state, meaning that any change to the

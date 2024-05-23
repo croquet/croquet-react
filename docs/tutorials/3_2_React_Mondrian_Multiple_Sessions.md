@@ -7,17 +7,17 @@ Below, you'll find three windows representing three distinct users.
 Feel free to switch between studios and experiment with different paintings!
 
 <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between">
-    <iframe src="https://croquet.io/dev/mondrian?tutorial=3&session=studio-1"
+    <iframe src="https://croquet.io/mondrian?tutorial=3&session=studio-1"
         style="flex: 1; min-width: 300px; height:500px; overflow:scroll; border: 1px solid black; border-radius: 5px"
         allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
         sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
     ></iframe>
-    <iframe src="https://croquet.io/dev/mondrian?tutorial=3&session=studio-2"
+    <iframe src="https://croquet.io/mondrian?tutorial=3&session=studio-2"
         style="flex: 1; min-width: 300px; height:500px; overflow:scroll; border: 1px solid black; border-radius: 5px"
         allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
         sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
     ></iframe>
-    <iframe src="https://croquet.io/dev/mondrian?tutorial=3&session=studio-3"
+    <iframe src="https://croquet.io/mondrian?tutorial=3&session=studio-3"
         style="flex: 1; min-width: 300px; height:500px; overflow:scroll; border: 1px solid black; border-radius: 5px"
         allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
         sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"

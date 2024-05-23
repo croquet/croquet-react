@@ -8,10 +8,10 @@
     "build": "tsc",
     "prepare": "tsc"
   },
-  "author": "Croquet Corporation",
+  "author": "Croquet Labs",
   "license": "Apache-2.0",
   "dependencies": {
-    "@croquet/croquet": "^1.1.0-43"
+    "@croquet/croquet": "^1.1.0"
   },
   "peerDependencies": {
     "react": "^18.2.0"

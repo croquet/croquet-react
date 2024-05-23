@@ -1,4 +1,37 @@
 /**
+ * This class extends the Croquet [Model](../croquet/Model.html) class to automatically
+ * update React state when the model changes.
+ *
+ * We recommend that your models inherit from this class, as it requires less code,
+ * but you can still use the Model class. Keep in mind that if you do, you won't be able
+ * to use the {@link useReactModelRoot} hook, and will have to publish and subscribe to the input and output events on your own.
+ * For more details about this, please check the [Event overview](croquet/index.html#events) and the
+ * [View.publish](../croquet/View.html#publish), [Model.subscribe](../croquet/Model.html#subscribe),
+ * [Model.publish](../croquet/Model.html#publish), and [View.subscribe](../croquet/View.html#subscribe) methods.
+ *
+ * @class
+ * @public
+ * @extends Model
+ */
+class ReactModel {
+  /**
+   * This method is called whenever the ReactModel receives a [view-join](../croquet/global.html#event:view-join) event.
+   * @param {string} viewId - The id of the view that just connected
+   * @return {void}
+   * @public
+   */
+  handleViewJoin(viewId) {}
+
+  /**
+   * This method is called whenever the ReactModel receives a [view-exit](../croquet/global.html#event:view-exit) event.
+   * @param {string} viewId - The id of the view that just left
+   * @return {void}
+   * @public
+   */
+  handleViewExit(viewId) {}
+}
+
+/**
  * The react context to store the `CroquetReactView` instance.
  * You can obtain the value by calling `useContext(CroquetContext)`.
  * You can access useful values such as view, model, etc. from the value of this context.
@@ -8,14 +41,13 @@
  * const croquetView = useContext(CroquetContext);
  * const model = croquetView.model;
  */
-
 let CroquetContext = {};
 
 /**
  * Main wrapper component that starts and manages a croquet session, enabling child elements to use the hooks described below.
  * It takes the same parameters as [Session.join](../croquet/Session.html#.join) except that it doesn't need a root View class,
  * since croquet-react provides a suitable View class behind the scenes.
- * 
+ *
  * @public
  * @argument {object} sessionParams The session parameter object that is passed to [Session.join](../croquet/Session.html#.join).
  * @returns - A React component
@@ -49,24 +81,68 @@ export function CroquetRoot(props) {}
 export function useViewId() {}
 
 /**
-A hook to obtain the sessionid.
-
-@public
-@returns {string}
-@example
-const sessionId: string = useSessionId();
+ * A hook to obtain the sessionid.
+ * 
+ * @public
+ * @returns {string}
+ * @example
+ * const sessionId: string = useSessionId();
  */
 export function useSessionId() {}
 
+/**
+ * This hook returns a function that allows components within the {@link CroquetRoot} context to connect to a new session.
+ * 
+ * @public
+ * @returns {function} The returned function accepts a single parameter with the following properties:
+ *  - **name**: `string` - The name of the new session.
+ *  - **password**?: `string` | `undefined` - (_Optional_) The password for accessing the new session, if required.
+ * @example
+ * // Usage example:
+ * const changeSession = useChangeSession();
+ * changeSession({ name: 'new-session', password: 'password' });
+ */
+export function useChangeSession() {}
+
 /** 
-A hook to obtain the root model object.
+ * A hook to obtain the root model data.
+ * This data comes from a React state, meaning that any change to the
+ * model data will cause the components that depend on it to be rerendered.
+ * 
+ * To use this hook, the application **models must inherit from {@link ReactModel}**
+ * 
+ * @public
+ * @returns {object} An object containing the same properties as the root model object.
+ * Additionally, it has one method for each event the model is subscribed to.
+ * Calling those methods will broadcast the respective event.
+ * 
+ * If the model has a property with the same name as one of the events it is subscribed to,
+ * the returned object will have the property value.
+ * 
+ * @example
+ * // Any changes to the model will trigger a rerender
+ * const model = useReactModelRoot<RootModel>();
+ * 
+ * // access model properties
+ * const prop1 = model.property1
+ * 
+ * // publish an event this model is subscribed to
+ * model.event1()
+ * model.event2(event2Data)
+ */
+export function useReactModelRoot() {}
 
-@public
-@returns {Model} The instance of a subclass of Model used as the root Model.
-@example
-const model = useModelRoot();
-*/
-
+/** 
+ * A hook to obtain the root model object.
+ * Keep in mind that even if the model data changes, React will not rerender
+ * the components that depend on it.
+ * To achieve this behavior use {@link useReactModelRoot} instead.
+ * 
+ * @public
+ * @returns {Model} The instance of a subclass of Model used as the root Model.
+ * @example
+ * const model = useModelRoot();
+ */
 export function useModelRoot() {}
 
 /**
@@ -106,7 +182,6 @@ export function useModelById(id) {}
  * // Call the generated function to publish the 'release' event with specific data
  * publishRelease({ viewId: myViewId, id });
  */
-
 export function usePublish(callback) {}
 
 /**
@@ -124,7 +199,6 @@ export function usePublish(callback) {}
  * useSubscribe<GrabData>(model.id, "grabbed", grabBall);
  *
  */
-
 export function useSubscribe(scope, eventSpec, callback) {}
 
 /** Hook that sets up a callback for Croquet.View.update().

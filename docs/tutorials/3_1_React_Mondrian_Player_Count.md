@@ -1,189 +1,151 @@
 We built the foundation for our Mondrian application in the [previous tutorial](./tutorial-3_0_React_Mondrian.html).
-We will now extend it to display the number of connected users!
+We will now extend it to display the number of connected views!
+Although `@croquet/react` already provides a builtin hook to get the connected views ([useConnectedViews]()), we will implement that logic in this tutorial, since it's a good use case to use multiple models simultaneously.
 
 ## Updating the Models
 
-In order to track the number of connected users we have to update our models.
-However, keeping the user count inside the `Painting` model is not the best approach.
+In order to track the number of connected views we have to update our models.
+However, keeping the view count inside the `Painting` model is not the best approach.
 
-1. **Create a new file `models/root.ts`**
+We start by creating a `Root` model where we will store both the painting model and the set of connected view.
 
-We start by creating a `Root` model where we will store both the painting model and the set of connected users.
+1. **Create a new file `src/models/RootModel.ts`**
 
 ```ts
-import { Model } from "@croquet/react";
-import PaintingModel from "./painting";
+import { ReactModel } from '@croquet/react'
+import PaintingModel from './PaintingModel'
 
-export default class RootModel extends Model {
-  painting: PaintingModel;
-  users: Set<string>;
+export default class RootModel extends ReactModel {
+  painting: PaintingModel
+  views: Set<string>
 
-  init(options) {
-    super.init(options);
-    this.painting = PaintingModel.create(options);
+  init(options: any) {
+    super.init(options)
+    this.painting = PaintingModel.create(options)
 
-    this.users = new Set();
+    this.views = new Set()
   }
 }
 
 // ⚠️ Never forget to register your models!!
-RootModel.register("RootModel");
+RootModel.register('RootModel')
 ```
 
 This `RootModel` contains two attributes:
 
 - `painting`: Stores the `Painting` model we created in the previous tutorial.
-- `users`: Stores a set of `viewId`s representing connected users.
+- `views`: Stores a set of if of the connected views.
   We opted to store these values instead of a simple count because it gives us more information that may be useful in the future.
 
 These attributes are initialized in the [init](../croquet/Model.html#init) method.
 Note that we use the [create](../croquet/Model.html#.create) method to create a new instance of the `Painting` model.
 
-2. **Update `App.tsx` and `main.tsx` to use the `RootModel`**
+2. **Update `App.tsx` and `Mondrian.tsx` to use the `RootModel`**
 
 Now we need to change the application to use the `RootModel` instead.
-Make sure your `main.tsx` file looks like the following:
+Make sure your `src/App.tsx` file looks like the following:
 
 ```tsx
 // ... Other imports
-import RootModel from "./src/models/root";
+import RootModel from './models/RootModel'
 
-const container = document.getElementById("root");
-createRoot(container!).render(
-  <StrictMode>
+export default function App() {
+  return (
     <CroquetRoot
       sessionParams={{
         model: RootModel,
-        name: import.meta.env["VITE_CROQUET_NAME"],
-        appId: import.meta.env["VITE_CROQUET_APP_ID"],
-        apiKey: import.meta.env["VITE_CROQUET_API_KEY"],
-        password: import.meta.env["VITE_CROQUET_PASSWORD"],
+        // ... Other params
       }}
     >
-      <App />
+      <Mondrian />
     </CroquetRoot>
-  </StrictMode>
-);
+  )
+}
 ```
 
-This udpate will change the model that is returned by the `useModelRoot` hook in the `App.tsx` file.
+This udpate will change the model that is returned by the `useReactModelRoot` hook in the `Mondrian.tsx` file.
 For this reason, we have to update that file to use the `RootModel` instead of the `PaintingModel`.
 
 Whenever we access the painting cells, we have to use the `model.painting.cells` attribute.
-Since the painting related events are still associated to the `PaintingModel`, they need to be associated with the `PaintingModel`'s `id`.
-Thus, those events must be bound to the scope of `model.painting.id`.
 Make sure you change the following lines:
 
 ```tsx
 // ... Other imports
-import RootModel from "./models/root";
+import RootModel from './models/RootModel'
 
 export default function App() {
-  const model: RootModel = useModelRoot() as RootModel;
+  const model: RootModel = useReactModelRoot<RootModel>()
 
-  // ...Other state declarations
-  const [paintingCells, set_paintingCells] = useState(model.painting.cells);
+  const paintingCells = model.painting.cells
 
-  useSubscribe(model.painting.id, "cellPainted", () =>
-    set_paintingCells(model.painting.cells)
-  );
-  useSubscribe(model.painting.id, "paintingReset", () =>
-    set_paintingCells(model.painting.cells)
-  );
+  const paintCell = (cellId: number) => {
+    if (selectedColor === null) return
+    const payload = { cellId, newColor: selectedColor }
+    model.painting.paint(payload) // update this line
+  }
 
-  const publishPaint = usePublish((data) => [model.painting.id, "paint", data]);
-  const resetPainting = usePublish(() => [model.painting.id, "reset"]);
-
-  // Rest of the code
+  return (
+    <div className='App'>
+      <Colors
+        {...{
+          // ... other props. Update line below
+          resetPainting: () => model.painting.reset(),
+        }}
+      />
+    </div>
+  )
 }
 ```
 
-## Subscribing to user (dis)connections
+## Handling view (dis)connections
 
-Now that our application is working using the new `RootModel`, it's time to monitor user connection and disconnection.
+Now that our application is working using the new `RootModel`, it's time to handle view connection and disconnection.
 
-Croquet provides two events that are fired whenever a new view connects or disconnects from the session: [view-join](../croquet/global.html#event:view-join) and [view-exit](../croquet/global.html#event:view-exit).
-These events can only be subscribed to on the Model side.
-
-Update yur `models/root.ts` file to subscribe to these events:
+ReactModel has two functions that are called when a view connects and disconnects: `handleViewJoin` and `handleViewExit`.
+Update your `src/models/RootModel.ts` file to override these methods, and update the connected views accordingly.
 
 ```ts
 class RootModel extends Model {
-  init(options) {
-    // Other code...
+  // Other code...
 
-    this.subscribe(this.sessionId, "view-join", this.userJoined);
-    this.subscribe(this.sessionId, "view-exit", this.userLeft);
+  handleViewJoin(viewId: string) {
+    this.views.add(viewId)
   }
-
-  userJoined(viewId) {
-    this.users.add(viewId);
-    this.publish(this.id, "userJoined", viewId);
-  }
-  userLeft(viewId) {
-    this.users.delete(viewId);
-    this.publish(this.id, "userLeft", viewId);
+  handleViewExit(viewId: string) {
+    this.views.delete(viewId)
   }
 }
 ```
 
-Note that the `view-join` and `view-exit` events are bound to the `sessionId`, and not to the model itself.
-As seen in the previous tutorial, we have to publish an [Output event](../croquet/index.html#events) whenever the model is updated.
+## Displaying the view count
 
-## Displaying the user count
-
-Finally we need to display the number of connected users.
-This involves creating a new state (`users`), and subscribing to the [Output events](../croquet/index.html#events) emitted by the `RootModel`.
-
-1. **Store connected users in state**
-
-Update the `App.tsx` file as follows:
+Finally we need to display the number of connected views.
+Update the `Mondrian.tsx` file as follows:
 
 ```tsx
-export default function App() {
-  // ... Other state declarations
-  const [users, set_users] = useState(model.users);
-  const nUsers = users.size;
+// ... Otherimports
+import { BsPeopleFill } from 'react-icons/bs'
 
-  // ... Other event subscriptions
-  useSubscribe(model.id, "userJoined", () => set_users(new Set(model.users)));
-  useSubscribe(model.id, "userLeft", () => set_users(new Set(model.users)));
+export default function Mondrian() {
+  // ... Other code
 
-  // Rest of the code...
-}
-```
-
-Note that the `userJoined` and `userLeft` events are bound to the `RootModel`.
-For that reason we will use `model.id` as the scope.
-
-Since `users` is a [Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set), we have to create a new set whenever we want to update it (check why in the [React docs](https://react.dev/learn/updating-arrays-in-state)!): `set_users(new Set(model.users)`.
-
-2. **Render the number of users**
-
-Now we just need to display the number of users in the screen.
-Update the `App.tsx` file as follows:
-
-```tsx
-export default function App() {
-  // Rest of the code...
-
-  const nUsers = users.size;
+  const viewCount = model.views.size
 
   return (
-    <div className="App">
-      <div className="user-count">
+    <div className='App'>
+      <div className='view-count'>
         <BsPeopleFill />
-        <span>{nUsers}</span>
+        <span>{viewCount}</span>
       </div>
       {/* ... Other components */}
     </div>
-  );
+  )
 }
 ```
 
 ## Next steps
 
 Well done!!
-In this tutorial we learned how to operate with multiple models, and how to track the number of connected users using the `view-exit` and `view-join` events!
+In this tutorial we learned how to operate with multiple models, and how to track the number of connected views using the `view-exit` and `view-join` events!
 
 In the [next tutorial](./tutorial-3_2_React_Mondrian_Multiple_Sessions.html) we will learn how to dynamically change the session we are connected to.

@@ -1,6 +1,8 @@
 The Croquet React bindings is a simple framework for using Croquet together with React.js. It allows to write the Croquet's View side code in React that works with the Croquet Model code.
 This documentation assumes that you are familiarized with Croquet's [main concepts](../croquet/index.html#main-concepts) and how [views](../croquet/index.html#views) and [models](../croquet/index.html#models) interact via [events](../croquet/index.html#events).
 
+Upgrading from v1.4? Check out our [Migration Guide](./v2.0.0_migration_guide.html)
+
 ## Overview
 
 The [`@croquet/react`](https://www.npmjs.com/package/@croquet/react) package provides a simple framework for using Croquet together with React.

@@ -6,7 +6,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "prepare": "tsc"
+    "prepare": "tsc",
+    "dev": "tsc --watch"
   },
   "author": "Croquet Labs",
   "license": "Apache-2.0",

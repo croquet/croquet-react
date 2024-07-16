@@ -39,9 +39,15 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
     const view = session?.view
     const model = view.model
 
-    view.subscribe(session.id, 'react-updated', () => {
+
+    view.subscribe(session.id, {
+        event: 'react-updated',
+        handling: "oncePerFrame",
+      },    
+    () => {
       // Here we are creating a shallow copy of model to
       // force react to rerender with the updated data
+      // console.log('@croquet/react: react-updated')
       setCroquetModel({ ...model } as ReactModel)
     })
 

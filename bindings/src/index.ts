@@ -22,6 +22,7 @@ export {
 
 export {
   CroquetRoot,
+  CroquetContext,
   InCroquetSession
 } from './components' //prettier-ignore
 

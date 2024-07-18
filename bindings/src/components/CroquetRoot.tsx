@@ -44,12 +44,13 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
         event: 'react-updated',
         handling: "oncePerFrame",
       },    
-    () => {
-      // Here we are creating a shallow copy of model to
-      // force react to rerender with the updated data
-      // console.log('@croquet/react: react-updated')
-      setCroquetModel({ ...model } as ReactModel)
-    })
+      () => {
+        // Here we are creating a shallow copy of model to
+        // force react to rerender with the updated data
+        // console.log('@croquet/react: react-updated')
+        setCroquetModel({ ...model } as ReactModel)
+      }
+    )
 
     setCroquetSession(session)
     setCroquetView(view)

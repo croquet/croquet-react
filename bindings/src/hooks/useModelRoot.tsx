@@ -4,7 +4,7 @@ import { useCroquetContext } from './useCroquetContext'
  * Can be used to read Model properties (including other referenced Models),
  * and to publish events to the Model or to subscribe to Model events using the other hooks.
  */
-export function useModelRoot(): ReactModel | null {
+export function useModelRoot<T extends ReactModel>(): T | null {
   const { model } = useCroquetContext()
-  return model
+  return model as T
 }

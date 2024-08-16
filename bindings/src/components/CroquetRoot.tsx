@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, createElement } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { CroquetSession } from '@croquet/croquet'
 import { CroquetReactView } from '../CroquetReactView'
 import { setSyncedCallback } from '../CroquetReactView'
@@ -15,28 +15,19 @@ type CroquetRootProps = {
 /** CroquetRoot component implements the default implementation of the logic described for createCroquetSession function.
  */
 export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.Element | null {
-  const [currentSessionParams, setCurrentSessionParams] = useState(sessionParams)
-  const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView> | null>(null)
-  const [croquetView, setCroquetView] = useState<CroquetReactView | null>(null)
-
-  const changeSession = (newParams: ChangeSessionParameters = {}) => {
-    setCurrentSessionParams({
-      ...currentSessionParams,
-      name: newParams.name || currentSessionParams.name,
-      password: newParams.password || currentSessionParams.password,
-    })
-  }
-
+  
   // Make sure we only create a new session once, even with strict mode
   // const joining = useRef(false)
   const croquetSessionState = useRef<CroquetSession<CroquetReactView> | 'joining' | null>(null)
+  
+  const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView> | null>(null)
+  const [croquetView, setCroquetView] = useState<CroquetReactView | null>(null)
+  const [currentSessionParams, setCurrentSessionParams] = useState(sessionParams)
 
-  // This function updates the state (session, view and model) and subscribes the view
-  // to react-updated events to refresh the model state whenever there is a model change.
+  // This function updates the state (session, view)
   function updateState(session: CroquetSession<CroquetReactView>): void {
-    const view = session?.view
     setCroquetSession(session)
-    setCroquetView(view)
+    setCroquetView(session?.view)
   }
 
   // Update currentSessionParams when props change
@@ -71,11 +62,19 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
       setCroquetSession(null)
       const session = croquetSessionState.current
       if (session !== null && session !== 'joining') {
-        session.leave()
         croquetSessionState.current = null
+        session.leave()
       }
     }
   }, [currentSessionParams])
+
+  const changeSession = async (newParams: ChangeSessionParameters = {}) => {
+    setCurrentSessionParams({
+      ...currentSessionParams,
+      name: newParams.name || currentSessionParams.name,
+      password: newParams.password || currentSessionParams.password,
+    })
+  }
 
   if (croquetView) {
     const contextValue = {
@@ -84,7 +83,7 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
       model: croquetView.model,
       changeSession,
     }
-    return createElement(CroquetContext.Provider, { value: contextValue }, children)
+    return <CroquetContext.Provider value={contextValue}>{children}</CroquetContext.Provider>
   }
   return null
 }

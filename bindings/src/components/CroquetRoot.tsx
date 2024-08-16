@@ -67,6 +67,8 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
     connect()
 
     return () => {
+      setCroquetView(null)
+      setCroquetSession(null)
       const session = croquetSessionState.current
       if (session !== null && session !== 'joining') {
         session.leave()

@@ -1,17 +1,45 @@
-import { useReactModelRoot } from './useReactModelRoot'
+import { useEffect, useState } from 'react'
+import { ReactModel } from '../ReactModel'
+import { useCroquetContext } from './useCroquetContext'
 
-export function useConnectedViews() {
-  const model = useReactModelRoot()
+interface ConnectedViews {
+  views: string[]
+  viewCount: number
+}
 
-  if(model.__views === null) {
+function viewsSelector<T extends ReactModel>(rootModel: T | null, session: any): ConnectedViews {
+  if (!rootModel?.__views) return { views: [], viewCount: 0 }
+  const views = rootModel.__views
+  return {
+    views: Array.from(views),
+    viewCount: views.size,
+  }
+}
+export function useConnectedViews<T extends ReactModel>(): ConnectedViews {
+  const context = useCroquetContext()
+  const { session, view } = context
+  const model = context.model as T
+
+  const [views, setViews] = useState(viewsSelector(model, session))
+
+  useEffect(() => {
+    const handler = () => {
+      setViews(viewsSelector(model, session))
+    }
+    if (session && view) {
+      view.subscribe(session.id, 'views-updated', handler)
+      return () => {
+        view.unsubscribe(session.id, 'views-updated', handler)
+      }
+    }
+  }, [session, view, model])
+
+  if (!model?.__views) {
     throw new Error(
-      'Your root model is not tracking the connected views.\n'
-    + 'Pass `options: { trackViews: true }` to your <CroquetRoot> component to start tracking them\n'
+      'Your root model is not tracking the connected views.\n' +
+        'Pass `options: { trackViews: true }` to your <CroquetRoot> component to start tracking them\n'
     )
   }
 
-  const views = model.__views
-  return {
-    views: Array.from(views), viewCount: views.size
-  }
+  return views
 }

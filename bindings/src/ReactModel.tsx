@@ -16,10 +16,22 @@ export class ReactModel extends Model {
     this.__subscribe(this.sessionId, 'view-exit', this.__viewExit)
   }
 
-  private __viewJoin(viewId: string) { this.__views?.add(viewId); this.handleViewJoin(viewId) }
-  private __viewExit(viewId: string) { this.__views?.delete(viewId); this.handleViewExit(viewId) }
+  private __viewJoin(viewId: string) {
+    if (this.__views) {
+      this.__views.add(viewId)
+      this.publish(this.sessionId, 'views-updated')
+      this.handleViewJoin(viewId)
+    }
+  }
+  private __viewExit(viewId: string) {
+    if (this.__views) {
+      this.__views.delete(viewId)
+      this.publish(this.sessionId, 'views-updated')
+      this.handleViewExit(viewId)
+    }
+  }
 
-  // Override these methods to add custom handling 
+  // Override these methods to add custom handling
   handleViewJoin(viewId: string) {} // eslint-disable-line @typescript-eslint/no-unused-vars
   handleViewExit(viewId: string) {} // eslint-disable-line @typescript-eslint/no-unused-vars
 

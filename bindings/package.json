@@ -12,18 +12,21 @@
   "author": "Croquet Labs",
   "license": "Apache-2.0",
   "dependencies": {
-    "@croquet/croquet": "^1.1.0"
+    "@croquet/croquet": "^1.1.0",
+    "object-hash": "^3.0.0"
   },
   "peerDependencies": {
     "react": "^18.2.0"
   },
   "devDependencies": {
+    "@types/node": "^22.4.1",
+    "@types/object-hash": "^3.0.6",
     "@types/react": "^18.2.75",
     "@types/react-dom": "^18.2.24",
     "@typescript-eslint/eslint-plugin": "^7.6.0",
     "@typescript-eslint/parser": "^7.6.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "typescript": "^5.4.5"
   },
   "publishConfig": {

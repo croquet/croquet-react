@@ -7,7 +7,7 @@ interface ConnectedViews {
   viewCount: number
 }
 
-function viewsSelector<T extends ReactModel>(rootModel: T | null, session: any): ConnectedViews {
+function viewsSelector<T extends ReactModel>(rootModel: T | null): ConnectedViews {
   if (!rootModel?.__views) return { views: [], viewCount: 0 }
   const views = rootModel.__views
   return {
@@ -20,11 +20,11 @@ export function useConnectedViews<T extends ReactModel>(): ConnectedViews {
   const { session, view } = context
   const model = context.model as T
 
-  const [views, setViews] = useState(viewsSelector(model, session))
+  const [views, setViews] = useState(viewsSelector(model))
 
   useEffect(() => {
     const handler = () => {
-      setViews(viewsSelector(model, session))
+      setViews(viewsSelector(model))
     }
     if (session && view) {
       view.subscribe(session.id, 'views-updated', handler)

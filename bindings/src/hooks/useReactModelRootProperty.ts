@@ -4,7 +4,7 @@ import { useCroquetContext } from './useCroquetContext'
 
 export function useReactModelRootProperty<T extends ReactModel, V>(id: string, fn: (m: T | null) => V): V {
   const { session, view, model } = useCroquetContext()
-  const [modelState, setModelState] = useState(fn(model as T)  as V)
+  const [modelState, setModelState] = useState(fn(model as T))
 
   useEffect(() => {
     // console.log(`[${id}] Subscribing to react-updated`)

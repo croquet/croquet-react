@@ -15,10 +15,9 @@ type CroquetRootProps = {
 /** CroquetRoot component implements the default implementation of the logic described for createCroquetSession function.
  */
 export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.Element | null {
-  
   // Make sure we only create a new session once, even with strict mode
   const croquetSessionState = useRef<CroquetSession<CroquetReactView> | 'joining' | null>(null)
-  
+
   const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView> | null>(null)
   const [croquetView, setCroquetView] = useState<CroquetReactView | null>(null)
   const [currentSessionParams, setCurrentSessionParams] = useState(sessionParams)
@@ -60,6 +59,12 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
     connect()
 
     return () => {
+      // Reset session and view to null to prevent stale data in subsequent renders.
+      // This is crucial because:
+      // 1. This cleanup function runs asynchronously.
+      // 2. Child components may render before the new session is established.
+      // 3. Without resetting, children might capture and persist old session data,
+      //    even after the parent updates with new session and view information.
       setCroquetView(null)
       setCroquetSession(null)
       const session = croquetSessionState.current

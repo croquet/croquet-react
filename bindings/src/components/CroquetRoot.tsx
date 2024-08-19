@@ -17,7 +17,6 @@ type CroquetRootProps = {
 export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.Element | null {
   
   // Make sure we only create a new session once, even with strict mode
-  // const joining = useRef(false)
   const croquetSessionState = useRef<CroquetSession<CroquetReactView> | 'joining' | null>(null)
   
   const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView> | null>(null)
@@ -33,6 +32,9 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
   // Update currentSessionParams when props change
   useEffect(() => setCurrentSessionParams(sessionParams), [sessionParams])
 
+  // Manage session dis/connection:
+  // When connecting to a new session, we should setup view callbacks
+  // Before connecting to a new session, we should leave the current one
   useEffect(() => {
     async function connect(): Promise<void> {
       // If already connected, do nothing

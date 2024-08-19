@@ -14,7 +14,7 @@ export function useReactModelRootProperty<T extends ReactModel, V>(id: string, f
         setModelState((prev) => {
           const newValue = fn(model as T)
           if(prev !== newValue) {
-            console.log({id, prev, newValue, equals: prev === newValue})
+            // console.log({id, prev, newValue, equals: prev === newValue})
             return newValue
           } else {
             // console.log(`[${id}] @croquet/react: react-updated`)

@@ -2,7 +2,7 @@ import { ReactModel } from '../ReactModel'
 import { useEffect, useState } from 'react'
 import { useCroquetContext } from './useCroquetContext'
 
-export function useReactModelRootProperty<T extends ReactModel, V>(id: string, fn: (m: T | null) => V): V {
+export function useModelSelector<T extends ReactModel, V>(id: string, fn: (m: T | null) => V): V {
   const { session, view, model } = useCroquetContext()
   const [modelState, setModelState] = useState(fn(model as T))
 

@@ -8,10 +8,7 @@ type ModelState<V> = {
   hash: string | V
 }
 
-export function useModelSelector<T extends ReactModel, V>(
-  id: string,
-  selector: (m: T | null) => V
-): V {
+export function useModelSelector<T extends ReactModel, V>(selector: (m: T | null) => V): V {
   const { session, view, model } = useCroquetContext()
 
   // The selector function may return a pointer to an object/array/etc,
@@ -32,7 +29,7 @@ export function useModelSelector<T extends ReactModel, V>(
           const newValue = selector(model as T)
           const newHash = hash_fn(newValue as NotUndefined)
           if (prev.hash !== newHash) {
-            console.log({ id, prevHash: prev.hash, newHash, equals: prev.hash === newHash })
+            // console.log({ id, prevHash: prev.hash, newHash, equals: prev.hash === newHash })
             // console.log({id, prev, newValue, equals: prev === newValue})
             return { value: newValue, hash: newHash }
           } else {

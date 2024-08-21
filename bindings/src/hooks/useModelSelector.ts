@@ -8,7 +8,6 @@ type ModelState<V> = {
   hash: string | V
 }
 
-
 export function useModelSelector<F extends (m: ReactModel) => any>(selector: F): ReturnType<typeof selector> {
   const { session, view, model } = useCroquetContext()
 

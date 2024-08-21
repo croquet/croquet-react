@@ -40,7 +40,6 @@ export function useModelSelector<T extends ReactModel, V>(selector: (m: T | null
     )
 
     return () => {
-      // @ts-expect-error we know this function receives a handler
       view.unsubscribe(session.id, 'react-updated', handler)
     }
   }, [session, view, model])

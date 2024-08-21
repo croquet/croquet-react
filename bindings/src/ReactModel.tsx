@@ -20,15 +20,15 @@ export class ReactModel extends Model {
     if (this.__views) {
       this.__views.add(viewId)
       this.publish(this.sessionId, 'views-updated')
-      this.handleViewJoin(viewId)
     }
+    this.handleViewJoin(viewId)
   }
   private __viewExit(viewId: string) {
     if (this.__views) {
       this.__views.delete(viewId)
       this.publish(this.sessionId, 'views-updated')
-      this.handleViewExit(viewId)
     }
+    this.handleViewExit(viewId)
   }
 
   // Override these methods to add custom handling

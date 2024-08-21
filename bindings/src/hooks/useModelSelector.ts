@@ -8,15 +8,16 @@ type ModelState<V> = {
   hash: string | V
 }
 
-export function useModelSelector<T extends ReactModel, V>(selector: (m: T | null) => V): V {
+
+export function useModelSelector<F extends (m: ReactModel) => any>(selector: F): ReturnType<typeof selector> {
   const { session, view, model } = useCroquetContext()
 
   // The selector function may return a pointer to an object/array/etc,
   // Storing the returned value's hash allows to determine if it has changed.
   // The hash must be computed when the value is set, since
   // doing it at compare time would result in the same output.
-  const [modelState, setModelState] = useState<ModelState<V>>(() => {
-    const value = selector(model as T)
+  const [modelState, setModelState] = useState<ModelState<ReturnType<typeof selector>>>(() => {
+    const value = selector(model!)
     return { value, hash: hash_fn(value as NotUndefined) }
   })
 
@@ -25,7 +26,7 @@ export function useModelSelector<T extends ReactModel, V>(selector: (m: T | null
 
     const handler = () => {
       setModelState((prev) => {
-        const newValue = selector(model as T)
+        const newValue = selector(model!)
         const newHash = hash_fn(newValue as NotUndefined)
         return prev.hash === newHash ? prev : { value: newValue, hash: newHash }
       })

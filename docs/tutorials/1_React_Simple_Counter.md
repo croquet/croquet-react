@@ -9,17 +9,13 @@ The following example uses [Vite](https://vitejs.dev) for build. Other bundlers 
 
 We start by creating a file `main.jsx`, and importing the required dependencies:
 
-```
+```ts
 import ReactDOM from "react-dom/client";
-import React, { useState } from "react";
-import { Model } from "@croquet/croquet";
+import React from "react";
 import {
-  usePublish,
-  useModelRoot,
+  useReactModelRoot,
   CroquetRoot,
-  App as CroquetApp,
-  useSubscribe,
-  Model
+  ReactModel,
 } from "@croquet/react";
 ```
 
@@ -33,23 +29,23 @@ Whenever the counter is changed, either in the `resetCounter` or in the `tick` m
 
 Note that after the `tick` function is called, it schedules its next call, just like when the object was initialized.
 
-```
-class CounterModel extends Croquet.Model {
-  init(options) {
-    super.init(options);
-    this.count = 0;
-    this.future(1000).tick();
+```ts
+class CounterModel extends ReactModel {
+  init(option) {
+    super.init(option)
+    this.resetCounter()
+
     this.subscribe(this.id, "reset", this.resetCounter);
+
+    this.future(1000).tick()
   }
 
- resetCounter() {
+  resetCounter() {
     this.count = 0;
-    this.publish(this.id, "count");
   }
 
- tick() {
+  tick() {
     this.count += 1;
-    this.publish(this.id, "count");
     this.future(1000).tick();
   }
 }
@@ -57,7 +53,7 @@ class CounterModel extends Croquet.Model {
 
 After defining the model, we have to register it in the Croquet framework.
 
-```
+```tsx
 CounterModel.register("CounterModel");
 ```
 
@@ -67,69 +63,49 @@ This component takes the role of the [`Session.join`](../croquet/Session.html#.j
 We recommend specifying those values in environment variables so that it's easier to manage them (e.g. switching between development and production keys).
 For more information about this topic, feel free to check out [this article](https://kinsta.com/knowledgebase/what-is-an-environment-variable/).
 
-```
+```tsx
 function CounterApp() {
   return (
     <CroquetRoot
       sessionParams={{
+        apiKey: import.meta.env["VITE_CROQUET_API_KEY"],
+        appId: import.meta.env["VITE_CROQUET_APP_ID"],
+        password: "abc",
         name: "counter",
         model: CounterModel,
-        appId: import.meta.env["VITE_CROQUET_APP_ID"],
-        apiKey: import.meta.env["VITE_CROQUET_API_KEY"],
-        password: "abc",
       }}
     >
       <CounterDisplay />
     </CroquetRoot>
   );
 }
-
 ```
 
 Next, we define the `CounterDisplay` component, which represents a view of the model defined above.
 For now, it only has the logic to render the live count of the replicated counter.
 
-We use the `useModelRoot` hook to get hold of the `CounterModel` in our session, and use its `count` attribute to initialize the component's state, with the `useState` hook.
-Then, we use the `useSubscribe` hook to listen to `count` events within the `model.id`'s scope.
-Note that the passed callback sets the `count` state to the value defined in the model.
-Finally, the component simply returns the value of the stored counter to display its value.
+We use the `useReactModelRoot` hook to get hold of the `CounterModel` in our session, and display its `count`.
 
-```
+```tsx
 function CounterDisplay() {
-  const model = useModelRoot();
-  const [count, setCount] = useState(model.count);
-
-  useSubscribe(model.id, "count", () => setCount(model.count), []);
-
-  return <div>{count}</div>;
+  const model = useReactModelRoot();
+  return (
+    <div>
+      {model.count}
+    </div>
+  );
 }
 ```
 
 
 To explore how we can have information flow back from our component to the `CounterModel`, let's set up our component to reset the counter when we click the count.
 
-First, we create a function `publishReset` that will publish a `reset` event to the `model.id` scope, which our `CounterModel` listens to.
-All that's left to do is to pass this function as `onClick` handler of our returned count element.
-Let's also add some styles to make the count more prominent.
-
-The final code should look like this:
-
-```
+```tsx
 function CounterDisplay() {
-  const model = useModelRoot();
-  const [count, setCount] = useState(model.count);
-
-  useSubscribe(model.id, "count", () => setCount(model.count), []);
-
-  // Update the lines below
-  const publishReset = usePublish(() => [model.id, "reset"], []);
-
+  const model = useReactModelRoot();
   return (
-    <div
-      onClick={publishReset}
-      style={{ margin: "1em", fontSize: "3em", cursor: "pointer" }}
-    >
-      {count}
+    <div onClick={() => model.reset()}>
+      {model.count}
     </div>
   );
 }
@@ -138,4 +114,4 @@ function CounterDisplay() {
 Now, you should see a live ticking counter, which resets when you click it.
 If you open the same page in another tab or window, you should see the same live replicated counter as a second session participant.
 
-To see a more interesting multi-user interaction, check out the next tutorial, where we implement a simple multiplayer music box.
+To see a more interesting multi-user interaction, check out the [next tutorial](./tutorial-2_React_Music_Box.html), where we implement a simple multiplayer music box.

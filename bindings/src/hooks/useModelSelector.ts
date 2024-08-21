@@ -21,35 +21,27 @@ export function useModelSelector<T extends ReactModel, V>(selector: (m: T | null
   })
 
   useEffect(() => {
-    // console.log(`[${id}] Subscribing to react-updated`)
-    if (session && view) {
-      const handler = () => {
-        // console.log('@croquet/react: react-updated')
-        setModelState((prev) => {
-          const newValue = selector(model as T)
-          const newHash = hash_fn(newValue as NotUndefined)
-          if (prev.hash !== newHash) {
-            // console.log({ id, prevHash: prev.hash, newHash, equals: prev.hash === newHash })
-            // console.log({id, prev, newValue, equals: prev === newValue})
-            return { value: newValue, hash: newHash }
-          } else {
-            // console.log(`[${id}] @croquet/react: react-updated`)
-          }
-          return prev
-        })
-      }
-      view.subscribe(
-        session.id,
-        {
-          event: 'react-updated',
-          handling: 'oncePerFrame',
-        },
-        handler
-      )
+    if (!session || !view) return
 
-      return () => {
-        view.unsubscribe(session.id, 'react-updated', handler)
-      }
+    const handler = () => {
+      setModelState((prev) => {
+        const newValue = selector(model as T)
+        const newHash = hash_fn(newValue as NotUndefined)
+        return prev.hash === newHash ? prev : { value: newValue, hash: newHash }
+      })
+    }
+    view.subscribe(
+      session.id,
+      {
+        event: 'react-updated',
+        handling: 'oncePerFrame',
+      },
+      handler
+    )
+
+    return () => {
+      // @ts-expect-error we know this function receives a handler
+      view.unsubscribe(session.id, 'react-updated', handler)
     }
   }, [session, view, model])
 

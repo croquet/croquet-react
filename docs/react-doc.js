@@ -147,7 +147,7 @@ export function useConnectedViews() {}
 export function useReactModelRoot() {}
 
 /**
- * useModelSelector: A hook for subscribing to part of a ReactModel.
+ * A hook for subscribing to part of a ReactModel.
  *
  * This hook takes a selector function that extracts data from the model,
  * and returns the selected data. It efficiently updates only when the

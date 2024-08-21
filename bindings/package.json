@@ -1,12 +1,13 @@
 {
   "name": "@croquet/react",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "description": "React bindings for Croquet",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "prepare": "tsc"
+    "prepare": "tsc",
+    "dev": "tsc --watch"
   },
   "author": "Croquet Labs",
   "license": "Apache-2.0",

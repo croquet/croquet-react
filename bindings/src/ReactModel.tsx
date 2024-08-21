@@ -44,34 +44,20 @@ export class ReactModel extends Model {
     }
 
     // This is a hacky (and maybe dubious) way to add
-    // custom logic before and after the Model handler
-    // is called. Since closures cannot be serialized, we
-    // need to convert `hack` to a String, replace the lost
-    // values with literals (obtained at runtime) and then
-    // convert that string into a function again.
-    // That function will be used by a (yet) undocumented
+    // custom logic after the original Model handler
+    // is called. We generate a function that inlines the handler's
+    // methodName and calls it, before publishing the "react-updated"
+    // event. That function will be used by a (yet) undocumented
     // feature of Croquet that allows you to pass a function
-    // instead of a method.
-
-    function hack(data: any) {
-      // @ts-expect-error the this will exist when the function is executed
-      this.methodName(data)
-      // @ts-expect-error the this will exist when the function is executed
-      this.publish(this.sessionId, 'react-updated')
-    }
-
-    const hackString = hack
-      .toString()
-      //
-      // replace methodName by the actual method name
-      .replace('methodName', methodName)
-      //
-      // extract only the function body
-      .replace(/^[^{]+\{/, '')
-      .replace(/\}[^}]*$/, '')
+    // instead of a method. It will stringify the function (because
+    // subscription handlers need to be snapshottable) which is why
+    // it can't directly access the methodName variable of this method.
 
     // this function will receive a single argument: data
-    const func = new Function('data', hackString) as (e: unknown) => void
+    const func = new Function(
+      'data',
+      `this.${methodName}(data);this.publish(this.sessionId,'react-updated')`
+    ) as (data: T) => void;
 
     super.subscribe(scope, event, func)
   }

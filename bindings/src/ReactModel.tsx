@@ -73,6 +73,15 @@ export class ReactModel extends Model {
       `this.${methodName}(data);this.publish(this.sessionId,'react-updated')`
     ) as (data: T) => void;
 
+    // Eventually this will be the proper way to do this :D
+    // // @ts-expect-error todo
+    // const func = this.createQFunc({methodName}, (data) => {
+    //   console.log(this)
+    //   // @ts-expect-error todo
+    //   this[methodName](data)
+    //   this.publish(this.sessionId, 'react-updated')
+    // })
+
     super.subscribe(scope, event, func)
   }
 

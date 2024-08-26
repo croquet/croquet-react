@@ -1,4 +1,7 @@
 # Changelog
+- 2.1.1
+  - Update @croquet/croquet to `^2.0.0-18`
+  - React Model uses `super.subscribe()` to subscribe to view-join and view-exit events
 - 2.1.0
   - Optimize useConnectedViews to minimize rerenders
   - Update CroquetRoot to not rerender when model changes

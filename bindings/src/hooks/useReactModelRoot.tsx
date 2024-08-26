@@ -1,6 +1,7 @@
-import { useModelRoot } from './useModelRoot'
 import { usePublish } from './usePublish'
 import { ReactModel } from '../ReactModel'
+import { useEffect, useState } from 'react'
+import { useCroquetContext } from './useCroquetContext'
 
 function getModelObject<T extends ReactModel>(model: T): T {
   const methods: Partial<T> = {}
@@ -29,7 +30,28 @@ function getModelObject<T extends ReactModel>(model: T): T {
 }
 
 export function useReactModelRoot<T extends ReactModel>(): T {
-  const model = useModelRoot() as T
+  const { session, view, model } = useCroquetContext()
+  const [modelState, setModelState] = useState(model as T)
 
-  return getModelObject(model)
+  useEffect(() => {
+    if (!session || !view) return
+
+    const handler = () => {
+      // Here we are creating a shallow copy of model to
+      // force react to rerender with the updated data
+      // console.log('@croquet/react: react-updated')
+      setModelState({ ...model } as T)
+    }
+
+    view.subscribe(
+      session.id,
+      { event: 'react-updated', handling: 'oncePerFrame' },
+      handler
+    )
+    return () => {
+      view.unsubscribe(session.id, 'react-updated', handler)
+    }
+  }, [session, view, model, setModelState])
+
+  return getModelObject(modelState)
 }

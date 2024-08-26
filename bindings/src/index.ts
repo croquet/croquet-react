@@ -42,4 +42,5 @@ export {
   useSyncedCallback,
   useUpdateCallback,
   useViewId,
+  useModelSelector
 } from './hooks' //prettier-ignore

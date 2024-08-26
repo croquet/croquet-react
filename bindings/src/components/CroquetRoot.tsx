@@ -1,7 +1,6 @@
-import { useEffect, useState, useRef, createElement } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { CroquetSession } from '@croquet/croquet'
 import { CroquetReactView } from '../CroquetReactView'
-import { ReactModel } from '../ReactModel'
 import { setSyncedCallback } from '../CroquetReactView'
 import { CroquetContext } from './CroquetContext'
 import { createCroquetSession, CroquetReactSessionParameters } from '../createCroquetSession'
@@ -16,50 +15,25 @@ type CroquetRootProps = {
 /** CroquetRoot component implements the default implementation of the logic described for createCroquetSession function.
  */
 export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.Element | null {
-  const [currentSessionParams, setCurrentSessionParams] = useState(sessionParams)
-  const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView> | null>(null)
-  const [croquetView, setCroquetView] = useState<CroquetReactView | null>(null)
-  const [croquetModel, setCroquetModel] = useState<ReactModel | null>(null)
-
-  const changeSession = (newParams: ChangeSessionParameters = {}) => {
-    setCurrentSessionParams({
-      ...currentSessionParams,
-      name: newParams.name || currentSessionParams.name,
-      password: newParams.password || currentSessionParams.password,
-    })
-  }
-
   // Make sure we only create a new session once, even with strict mode
-  // const joining = useRef(false)
   const croquetSessionState = useRef<CroquetSession<CroquetReactView> | 'joining' | null>(null)
 
-  // This function updates the state (session, view and model) and subscribes the view
-  // to react-updated events to refresh the model state whenever there is a model change.
+  const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView> | null>(null)
+  const [croquetView, setCroquetView] = useState<CroquetReactView | null>(null)
+  const [currentSessionParams, setCurrentSessionParams] = useState(sessionParams)
+
+  // This function updates the state (session, view)
   function updateState(session: CroquetSession<CroquetReactView>): void {
-    const view = session?.view
-    const model = view.model
-
-
-    view.subscribe(session.id, {
-        event: 'react-updated',
-        handling: "oncePerFrame",
-      },    
-      () => {
-        // Here we are creating a shallow copy of model to
-        // force react to rerender with the updated data
-        // console.log('@croquet/react: react-updated')
-        setCroquetModel({ ...model } as ReactModel)
-      }
-    )
-
     setCroquetSession(session)
-    setCroquetView(view)
-    setCroquetModel(model)
+    setCroquetView(session?.view)
   }
 
   // Update currentSessionParams when props change
   useEffect(() => setCurrentSessionParams(sessionParams), [sessionParams])
 
+  // Manage session dis/connection:
+  // When connecting to a new session, we should setup view callbacks
+  // Before connecting to a new session, we should leave the current one
   useEffect(() => {
     async function connect(): Promise<void> {
       // If already connected, do nothing
@@ -77,7 +51,6 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
           if (flag) updateState(session)
           session.view.detachCallback = () => {
             setCroquetView(null)
-            setCroquetModel(null)
           }
         }
       })
@@ -86,22 +59,38 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
     connect()
 
     return () => {
+      // Reset session and view to null to prevent stale data in subsequent renders.
+      // This is crucial because:
+      // 1. This cleanup function runs asynchronously.
+      // 2. Child components may render before the new session is established.
+      // 3. Without resetting, children might capture and persist old session data,
+      //    even after the parent updates with new session and view information.
+      setCroquetView(null)
+      setCroquetSession(null)
       const session = croquetSessionState.current
       if (session !== null && session !== 'joining') {
-        session.leave()
         croquetSessionState.current = null
+        session.leave()
       }
     }
   }, [currentSessionParams])
+
+  const changeSession = async (newParams: ChangeSessionParameters = {}) => {
+    setCurrentSessionParams({
+      ...currentSessionParams,
+      name: newParams.name || currentSessionParams.name,
+      password: newParams.password || currentSessionParams.password,
+    })
+  }
 
   if (croquetView) {
     const contextValue = {
       session: croquetSession,
       view: croquetView,
-      model: croquetModel,
+      model: croquetView.model,
       changeSession,
     }
-    return createElement(CroquetContext.Provider, { value: contextValue }, children)
+    return <CroquetContext.Provider value={contextValue}>{children}</CroquetContext.Provider>
   }
   return null
 }

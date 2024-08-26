@@ -146,11 +146,35 @@ export function useConnectedViews() {}
  */
 export function useReactModelRoot() {}
 
+/**
+ * A hook for subscribing to part of a ReactModel.
+ *
+ * This hook takes a selector function that extracts data from the model,
+ * and returns the selected data. It efficiently updates only when the
+ * selected data changes, using hashing to detect deep equality.
+ * This is a good alternative to {@link useReactModelRoot}, since it only
+ * re-renders when the subscribed part of the model changes.
+ *
+ * The provided selector function must not return `undefined`.
+ *
+ * @public
+ * @param {function(ReactModel): V} selector - A function that selects data from the model. The return type of this function will be used as the return type of the hook.
+ * @returns {V} The selected data from the model.
+ * @template V The return type of the selector function.
+ * @example
+ *
+ * type RootModel = { painting: { cells: { id: string; color: string }[] } };
+ *
+ * const color = useModelSelector((model: RootModel) => model.painting.cells[id].color);
+ * // The type of 'color' is inferred as string
+ */
+export function useModelSelector(selector) {}
+
 /** 
  * A hook to obtain the root model object.
  * Keep in mind that even if the model data changes, React will not rerender
  * the components that depend on it.
- * To achieve this behavior use {@link useReactModelRoot} instead.
+ * To achieve this behavior use {@link useReactModelRoot} or {@link useModelSelector} instead.
  * 
  * @public
  * @returns {Model} The instance of a subclass of Model used as the root Model.
@@ -160,7 +184,7 @@ export function useReactModelRoot() {}
 export function useModelRoot() {}
 
 /**
- * A hook to obtain a sub model object.
+ * A hook to obtain a reference to a sub model object.
  * @public
  * @argument {number} id The id of the model to retrieve
  * @returns {Model} The instance of a subclass of Model with the given id.

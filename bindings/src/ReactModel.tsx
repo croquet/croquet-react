@@ -12,8 +12,10 @@ export class ReactModel extends Model {
     // We don't want to track the connected views in every model.
     // the trackViews option enables this behavior
     if (trackViews === true) this.__views = new Set()
-    this.__subscribe(this.sessionId, 'view-join', this.__viewJoin)
-    this.__subscribe(this.sessionId, 'view-exit', this.__viewExit)
+
+    // Subscribe directly via super since we don't need to publish react-updated
+    super.subscribe(this.sessionId, 'view-join', this.__viewJoin)
+    super.subscribe(this.sessionId, 'view-exit', this.__viewExit)
   }
 
   private __viewJoin(viewId: string) {

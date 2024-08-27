@@ -1,4 +1,6 @@
 # Changelog
+- 2.1.2
+  - Update @croquet/croquet to `^2.0.0-19`
 - 2.1.1
   - Update @croquet/croquet to `^2.0.0-18`
   - React Model uses `super.subscribe()` to subscribe to view-join and view-exit events

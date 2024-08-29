@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { CroquetSession } from '@croquet/croquet'
 import { CroquetReactView } from '../CroquetReactView'
 import { setSyncedCallback } from '../CroquetReactView'
@@ -6,7 +6,10 @@ import { CroquetContext } from './CroquetContext'
 import { createCroquetSession, CroquetReactSessionParameters } from '../createCroquetSession'
 import { ReactModel } from '../ReactModel'
 
-export type ChangeSessionParameters = Partial<Pick<CroquetReactSessionParameters, 'name' | 'password'>>
+export interface ChangeSessionParameters {
+  name?: string
+  password?: string
+}
 
 type CroquetRootProps<M extends ReactModel> = {
   sessionParams: CroquetReactSessionParameters<M>
@@ -24,10 +27,13 @@ export function CroquetRoot<M extends ReactModel>({ sessionParams, children }: C
   const [currentSessionParams, setCurrentSessionParams] = useState(sessionParams)
 
   // This function updates the state (session, view)
-  function updateState(session: CroquetSession<CroquetReactView>): void {
-    setCroquetSession(session)
-    setCroquetView(session?.view)
-  }
+  const updateState = useCallback(
+    (session: CroquetSession<CroquetReactView<M>>) => {
+      setCroquetSession(session)
+      setCroquetView(session?.view)
+    },
+    [setCroquetSession, setCroquetView]
+  )
 
   // Update currentSessionParams when props change
   useEffect(() => setCurrentSessionParams(sessionParams), [sessionParams])
@@ -74,15 +80,20 @@ export function CroquetRoot<M extends ReactModel>({ sessionParams, children }: C
         session.leave()
       }
     }
-  }, [currentSessionParams])
+  }, [currentSessionParams, updateState])
 
-  const changeSession = async (newParams: ChangeSessionParameters = {}) => {
-    setCurrentSessionParams({
-      ...currentSessionParams,
-      name: newParams.name || currentSessionParams.name,
-      password: newParams.password || currentSessionParams.password,
-    })
-  }
+  const changeSession = useCallback(
+    async ({ name, password }: ChangeSessionParameters) => {
+      if (!name && !password) return
+
+      setCurrentSessionParams({
+        ...currentSessionParams,
+        name: name || currentSessionParams.name,
+        password: password || currentSessionParams.password,
+      })
+    },
+    [currentSessionParams, setCurrentSessionParams]
+  )
 
   if (croquetView) {
     const contextValue = {

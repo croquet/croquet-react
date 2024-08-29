@@ -31,7 +31,7 @@ export function useSubscribe<T>(scope: string, eventSpec: string, callback: (dat
     // cleanup on component unmount
     return () => {
       if (croquetView !== null) {
-        croquetView.unsubscribe(scope, eventSpec)
+        croquetView.unsubscribe(scope, eventSpec, callback)
       }
     }
   }, [scope, eventSpec, callback, croquetView])

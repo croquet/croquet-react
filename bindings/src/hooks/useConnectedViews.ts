@@ -7,7 +7,7 @@ interface ConnectedViews {
   viewCount: number
 }
 
-function viewsSelector<T extends ReactModel>(rootModel: T | null): ConnectedViews {
+function viewsSelector(rootModel: ReactModel | null): ConnectedViews {
   if (!rootModel?.__views) return { views: [], viewCount: 0 }
   const views = rootModel.__views
   return {
@@ -17,8 +17,7 @@ function viewsSelector<T extends ReactModel>(rootModel: T | null): ConnectedView
 }
 export function useConnectedViews(): ConnectedViews {
   const context = useCroquetContext()
-  const { session, view } = context
-  const model = context.model
+  const { session, view, model } = context
 
   const [views, setViews] = useState(viewsSelector(model))
 

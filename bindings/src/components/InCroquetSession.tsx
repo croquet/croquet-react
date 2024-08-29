@@ -3,10 +3,11 @@ import { Session, CroquetSession } from '@croquet/croquet'
 import { CroquetReactView } from '../CroquetReactView'
 import { CroquetContext } from './CroquetContext'
 import { CroquetReactSessionParameters } from '../createCroquetSession'
+import { ReactModel } from '../ReactModel'
 
 // InCroquetSession parameter is almost the same but omits `view`,
 // which is defaulted to CroquetReactView, but adds children
-type InCroquetSessionProps = CroquetReactSessionParameters & {
+type InCroquetSessionProps<M extends ReactModel> = CroquetReactSessionParameters<M> & {
   children: React.ReactNode | React.ReactNode[]
 }
 
@@ -33,15 +34,15 @@ type InCroquetSessionProps = CroquetReactSessionParameters & {
  * }
  * ```
  */
-export function InCroquetSession(params: InCroquetSessionProps): JSX.Element | null {
+export function InCroquetSession<M extends ReactModel>(params: InCroquetSessionProps<M>): JSX.Element | null {
   const children = params.children
-  const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView> | undefined>(undefined)
+  const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView<M>> | undefined>(undefined)
   const [joining, setJoining] = useState<boolean>(false)
   useEffect(() => {
     console.log('InCroquetSession effect')
     setJoining((old) => {
       if (old) return old
-      const sessionParams = { ...params, view: CroquetReactView }
+      const sessionParams = { ...params, view: CroquetReactView<M> }
       delete sessionParams.children
       console.log('calling Session.join()')
       Session.join({ ...sessionParams }).then(setCroquetSession)

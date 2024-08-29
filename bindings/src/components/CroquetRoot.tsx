@@ -4,22 +4,23 @@ import { CroquetReactView } from '../CroquetReactView'
 import { setSyncedCallback } from '../CroquetReactView'
 import { CroquetContext } from './CroquetContext'
 import { createCroquetSession, CroquetReactSessionParameters } from '../createCroquetSession'
+import { ReactModel } from '../ReactModel'
 
 export type ChangeSessionParameters = Partial<Pick<CroquetReactSessionParameters, 'name' | 'password'>>
 
-type CroquetRootProps = {
-  sessionParams: CroquetReactSessionParameters
+type CroquetRootProps<M extends ReactModel> = {
+  sessionParams: CroquetReactSessionParameters<M>
   children: JSX.Element | JSX.Element[]
 }
 
 /** CroquetRoot component implements the default implementation of the logic described for createCroquetSession function.
  */
-export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.Element | null {
+export function CroquetRoot<M extends ReactModel>({ sessionParams, children }: CroquetRootProps<M>): JSX.Element | null {
   // Make sure we only create a new session once, even with strict mode
-  const croquetSessionState = useRef<CroquetSession<CroquetReactView> | 'joining' | null>(null)
+  const croquetSessionState = useRef<CroquetSession<CroquetReactView<M>> | 'joining' | null>(null)
 
-  const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView> | null>(null)
-  const [croquetView, setCroquetView] = useState<CroquetReactView | null>(null)
+  const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView<M>> | null>(null)
+  const [croquetView, setCroquetView] = useState<CroquetReactView<M> | null>(null)
   const [currentSessionParams, setCurrentSessionParams] = useState(sessionParams)
 
   // This function updates the state (session, view)
@@ -40,7 +41,7 @@ export function CroquetRoot({ sessionParams, children }: CroquetRootProps): JSX.
       if (croquetSessionState.current) return
 
       croquetSessionState.current = 'joining'
-      const session = await createCroquetSession(currentSessionParams as any)
+      const session = await createCroquetSession<M>(currentSessionParams as any)
       croquetSessionState.current = session
 
       updateState(session)

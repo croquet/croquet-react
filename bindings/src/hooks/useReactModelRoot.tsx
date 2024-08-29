@@ -30,17 +30,17 @@ function getModelObject<T extends ReactModel>(model: T): T {
 }
 
 export function useReactModelRoot<T extends ReactModel>(): T {
-  const { session, view, model } = useCroquetContext()
-  const [modelState, setModelState] = useState(model as T)
+  const { session, view, model } = useCroquetContext<T>()
+  const [modelState, setModelState] = useState(model)
 
   useEffect(() => {
-    if (!session || !view) return
+    if (!session || !view || !model) return
 
     const handler = () => {
       // Here we are creating a shallow copy of model to
       // force react to rerender with the updated data
       // console.log('@croquet/react: react-updated')
-      setModelState({ ...model } as T)
+      setModelState({ ...model })
     }
 
     view.subscribe(
@@ -53,5 +53,5 @@ export function useReactModelRoot<T extends ReactModel>(): T {
     }
   }, [session, view, model, setModelState])
 
-  return getModelObject(modelState)
+  return getModelObject(modelState!)
 }

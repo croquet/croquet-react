@@ -11,16 +11,23 @@ export interface ChangeSessionParameters {
   password?: string
 }
 
+interface ReactSessionParameters<M extends ReactModel> extends Omit<CroquetReactSessionParameters<M>, 'name'> {
+  name?: string
+  password?: string
+}
+
 type CroquetRootProps<M extends ReactModel> = {
-  sessionParams: CroquetReactSessionParameters<M>
+  sessionParams: ReactSessionParameters<M>
   children: JSX.Element | JSX.Element[]
 }
+
+const SHOW_CHILDREN_WHEN_NO_SESSION = true
 
 /** CroquetRoot component implements the default implementation of the logic described for createCroquetSession function.
  */
 export function CroquetRoot<M extends ReactModel>({ sessionParams, children }: CroquetRootProps<M>): JSX.Element | null {
   // Make sure we only create a new session once, even with strict mode
-  const croquetSessionState = useRef<CroquetSession<CroquetReactView<M>> | 'joining' | null>(null)
+  const croquetSessionRef = useRef<CroquetSession<CroquetReactView<M>> | 'joining' | null>(null)
 
   const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView<M>> | null>(null)
   const [croquetView, setCroquetView] = useState<CroquetReactView<M> | null>(null)
@@ -36,7 +43,7 @@ export function CroquetRoot<M extends ReactModel>({ sessionParams, children }: C
   )
 
   // Update currentSessionParams when props change
-  useEffect(() => setCurrentSessionParams(sessionParams), [sessionParams])
+  useEffect(() => setCurrentSessionParams(sessionParams), [sessionParams, setCurrentSessionParams])
 
   // Manage session dis/connection:
   // When connecting to a new session, we should setup view callbacks
@@ -44,16 +51,19 @@ export function CroquetRoot<M extends ReactModel>({ sessionParams, children }: C
   useEffect(() => {
     async function connect(): Promise<void> {
       // If already connected, do nothing
-      if (croquetSessionState.current) return
+      if (croquetSessionRef.current) return
 
-      croquetSessionState.current = 'joining'
+      // If no session name provided, do not connect
+      if (!currentSessionParams.name) return
+
+      croquetSessionRef.current = 'joining'
       const session = await createCroquetSession<M>(currentSessionParams as any)
-      croquetSessionState.current = session
+      croquetSessionRef.current = session
 
       updateState(session)
 
       setSyncedCallback((flag) => {
-        const session = croquetSessionState.current
+        const session = croquetSessionRef.current
         if (session !== null && session !== 'joining') {
           if (flag) updateState(session)
           session.view.detachCallback = () => {
@@ -74,33 +84,42 @@ export function CroquetRoot<M extends ReactModel>({ sessionParams, children }: C
       //    even after the parent updates with new session and view information.
       setCroquetView(null)
       setCroquetSession(null)
-      const session = croquetSessionState.current
+      const session = croquetSessionRef.current
       if (session !== null && session !== 'joining') {
-        croquetSessionState.current = null
+        croquetSessionRef.current = null
         session.leave()
       }
     }
   }, [currentSessionParams, updateState])
 
   const changeSession = useCallback(
-    async ({ name, password }: ChangeSessionParameters) => {
+    ({ name, password }: ChangeSessionParameters) => {
       if (!name && !password) return
 
-      setCurrentSessionParams({
-        ...currentSessionParams,
-        name: name || currentSessionParams.name,
-        password: password || currentSessionParams.password,
-      })
+      setCurrentSessionParams((prev) => ({
+        ...prev,
+        name: name || prev.name,
+        password: password || prev.password,
+      }))
     },
-    [currentSessionParams, setCurrentSessionParams]
+    [setCurrentSessionParams]
   )
 
-  if (croquetView) {
+  const leaveSession = useCallback(() => {
+    setCurrentSessionParams((prev) => ({
+      ...prev,
+      name: undefined,
+      password: undefined,
+    }))
+  }, [setCurrentSessionParams])
+
+  if (croquetView || SHOW_CHILDREN_WHEN_NO_SESSION) {
     const contextValue = {
       session: croquetSession,
       view: croquetView,
-      model: croquetView.model,
+      model: croquetView?.model || null,
       changeSession,
+      leaveSession,
     }
     return <CroquetContext.Provider value={contextValue}>{children}</CroquetContext.Provider>
   }

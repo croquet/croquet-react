@@ -11,7 +11,7 @@ interface ConnectedViews {
 const noViews = { views: [], viewCount: 0 }
 
 function viewsSelector(rootModel: ReactModel | null): ConnectedViews {
-  if (!rootModel?.__views) return noViews
+  if(!rootModel?.__views) return noViews
   const views = rootModel.__views
   return {
     views: Array.from(views),
@@ -25,21 +25,16 @@ export function useConnectedViews(): ConnectedViews {
   const [views, setViews] = useState(viewsSelector(model))
 
   useEffect(() => {
-    console.log({where: 'useEffect', isConnected, session, view, model, })
-    if(!isConnected) {
-      setViews(noViews)
-      return
+    if (session && view && model) {
+      const handler = () => setViews(viewsSelector(model))
+      view.subscribe(session.id, {event: 'views-updated', handling: 'oncePerFrame'}, handler)
+      return () => view.unsubscribe(session.id, 'views-updated', handler)
     }
-    if (session && view) {
-      const handler = () => {
-        setViews(viewsSelector(model))
-      }
-      view.subscribe(session.id, 'views-updated', handler)
-      return () => {
-        view?.unsubscribe(session.id, 'views-updated', handler)
-      }
-    }
-  }, [session, view, model, isConnected])
+  }, [session, view, model])
+
+  useEffect(() => {
+    isConnected ? setViews(viewsSelector(model)) : setViews(noViews)
+  }, [isConnected, model, setViews])
 
   if (model && !model.__views) {
     throw new Error(

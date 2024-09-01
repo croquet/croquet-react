@@ -57,32 +57,12 @@ export class ReactModel extends Model {
       methodName = methodName.name
     }
 
-    // This is a hacky (and maybe dubious) way to add
-    // custom logic after the original Model handler
-    // is called. We generate a function that inlines the handler's
-    // methodName and calls it, before publishing the "react-updated"
-    // event. That function will be used by a (yet) undocumented
-    // feature of Croquet that allows you to pass a function
-    // instead of a method. It will stringify the function (because
-    // subscription handlers need to be snapshottable) which is why
-    // it can't directly access the methodName variable of this method.
-
-    // this function will receive a single argument: data
-    const func = new Function(
-      'data',
-      `this.${methodName}(data);this.publish(this.sessionId,'react-updated')`
-    ) as (data: T) => void;
-
-    // Eventually this will be the proper way to do this :D
-    // // @ts-expect-error todo
-    // const func = this.createQFunc({methodName}, (data) => {
-    //   console.log(this)
-    //   // @ts-expect-error todo
-    //   this[methodName](data)
-    //   this.publish(this.sessionId, 'react-updated')
-    // })
-
-    super.subscribe(scope, event, func)
+    // Automatically publish a 'react-updated' event after handling the event
+    super.subscribe(scope, event, this.createQFunc({methodName}, (data: any) => {
+      // @ts-expect-error methodName is a method of this
+      this[methodName](data);
+      this.publish(this.sessionId, 'react-updated')
+    }))
   }
 
   // Function that helps ReactModel publish a react-updated event

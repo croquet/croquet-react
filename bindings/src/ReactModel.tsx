@@ -1,4 +1,4 @@
-import { Model } from '@croquet/croquet'
+import { Model, SubscriptionHandler, FutureHandler } from '@croquet/croquet'
 
 export class ReactModel extends Model {
   __reactEvents: { scope: string; event: string }[] = []
@@ -38,31 +38,38 @@ export class ReactModel extends Model {
   handleViewExit(viewId: string) {} // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // Public function to assert that users do not subscribe directly to view-join/exit events
-  subscribe<T>(scope: string, event: string, methodName: string | ((e: T) => void)): void {
+  subscribe<T>(scope: string, event: string, handler: SubscriptionHandler<T>): void {
     if (event === 'view-join' || event === 'view-exit') {
       throw new Error(
         `In @croquet/react you cannot directly subscribe to ${event}.\n` +
           `Override ${event === 'view-join' ? 'handleViewJoin(viewId)' : 'handleViewExit(viewId)'} instead\n`
       )
     }
-    this.__subscribe(scope, event, methodName)
+    this.__subscribe(scope, event, handler)
   }
 
   // This function is the one that performs the subscription logic, without performing any checks.
   // It's separate from the one above since we need to directly subscribe to view-join/exit events
-  private __subscribe<T>(scope: string, event: string, methodName: string | ((e: T) => void)): void {
+  private __subscribe<T>(scope: string, event: string, handler: SubscriptionHandler<T>): void {
     this.__reactEvents.push({ scope, event })
 
-    if (typeof methodName === 'function') {
-      methodName = methodName.name
+    // normalize handler into string or QFunc
+    if (typeof handler === 'function') {
+      const model = this as any;
+      // if the handler is a method of the model, use the method name
+      if (model[handler.name] === handler) handler = handler.name
+      // otherwise, we assume that the handler is a QFunc
     }
 
-    // Automatically publish a 'react-updated' event after handling the event
-    super.subscribe(scope, event, this.createQFunc({methodName}, (data: any) => {
-      // @ts-expect-error methodName is a method of this
-      this[methodName](data);
+    // we call the original handler, and then publish a react-updated event
+    const reactHandler = this.createQFunc({handler}, (data: any) => {
+      const model = this as any; // shut up typescript
+      if (typeof handler === 'function') handler(data)
+      else model[handler](data)
       this.publish(this.sessionId, 'react-updated')
-    }))
+    });
+
+    super.subscribe(scope, event, reactHandler)
   }
 
   // Function that helps ReactModel publish a react-updated event
@@ -77,11 +84,11 @@ export class ReactModel extends Model {
     }
   }
 
-  future(tOffset?: number | undefined, methodName?: string | undefined, ...args: any[]): this {
+  future<T extends any[]>(tOffset: number, method?: FutureHandler<T>, ...args: T): this {
     // non-proxy case: we schedule the call to a __future_wrapper function
-    // that will call methodName, and then publish a react-updated event
-    if (methodName !== undefined) {
-      return super.future(tOffset, '__future_wrapper', methodName, ...args)
+    // that will call method, and then publish a react-updated event
+    if (method !== undefined) {
+      return super.future(tOffset, '__future_wrapper', method, ...args)
     }
 
     // We want to allow for the `this.future(tOffset).methodName(...args) syntax

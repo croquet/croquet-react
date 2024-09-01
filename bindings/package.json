@@ -5,9 +5,11 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "start": "npm run watch",
+    "dev": "npm run watch",
+    "prepublishOnly": "npm run build",
     "build": "tsc",
-    "prepare": "tsc",
-    "dev": "tsc --watch"
+    "watch": "tsc --watch"
   },
   "author": "Croquet Labs",
   "license": "Apache-2.0",

@@ -116,7 +116,7 @@ export function CroquetRoot<M extends ReactModel>({ sessionParams, children }: C
       password: undefined,
     }))
     updateState(null)
-  }, [setCurrentSessionParams])
+  }, [setCurrentSessionParams, updateState])
 
   if (croquetView || SHOW_CHILDREN_WHEN_NO_SESSION) {
     const contextValue = {

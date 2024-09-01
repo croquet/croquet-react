@@ -38,6 +38,7 @@ export function useModelSelector<M extends ReactModel, R extends NotUndefined>(s
       },
       handler
     )
+    handler()
 
     return () => {
       view.unsubscribe(session.id, 'react-updated', handler)

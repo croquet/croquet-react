@@ -42,6 +42,5 @@ export function useConnectedViews(): ConnectedViews {
         'Pass `options: { trackViews: true }` to your <CroquetRoot> component to start tracking them\n'
     )
   }
-  console.log({ isConnected, views, session })
   return views
 }

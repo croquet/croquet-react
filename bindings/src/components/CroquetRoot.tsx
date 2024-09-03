@@ -75,8 +75,10 @@ export function CroquetRoot<M extends ReactModel>({ sessionParams, children }: C
         const session = croquetSessionRef.current
         if (session !== null && session !== 'joining') {
           if (flag) updateState(session)
-          session.view.detachCallback = () => {
-            setCroquetView(null)
+          if (session.view) {
+            session.view.detachCallback = () => {
+              setCroquetView(null)
+            }
           }
         }
       })

@@ -62,7 +62,8 @@ export function InCroquetSession<M extends ReactModel>(params: InCroquetSessionP
       view: croquetSession.view,
       model: croquetSession.view.model,
       changeSession: () => {},
-      leaveSession: () => {}
+      leaveSession: () => {},
+      sessionPassword: null,
     }
     return createElement(CroquetContext.Provider, { value: contextValue }, children)
   }

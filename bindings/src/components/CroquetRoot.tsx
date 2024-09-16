@@ -130,6 +130,7 @@ export function CroquetRoot<M extends ReactModel>({
       model: croquetView?.model || null,
       changeSession,
       leaveSession,
+      sessionPassword: currentSessionParams.password ?? null,
     }
     return <CroquetContext.Provider value={contextValue}>{children}</CroquetContext.Provider>
   }

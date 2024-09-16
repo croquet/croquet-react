@@ -10,6 +10,7 @@ export type ContextType<M extends ReactModel> = {
   model: M | null
   changeSession: (newParams: ChangeSessionParameters) => void
   leaveSession: () => void
+  sessionPassword: string | null
 }
 
 // A React context that stores the croquet session, view, and model

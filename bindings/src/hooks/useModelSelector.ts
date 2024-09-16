@@ -4,11 +4,14 @@ import { useCroquetContext } from './useCroquetContext'
 import hash_fn, { NotUndefined } from 'object-hash'
 
 type ModelState<V> = {
-  value: V
-  hash: string | V
+  value: V | null
+  hash: string | null
 }
 
-export function useModelSelector<M extends ReactModel, R extends NotUndefined>(selector: (m: M) => R): R {
+export function useModelSelector<M extends ReactModel, R extends NotUndefined>(selector: (m: M) => R): (R | null)  {
+  // Storing the first function received in state so that we stick to the first one
+  // const [actualSelector] = useState<(m: M) => R>(selector)
+
   const { session, view, model } = useCroquetContext<M>()
 
   // The selector function may return a pointer to an object/array/etc,
@@ -16,16 +19,23 @@ export function useModelSelector<M extends ReactModel, R extends NotUndefined>(s
   // The hash must be computed when the value is set, since
   // doing it at compare time would result in the same output.
   const [modelState, setModelState] = useState<ModelState<R>>(() => {
-    const value = selector(model!)
+    if(!model) {
+      return { value: null, hash: null }
+    }
+    const value = selector(model)
     return { value, hash: hash_fn(value) }
   })
 
   useEffect(() => {
-    if (!session || !view) return
+    if (!session || !view || !model) {
+      // If the previous state was undefined, we return the same object
+      setModelState((prev) => (prev.value === null ? prev : { value: null, hash: null }))
+      return
+    }
 
     const handler = () => {
       setModelState((prev) => {
-        const newValue = selector(model!)
+        const newValue = selector(model)
         const newHash = hash_fn(newValue)
         return prev.hash === newHash ? prev : { value: newValue, hash: newHash }
       })
@@ -40,11 +50,7 @@ export function useModelSelector<M extends ReactModel, R extends NotUndefined>(s
     )
     handler()
 
-    return () => {
-      view.unsubscribe(session.id, 'react-updated', handler)
-    }
-    // Not including `selector` on purpose because we don't want
-    // to force users to use the `useCallback` hook
+    return () => view.unsubscribe(session.id, 'react-updated', handler)
   }, [session, view, model])
 
   return modelState.value

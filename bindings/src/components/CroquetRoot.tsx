@@ -19,7 +19,7 @@ interface ReactSessionParameters<M extends ReactModel> extends Omit<CroquetReact
 type CroquetRootProps<M extends ReactModel> = {
   sessionParams: ReactSessionParameters<M>
   children: JSX.Element | JSX.Element[]
-  showChildrenWhenDisconnected?: boolean
+  showChildrenWithoutSession?: boolean
 }
 
 /** CroquetRoot component implements the default implementation of the logic described for createCroquetSession function.
@@ -27,7 +27,7 @@ type CroquetRootProps<M extends ReactModel> = {
 export function CroquetRoot<M extends ReactModel>({
   sessionParams,
   children,
-  showChildrenWhenDisconnected = false,
+  showChildrenWithoutSession = false,
 }: CroquetRootProps<M>): JSX.Element | null {
   // Make sure we only create a new session once, even with strict mode
   const croquetSessionRef = useRef<CroquetSession<CroquetReactView<M>> | 'joining' | null>(null)
@@ -123,7 +123,7 @@ export function CroquetRoot<M extends ReactModel>({
     updateState(null)
   }, [setCurrentSessionParams, updateState])
 
-  if (croquetView || showChildrenWhenDisconnected) {
+  if (croquetView || showChildrenWithoutSession) {
     const contextValue = {
       session: croquetSession,
       view: croquetView,

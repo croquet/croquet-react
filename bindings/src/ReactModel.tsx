@@ -9,7 +9,7 @@ export class ReactModel extends Model {
     super.init(opts)
     this.__reactEvents = []
 
-    // We don't want to track the connected views in every model.
+    // We don't want to track the joined views in every model.
     // the trackViews option enables this behavior
     if (trackViews === true) this.__views = new Set()
 

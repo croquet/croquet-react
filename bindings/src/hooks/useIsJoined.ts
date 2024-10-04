@@ -1,5 +1,5 @@
 import { useCroquetView } from "./useCroquetView";
 
-export function useIsConnected() {
+export function useIsJoined() {
     return useCroquetView() !== null
 }

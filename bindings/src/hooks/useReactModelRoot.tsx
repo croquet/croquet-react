@@ -38,7 +38,10 @@ export function useReactModelRoot<T extends ReactModel>(): T | null {
   const [modelState, setModelState] = useState(getModelObject(view, model))
 
   useEffect(() => {
-    if (!session || !view || !model) return
+    if (!session || !view || !model) {
+      setModelState(null)
+      return
+    }
 
     // Here we are creating a shallow copy of model to
     // force react to rerender with the updated data

@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react'
 import { ReactModel } from '../ReactModel'
 import { useCroquetContext } from './useCroquetContext'
-import { useIsConnected } from './useIsConnected'
+import { useIsJoined } from './useIsJoined'
 
-interface ConnectedViews {
+interface JoinedViews {
   views: string[]
   viewCount: number
 }
 
 const noViews = { views: [], viewCount: 0 }
 
-function viewsSelector(rootModel: ReactModel | null): ConnectedViews {
+function viewsSelector(rootModel: ReactModel | null): JoinedViews {
   if(!rootModel?.__views) return noViews
   const views = rootModel.__views
   return {
@@ -18,9 +18,9 @@ function viewsSelector(rootModel: ReactModel | null): ConnectedViews {
     viewCount: views.size,
   }
 }
-export function useConnectedViews(): ConnectedViews {
+export function useJoinedViews(): JoinedViews {
   const { session, view, model } = useCroquetContext()
-  const isConnected = useIsConnected()
+  const isJoined = useIsJoined()
 
   const [views, setViews] = useState(viewsSelector(model))
 
@@ -33,12 +33,12 @@ export function useConnectedViews(): ConnectedViews {
   }, [session, view, model])
 
   useEffect(() => {
-    isConnected ? setViews(viewsSelector(model)) : setViews(noViews)
-  }, [isConnected, model, setViews])
+    isJoined ? setViews(viewsSelector(model)) : setViews(noViews)
+  }, [isJoined, model, setViews])
 
   if (model && !model.__views) {
     throw new Error(
-      'Your root model is not tracking the connected views.\n' +
+      'Your root model is not tracking the joined views.\n' +
         'Pass `options: { trackViews: true }` to your <CroquetRoot> component to start tracking them\n'
     )
   }

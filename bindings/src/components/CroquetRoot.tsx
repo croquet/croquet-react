@@ -6,12 +6,7 @@ import { CroquetContext } from './CroquetContext'
 import { createCroquetSession, CroquetReactSessionParameters } from '../createCroquetSession'
 import { ReactModel } from '../ReactModel'
 
-export interface ChangeSessionParameters {
-  name: string
-  password?: string
-}
-
-interface ReactSessionParameters<M extends ReactModel> extends Omit<CroquetReactSessionParameters<M>, 'name'> {
+export interface ReactSessionParameters<M extends ReactModel> extends Omit<CroquetReactSessionParameters<M>, 'name'> {
   name?: string
   password?: string
 }
@@ -20,7 +15,10 @@ type CroquetRootProps<M extends ReactModel> = {
   sessionParams: ReactSessionParameters<M>
   children: JSX.Element | JSX.Element[]
   showChildrenWithoutSession?: boolean
+  deferSession?: boolean
 }
+
+type SessionParamsState<M extends ReactModel> = ReactSessionParameters<M> & { join: boolean }
 
 /** CroquetRoot component implements the default implementation of the logic described for createCroquetSession function.
  */
@@ -28,6 +26,7 @@ export function CroquetRoot<M extends ReactModel>({
   sessionParams,
   children,
   showChildrenWithoutSession = false,
+  deferSession = false,
 }: CroquetRootProps<M>): JSX.Element | null {
   // Make sure we only create a new session once, even with strict mode
   const croquetSessionRef = useRef<CroquetSession<CroquetReactView<M>> | 'joining' | null>(null)
@@ -37,7 +36,7 @@ export function CroquetRoot<M extends ReactModel>({
 
   const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView<M>> | null>(null)
   const [croquetView, setCroquetView] = useState<CroquetReactView<M> | null>(null)
-  const [currentSessionParams, setCurrentSessionParams] = useState(sessionParams)
+  const [currentSessionParams, setCurrentSessionParams] = useState<SessionParamsState<M>>({ ...sessionParams, join: !deferSession })
 
   // This function updates the state (session, view)
   const updateState = useCallback(
@@ -49,21 +48,24 @@ export function CroquetRoot<M extends ReactModel>({
   )
 
   // Update currentSessionParams when props change
-  useEffect(() => setCurrentSessionParams(sessionParams), [sessionParams, setCurrentSessionParams])
+  useEffect(
+    () => setCurrentSessionParams({ ...sessionParams, join: !deferSession }),
+    [sessionParams, deferSession, setCurrentSessionParams]
+  )
 
-  // Manage session dis/connection:
-  // When connecting to a new session, we should setup view callbacks
-  // Before connecting to a new session, we should leave the current one
+  // Session management
+  // When joining a new session, we should setup view callbacks
+  // Before joining a new session, we should leave the current one
   useEffect(() => {
-    async function connect(): Promise<void> {
-      // If already connected, do nothing
+    async function join(): Promise<void> {
+      // If already joined, do nothing
       if (croquetSessionRef.current) return
 
-      // If no session name provided, do not connect
-      if (!currentSessionParams.name) return
+      // If explicitly told to not join, do not join
+      if (!currentSessionParams.join) return
 
       if (nextSessionRef.current) {
-        // We are already connected to the next session
+        // We are already joined to the next session
         croquetSessionRef.current = nextSessionRef.current
         nextSessionRef.current = null
       } else {
@@ -87,7 +89,7 @@ export function CroquetRoot<M extends ReactModel>({
       })
     }
 
-    connect()
+    join()
 
     return () => {
       const session = croquetSessionRef.current
@@ -98,41 +100,45 @@ export function CroquetRoot<M extends ReactModel>({
     }
   }, [currentSessionParams, updateState])
 
-  const changeSession = useCallback(
-    async ({ name, password }: ChangeSessionParameters) => {
+  const setSession = useCallback(
+    async (params: Partial<Omit<ReactSessionParameters<M>, 'model'>>) => {
       // Smooth session transitioning: Only update state
-      // after we are connected to the next session
+      // after we joined the next session
       const newParams = {
         ...currentSessionParams,
-        name,
-        password: password || currentSessionParams.password,
+        ...params,
+        join: true,
       }
 
-      nextSessionRef.current = await createCroquetSession(newParams)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { join, ...args } = newParams
+
+      // @ts-expect-error name can be undefined
+      nextSessionRef.current = await createCroquetSession(args)
       setCurrentSessionParams(newParams)
     },
     [setCurrentSessionParams, currentSessionParams]
   )
 
   const leaveSession = useCallback(() => {
-    setCurrentSessionParams((prev) => ({
-      ...prev,
-      name: undefined,
-      password: undefined,
-    }))
+    setCurrentSessionParams((prev) => ({ ...prev, join: false }))
     updateState(null)
   }, [setCurrentSessionParams, updateState])
 
-  if (croquetView || showChildrenWithoutSession) {
+  if ((currentSessionParams.join && croquetView) || showChildrenWithoutSession) {
     const contextValue = {
       session: croquetSession,
       view: croquetView,
       model: croquetView?.model || null,
-      changeSession,
+      setSession,
       leaveSession,
       sessionPassword: currentSessionParams.password ?? null,
     }
-    return <CroquetContext.Provider value={contextValue}>{children}</CroquetContext.Provider>
+    return (
+      <CroquetContext.Provider value={contextValue}>
+        {children}
+      </CroquetContext.Provider>
+    )
   }
   return null
 }

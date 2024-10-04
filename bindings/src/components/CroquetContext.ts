@@ -2,13 +2,13 @@ import { createContext } from 'react'
 import { ReactModel } from '../ReactModel'
 import { CroquetSession } from '@croquet/croquet'
 import { CroquetReactView } from '../CroquetReactView'
-import { ChangeSessionParameters } from './CroquetRoot'
+import { ReactSessionParameters } from './CroquetRoot'
 
 export type ContextType<M extends ReactModel> = {
   session: CroquetSession<CroquetReactView<M>> | null
   view: CroquetReactView<M> | null
   model: M | null
-  changeSession: (newParams: ChangeSessionParameters) => void
+  setSession: (newParams: Partial<Omit<ReactSessionParameters<M>, 'model'>>) => void
   leaveSession: () => void
   sessionPassword: string | null
 }

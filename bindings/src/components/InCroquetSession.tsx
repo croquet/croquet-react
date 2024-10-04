@@ -61,7 +61,7 @@ export function InCroquetSession<M extends ReactModel>(params: InCroquetSessionP
       session: croquetSession,
       view: croquetSession.view,
       model: croquetSession.view.model,
-      changeSession: () => {},
+      setSession: () => {},
       leaveSession: () => {},
       sessionPassword: null,
     }

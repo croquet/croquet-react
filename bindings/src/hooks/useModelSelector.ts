@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useCroquetContext } from './useCroquetContext'
 import hash_fn, { NotUndefined } from 'object-hash'
 
-type ModelState<V> = {
+interface ModelState<V> {
   value: V | null
   hash: string | null
 }

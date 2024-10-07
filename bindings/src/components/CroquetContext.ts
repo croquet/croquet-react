@@ -4,7 +4,7 @@ import { CroquetSession } from '@croquet/croquet'
 import { CroquetReactView } from '../CroquetReactView'
 import { ReactSessionParameters } from './CroquetRoot'
 
-export type ContextType<M extends ReactModel> = {
+export interface ICroquetContext<M extends ReactModel> {
   sessionParams: ReactSessionParameters<M>
   session: CroquetSession<CroquetReactView<M>> | null
   view: CroquetReactView<M> | null
@@ -14,4 +14,4 @@ export type ContextType<M extends ReactModel> = {
 }
 
 // A React context that stores the croquet session, view, and model
-export const CroquetContext = createContext<ContextType<ReactModel> | undefined>(undefined)
+export const CroquetContext = createContext<ICroquetContext<ReactModel> | undefined>(undefined)

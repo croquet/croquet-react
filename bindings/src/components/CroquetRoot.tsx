@@ -11,14 +11,16 @@ export interface ReactSessionParameters<M extends ReactModel> extends Omit<Croqu
   password?: string
 }
 
-type CroquetRootProps<M extends ReactModel> = {
+interface CroquetRootProps<M extends ReactModel> {
   sessionParams: ReactSessionParameters<M>
   children: JSX.Element | JSX.Element[]
   showChildrenWithoutSession?: boolean
   deferSession?: boolean
 }
 
-type SessionParamsState<M extends ReactModel> = ReactSessionParameters<M> & { join: boolean }
+interface SessionParamsState<M extends ReactModel> extends ReactSessionParameters<M> {
+  join: boolean
+}
 
 /** CroquetRoot component implements the default implementation of the logic described for createCroquetSession function.
  */

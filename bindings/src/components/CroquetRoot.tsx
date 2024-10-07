@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { CroquetSession } from '@croquet/croquet'
+import { CroquetSession, App } from '@croquet/croquet'
 import { CroquetReactView } from '../CroquetReactView'
 import { setSyncedCallback } from '../CroquetReactView'
 import { CroquetContext } from './CroquetContext'
@@ -38,7 +38,9 @@ export function CroquetRoot<M extends ReactModel>({
 
   const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView<M>> | null>(null)
   const [croquetView, setCroquetView] = useState<CroquetReactView<M> | null>(null)
-  const [currentSessionParams, setCurrentSessionParams] = useState<SessionParamsState<M>>({ ...sessionParams, join: !deferSession })
+  const [currentSessionParams, setCurrentSessionParams] = useState<SessionParamsState<M>>(
+    { ...sessionParams, join: !deferSession }
+  )
 
   // This function updates the state (session, view)
   const updateState = useCallback(

@@ -7,7 +7,9 @@ import { ReactModel } from '../ReactModel'
 
 // InCroquetSession parameter is almost the same but omits `view`,
 // which is defaulted to CroquetReactView, but adds children
-type InCroquetSessionProps<M extends ReactModel> = CroquetReactSessionParameters<M> & {
+interface InCroquetSessionProps<M extends ReactModel> extends Omit<CroquetReactSessionParameters<M>, 'name' | 'password'> {
+  name: string
+  password: string
   children: React.ReactNode | React.ReactNode[]
 }
 
@@ -63,7 +65,7 @@ export function InCroquetSession<M extends ReactModel>(params: InCroquetSessionP
       model: croquetSession.view.model,
       setSession: () => {},
       leaveSession: () => {},
-      sessionPassword: null,
+      sessionParams: params,
     }
     return createElement(CroquetContext.Provider, { value: contextValue }, children)
   }

@@ -16,6 +16,6 @@ export { useViewId } from './useViewId'
 export { useModelSelector } from './useModelSelector'
 export { useLeaveSession } from './useLeaveSession'
 export { useIsJoined } from './useIsJoined'
-export { useSessionPassword } from './useSessionPassword'
+export { useSessionParams } from './useSessionParams'
 export { useSessionName } from './useSessionName'
 

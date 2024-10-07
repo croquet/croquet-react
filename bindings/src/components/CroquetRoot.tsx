@@ -42,7 +42,7 @@ export function CroquetRoot<M extends ReactModel>({
   const updateState = useCallback(
     (session: CroquetSession<CroquetReactView<M>> | null) => {
       setCroquetSession(session)
-      setCroquetView(session?.view || null)
+      setCroquetView(session?.view ?? null)
     },
     [setCroquetSession, setCroquetView]
   )
@@ -127,12 +127,12 @@ export function CroquetRoot<M extends ReactModel>({
 
   if ((currentSessionParams.join && croquetView) || showChildrenWithoutSession) {
     const contextValue = {
+      sessionParams: currentSessionParams,
       session: croquetSession,
       view: croquetView,
       model: croquetView?.model || null,
       setSession,
-      leaveSession,
-      sessionPassword: currentSessionParams.password ?? null,
+      leaveSession
     }
     return (
       <CroquetContext.Provider value={contextValue}>

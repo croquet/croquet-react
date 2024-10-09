@@ -44,13 +44,15 @@ class ReactModel {
 let CroquetContext = {};
 
 /**
- * Main wrapper component that starts and manages a croquet session, enabling child elements to use the hooks described below.
+ * Main wrapper component that manages a croquet sessions, enabling child elements to use the hooks described below.
  * It takes the same parameters as [Session.join](../croquet/Session.html#.join) except that it doesn't need a root View class,
  * since croquet-react provides a suitable View class behind the scenes.
  *
  * @public
- * @argument {object} sessionParams The session parameter object that is passed to [Session.join](../croquet/Session.html#.join).
- * @returns - A React component
+ * @param {object} sessionParams The session parameter object that is passed to [Session.join](../croquet/Session.html#.join).
+ * If `name` or `password` are undefined at the time of joining a session, random values will be generated
+ * @param {boolean} [showChildrenWithoutSession=false] If true, children will be rendered even if there's no active session.
+ * @param {boolean} [deferSession=false] If true, the session creation will be deferred.
  * @example
  * function CounterApp() {
  *   return (
@@ -70,128 +72,116 @@ let CroquetContext = {};
  */
 export function CroquetRoot(props) {}
 
-/**
- * A hook to obtain the viewId.
- *
+/** Hook that sets up a callback for Croquet.View.detach().
+ * The callback function is called when the root View is detached.
  * @public
- * @returns {string}
+ * @param {function(): void} callback The function to be called when the root View is detached
  * @example
- * const myViewId: string = useViewId();
+ * function onDetached(): void  {
+ *  // Callback logic here
+ * }
+ * useDetachCallback(onDetached);
  */
-export function useViewId() {}
+export function useDetachCallback(callback) {}
+
 
 /**
- * A hook to obtain the sessionid.
- * 
+ * Returns whether the component is currently joined to a Croquet session.
+ *
  * @public
- * @returns {string}
+ * @returns {boolean} True if joined to a Croquet session, false otherwise.
  * @example
- * const sessionId: string = useSessionId();
+ * const isJoined = useIsJoined();
+ * if (isJoined) {
+ *   console.log("We are connected to a Croquet session");
+ * }
  */
-export function useSessionId() {}
+export function useIsJoined() {}
 
 /**
- * This hook returns a function that allows components within the {@link CroquetRoot} context to connect to a new session.
- * 
+ * Returns information about the views currently joined to the Croquet session.
+ *
  * @public
- * @returns {function} The returned function accepts a single parameter with the following properties:
- *  - **name**: `string` - The name of the new session.
- *  - **password**?: `string` | `undefined` - (_Optional_) The password for accessing the new session, if required.
+ * @returns {Object} An object containing information about joined views.
+ *  * `views` - An array of unique identifiers for the joined views.
+ *  * `viewCount` - The total number of views currently joined to the session.
+ *
  * @example
- * // Usage example:
- * const changeSession = useChangeSession();
- * changeSession({ name: 'new-session', password: 'password' });
+ * const { views, viewCount } = useJoinedViews();
+ * console.log(`There are ${viewCount} views joined to the session.`);
+ * console.log('View IDs:', views.join(", "));
  */
-export function useChangeSession() {}
+export function useJoinedViews() {}
 
 /**
- * This hook returns the views that are connected to the current session.
+ * Hook that provides a function to leave the current Croquet session.
+ * Calling the returned function does not affect the `sessionParams` stored in {@link CroquetRoot}.
  *
  * @public
- * @returns {object} An object containing an array of connected view IDs, and the number of connected views
- *  - **views**: `string`[] - The array of connected view IDs
- *  - **viewCount**?: `number` - The number of connected views
- *
+ * @returns {Function} A function that, when called, will leave the current Croquet session.
  * @example
- * // Usage example:
- * const { views, viewCount } = useConnectedViews()
+ * const leaveSession = useLeaveSession();
+ * // Later in your code:
+ * leaveSession();
  */
-export function useConnectedViews() {}
-
-/** 
- * A hook to obtain the root model data.
- * This data comes from a React state, meaning that any change to the
- * model data will cause the components that depend on it to be rerendered.
- * 
- * To use this hook, the application **models must inherit from {@link ReactModel}**
- * 
- * @public
- * @returns {object} An object containing the same properties as the root model object.
- * Additionally, it has one method for each event the model is subscribed to.
- * Calling those methods will broadcast the respective event.
- * 
- * If the model has a property with the same name as one of the events it is subscribed to,
- * the returned object will have the property value.
- * 
- * @example
- * // Any changes to the model will trigger a rerender
- * const model = useReactModelRoot<RootModel>();
- * 
- * // access model properties
- * const prop1 = model.property1
- * 
- * // publish an event this model is subscribed to
- * model.event1()
- * model.event2(event2Data)
- */
-export function useReactModelRoot() {}
+export function useLeaveSession() {}
 
 /**
- * A hook for subscribing to part of a ReactModel.
- *
- * This hook takes a selector function that extracts data from the model,
- * and returns the selected data. It efficiently updates only when the
- * selected data changes, using hashing to detect deep equality.
- * This is a good alternative to {@link useReactModelRoot}, since it only
- * re-renders when the subscribed part of the model changes.
- *
- * The provided selector function must not return `undefined`.
- *
- * @public
- * @param {function(ReactModel): V} selector - A function that selects data from the model. The return type of this function will be used as the return type of the hook.
- * @returns {V} The selected data from the model.
- * @template V The return type of the selector function.
- * @example
- *
- * type RootModel = { painting: { cells: { id: string; color: string }[] } };
- *
- * const color = useModelSelector((model: RootModel) => model.painting.cells[id].color);
- * // The type of 'color' is inferred as string
- */
-export function useModelSelector(selector) {}
-
-/** 
- * A hook to obtain the root model object.
+ * Hook that returns a _reference_ to the Model instance with the given id.
  * Keep in mind that even if the model data changes, React will not rerender
- * the components that depend on it.
+ * the components that depend on its data.
  * To achieve this behavior use {@link useReactModelRoot} or {@link useModelSelector} instead.
- * 
+ *
  * @public
- * @returns {Model} The instance of a subclass of Model used as the root Model.
+ * @template {M extends ReactModel}
+ * @param {string} id - The id of the Model to retrieve.
+ * @returns {M | null} The model instance with the given id.
+ * Returns `null` if not currently joined to any session, or if an image with the given id was not found
+ * 
  * @example
- * const model = useModelRoot();
+ * const userModel = useModelById<UserModel>('user-123');
+ * if (userModel) {
+ *   console.log(userModel.name);
+ * }
+ */
+export function useModelById() {}
+
+/**
+ * Hook that returns a _reference_ to the root Model instance of the current Croquet session.
+ * Keep in mind that even if the model data changes, React will not rerender
+ * the components that depend on its data.
+ * To achieve this behavior use {@link useReactModelRoot} or {@link useModelSelector} instead.
+ *
+ * @public
+ * @template M
+ * @returns {M | null} The root Model instance if available, or null if not.
+ * @example
+ * const rootModel = useModelRoot<RootModel>();
+ * if (rootModel) {
+ *   console.log(rootModel.gameState);
+ * }
  */
 export function useModelRoot() {}
 
 /**
- * A hook to obtain a reference to a sub model object.
+ * Hook that selects and returns a specific part of the Model state.
+ * This hook updates state only when the selected data changes, using hashing to detect deep equality.
+ * This hook is a good alternative to {@link useReactModelRoot}, since it only
+ * re-renders when the subscribed part of the model changes.
+ * 
+ * The given `selector` function should not return `undefined`.
+ *
  * @public
- * @argument {number} id The id of the model to retrieve
- * @returns {Model} The instance of a subclass of Model with the given id.
+ * @template M, R
+ * @param {function(M): R} selector - A function that selects data from the model. The return type of this function will be used as the return type of the hook.
+ * @returns {R | null} The selected part of the Model state, or null if there is no current session.
  * @example
- * const submodel = useModelById(rootModel.someData.id);
+ * const playerScore = useModelSelector((model: GameModel) => model.playerScore);
+ * if (playerScore !== null) {
+ *   console.log(`Current score: ${playerScore}`);
+ * }
  */
-export function useModelById(id) {}
+export function useModelSelector(selector) {}
 
 /**
  * A hook for generating a function that publishes a view event.
@@ -223,6 +213,104 @@ export function useModelById(id) {}
 export function usePublish(callback) {}
 
 /**
+ * A hook to obtain the reactive root model data.
+ * 
+ * This hook provides access to a React state representation of the root model,
+ * ensuring that components depending on it re-render when the model data changes.
+ * 
+ * Any changes to the model will trigger a re-render of components using this hook.
+ * Consider using {@link useModelSelector} for optimized performance.
+ * 
+ * @public
+ * @template T The type of the root model.
+ * @returns {T | null} An object mirroring the root model's interface, with the following characteristics:
+ *   - Contains all properties of the root model.
+ *   - Includes methods corresponding to each event the model is subscribed to.
+ * Calling such methods will publish the respective event.
+ *   - If a property name conflicts with a subscribed event name, the property value takes precedence.
+ *   - Returns `null` if there is no active Croquet session.
+ * 
+ * 
+ * @example
+ * // Using the hook
+ * const model = useReactModelRoot<RootModel>();
+ * 
+ * if (model) {
+ *   // Accessing model properties
+ *   console.log(model.property1);
+ * 
+ *   // Publishing events
+ *   model.event1();
+ *   model.event2(eventData);
+ * } else {
+ *   console.log('No active Croquet session');
+ * }
+ */
+export function useReactModelRoot() {}
+
+/**
+ * Hook that returns the current Croquet session.
+ *
+ * @public
+ * @template M
+ * @returns {CroquetSession<CroquetReactView<M>> | null} The current Croquet session, or null if not in a session.
+ * @example
+ * const session = useSession<GameModel>();
+ * if (session) {
+ *   console.log(`Connected to session: ${session.id}`);
+ * }
+ */
+export function useSession() {}
+
+/**
+ * Hook that returns the ID of the current Croquet session.
+ *
+ * @public
+ * @returns {string | null} The ID of the current session, or null if not in a session.
+ * @example
+ * const sessionId = useSessionId();
+ * console.log(sessionId ? `Current session: ${sessionId}` : 'Not in a session');
+ */
+export function useSessionId() {}
+
+/**
+ * Hook that gives access to the `sessionParams` object stored in the {@link CroquetRoot} state.
+ *
+ * @public
+ * @returns {Object} The `sessionParams` object, which can be:
+ *   1. If currently joined to a Croquet session: The parameters used in the active [Session.join](../croquet/Session.html#.join) call.
+ *   2. If not currently in a session, but previously joined: The parameters from the last joined session.
+ *   3. If never joined a session: The initial parameters passed to {@link CroquetRoot}.
+ * 
+ * @example
+ * const sessionParams = useSessionParams();
+ * console.log('Current session name:', sessionParams.name);
+ * console.log('Application ID:', sessionParams.appId);
+ * 
+ */
+export function useSessionParams() {}
+
+/**
+ * Hook that provides a function to join a new Session
+ * 
+ * The returned function:
+ * - Accepts an object with override values for the `sessionParameters` object.
+ * - Applies these overrides to the existing `sessionParameters` in {@link CroquetRoot} state.
+ * - Automatically generates random strings for `name` and `password` if they are null or undefined after applying overrides.
+ * 
+ * If the returned function is called when joined to a session, it leaves the previous session.
+ *
+ * @public
+ * @returns {Function} A function to join a new Croquet Session.
+ *
+ * @example
+ * const setSession = useSetSession();
+ * // Later in your code:
+ * setSession({name: 'new-name', password: 'password'});
+ */
+export function useSetSession() {}
+
+/**
  * A hook to set up a subscription to a Croquet message.
  *
  * @public
@@ -239,16 +327,6 @@ export function usePublish(callback) {}
  */
 export function useSubscribe(scope, eventSpec, callback) {}
 
-/** Hook that sets up a callback for Croquet.View.update().
- * The callback function is called at each simulation cycle.
- *
- * @public
- * @param {function(): void} callback The function to be called at each simulation cycle
- * @example
- * useUpdateCallback((update_time: number) => console.log(`Updated at ${update_time}!`));
- *
- */
-export function useUpdateCallback(callback) {}
 
 /** Hook that sets up a callback for Croquet.View.synced().
  * The callback function is called when a Croquet synced event occurs.
@@ -263,17 +341,45 @@ export function useUpdateCallback(callback) {}
  */
 export function useSyncedCallback(callback) {}
 
-/** Hook that sets up a callback for Croquet.View.detach().
- * The callback function is called when the root View is detached.
+/** Hook that sets up a callback for Croquet.View.update().
+ * The callback function is called at each simulation cycle.
+ *
  * @public
- * @param {function(): void} callback The function to be called when the root View is detached
+ * @param {function(): void} callback The function to be called at each simulation cycle
  * @example
- * function onDetached(): void  {
- *  // Callback logic here
- * }
- * useDetachCallback(onDetached);
+ * useUpdateCallback((update_time: number) => console.log(`Updated at ${update_time}!`));
+ *
  */
-export function useDetachCallback(callback) {}
+export function useUpdateCallback(callback) {}
+
+/**
+ * Hook that provides access to the current Croquet React View.
+ *
+ * @public
+ * @template M
+ * @returns {CroquetReactView<M> | null} The current Croquet React View, or null if not available.
+ * @example
+ * const view = useView<GameView>();
+ * if (view) {
+ *   console.log(`Current view ID: ${view.viewId}`);
+ * }
+ */
+export function useView() {}
+
+/**
+ * A hook to obtain the current viewId. Returns `null` if not joined to any session
+ *
+ * @public
+ * @returns {string | null}
+ * @example
+ * const myViewId: string = useViewId();
+ */
+export function useViewId() {}
+
+
+
+
+
 
 /**
  * Main wrapper component that starts and manages a croquet session, enabling child elements to use the hooks described above.

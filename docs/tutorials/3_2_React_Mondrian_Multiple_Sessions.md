@@ -168,18 +168,18 @@ Now that the user can select a different session, it's time to actually connect 
 
 `@croquet/react` provides two useful hooks that allow us to dynamically change the Croquet session we are connected to:
 
-- `useCroquetSession()` returns the current session we are connected to;
+- `useSession()` returns the current session we are connected to;
 - `useChangeSession()` returns a function that changes the current session name and password.
 
 We can use the first hook to determine the session we are connected to, and call the function returned by the second hook to change the session.
-Since we are obtaining the current session from `useCroquetSession`, we don't need to store the `selectedOption` state anymore.
+Since we are obtaining the current session from `useSession`, we don't need to store the `selectedOption` state anymore.
 Instead, we can compute it from the current session and the session data.
 
 1. **Update the `src/components/Mondrian.tsx` file**:
 
 ```tsx
 // Add these imports
-import { useCroquetSession, useChangeSession } from '@croquet/react'
+import { useSession, useChangeSession } from '@croquet/react'
 
 export default function Mondrian() {
   // ... Other code
@@ -187,7 +187,7 @@ export default function Mondrian() {
   // Delete the line below
   // const [selectedOption, setSelectedOption] = useState(0)
 
-  const { name: sessionName } = useCroquetSession()
+  const { name: sessionName } = useSession()
   const selectedOption = sessions.findIndex((s) => s.name === sessionName)
   const dropdownOptions = sessions.map((s) => ({ value: s, label: s.name }))
 

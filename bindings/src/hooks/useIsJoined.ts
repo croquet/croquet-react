@@ -1,5 +1,5 @@
-import { useCroquetView } from "./useCroquetView";
+import { useView } from "./useView";
 
 export function useIsJoined() {
-    return useCroquetView() !== null
+    return useView() !== null
 }

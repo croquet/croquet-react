@@ -1,5 +1,5 @@
 import { SyncedCallback } from '../CroquetReactView'
-import { useCroquetView } from './useCroquetView'
+import { useView } from './useView'
 
 /**
  * Hook that sets up a callback for Croquet.View.synced().
@@ -7,7 +7,7 @@ import { useCroquetView } from './useCroquetView'
  * The function will be called when Croquet synced event occurs.
  */
 export function useSyncedCallback(callback: SyncedCallback | null): void {
-  const croquetView = useCroquetView()
+  const croquetView = useView()
   if (croquetView !== null) {
     croquetView.syncedCallback = callback
   }

@@ -5,7 +5,7 @@ import { ReactModel } from '../ReactModel'
 
 /** Hook that gives access to the Croquet Session the user is currently joined to.
  */
-export function useCroquetSession<M extends ReactModel>(): CroquetSession<CroquetReactView<M>> | null {
+export function useSession<M extends ReactModel>(): CroquetSession<CroquetReactView<M>> | null {
   const { session } = useCroquetContext<M>()
   return session
 }

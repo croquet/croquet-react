@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useCroquetView } from './useCroquetView'
+import { useView } from './useView'
 
 /** Hook that listens to events matching the provided `scope` and `eventSpec`.
  * Event data is passed as an argument to `callback`.
@@ -22,7 +22,7 @@ import { useCroquetView } from './useCroquetView'
  *  }
  * ``` */
 export function useSubscribe<T>(scope: string, eventSpec: string, callback: (data: T) => void): void {
-  const croquetView = useCroquetView()
+  const croquetView = useView()
   useEffect(() => {
     if (croquetView === null) return
 

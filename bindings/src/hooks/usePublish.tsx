@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useCroquetView } from './useCroquetView'
+import { useView } from './useView'
 
 /** Hook that returns a function that will have an event publishing effect.
  * Needs to be provided with a `publishCallback` that determines the event and data to be published,
@@ -34,7 +34,7 @@ import { useCroquetView } from './useCroquetView'
 export function usePublish<T>(
   publishCallback: (...args: any[]) => [string, string] | [string, string, T]
 ): (...args: any[]) => T | undefined {
-  const croquetView = useCroquetView()
+  const croquetView = useView()
   return useCallback(
     (...args) => {
       if (croquetView === null) return

@@ -1,10 +1,14 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { CroquetSession, App } from '@croquet/croquet'
+import { CroquetSession } from '@croquet/croquet'
 import { CroquetReactView } from '../CroquetReactView'
 import { setSyncedCallback } from '../CroquetReactView'
 import { CroquetContext } from './CroquetContext'
 import { createCroquetSession, CroquetReactSessionParameters } from '../createCroquetSession'
 import { ReactModel } from '../ReactModel'
+
+function randomString(len: number) {
+  return Math.floor(Math.random() * 36**10).toString(36).slice(0, len)
+}
 
 export interface ReactSessionParameters<M extends ReactModel> extends Omit<CroquetReactSessionParameters<M>, 'name'> {
   name?: string
@@ -38,9 +42,17 @@ export function CroquetRoot<M extends ReactModel>({
 
   const [croquetSession, setCroquetSession] = useState<CroquetSession<CroquetReactView<M>> | null>(null)
   const [croquetView, setCroquetView] = useState<CroquetReactView<M> | null>(null)
-  const [currentSessionParams, setCurrentSessionParams] = useState<SessionParamsState<M>>(
-    { ...sessionParams, join: !deferSession }
-  )
+  const [currentSessionParams, setCurrentSessionParams] = useState<SessionParamsState<M>>(() => { 
+    if(!deferSession) {
+      if(!sessionParams.name) {
+        sessionParams.name = randomString(16)
+      }
+      if(!sessionParams.password) {
+        sessionParams.password = randomString(10)
+      }
+    }
+    return { ...sessionParams, join: !deferSession } 
+  })
 
   // This function updates the state (session, view)
   const updateState = useCallback(
@@ -112,6 +124,13 @@ export function CroquetRoot<M extends ReactModel>({
         ...currentSessionParams,
         ...params,
         join: true,
+      }
+
+      if(!newParams.name) {
+        newParams.name = randomString(16)
+      }
+      if(!newParams.password) {
+        newParams.password = randomString(10)
       }
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -14,7 +14,7 @@
   "author": "Croquet Labs",
   "license": "Apache-2.0",
   "dependencies": {
-    "@croquet/croquet": "^2.0.0-22",
+    "@croquet/croquet": "^2.0.0-37",
     "object-hash": "^3.0.0"
   },
   "peerDependencies": {

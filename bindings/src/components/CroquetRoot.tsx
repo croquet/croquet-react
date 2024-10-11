@@ -1,14 +1,10 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { CroquetSession } from '@croquet/croquet'
+import { CroquetSession, App } from '@croquet/croquet'
 import { CroquetReactView } from '../CroquetReactView'
 import { setSyncedCallback } from '../CroquetReactView'
 import { CroquetContext } from './CroquetContext'
 import { createCroquetSession, CroquetReactSessionParameters } from '../createCroquetSession'
 import { ReactModel } from '../ReactModel'
-
-function randomString(len: number) {
-  return Math.floor(Math.random() * 36**10).toString(36).slice(0, len)
-}
 
 export interface ReactSessionParameters<M extends ReactModel> extends Omit<CroquetReactSessionParameters<M>, 'name'> {
   name?: string
@@ -17,7 +13,7 @@ export interface ReactSessionParameters<M extends ReactModel> extends Omit<Croqu
 
 interface CroquetRootProps<M extends ReactModel> {
   sessionParams: ReactSessionParameters<M>
-  children: JSX.Element | JSX.Element[]
+  children: React.ReactElement | React.ReactElement[] | null
   showChildrenWithoutSession?: boolean
   deferSession?: boolean
 }
@@ -45,10 +41,10 @@ export function CroquetRoot<M extends ReactModel>({
   const [currentSessionParams, setCurrentSessionParams] = useState<SessionParamsState<M>>(() => { 
     if(!deferSession) {
       if(!sessionParams.name) {
-        sessionParams.name = randomString(16)
+        sessionParams.name = App.randomSession()
       }
       if(!sessionParams.password) {
-        sessionParams.password = randomString(10)
+        sessionParams.password = App.randomPassword()
       }
     }
     return { ...sessionParams, join: !deferSession } 
@@ -127,10 +123,10 @@ export function CroquetRoot<M extends ReactModel>({
       }
 
       if(!newParams.name) {
-        newParams.name = randomString(16)
+        newParams.name = App.randomSession()
       }
       if(!newParams.password) {
-        newParams.password = randomString(10)
+        newParams.password = App.randomPassword()
       }
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

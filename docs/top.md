@@ -22,3 +22,14 @@ You can start by taking the tutorials of simple application examples in the "Tut
 ## Documentation
 
 The [documentation](./global.html) contains minimal usage examples, which will also be displayed in IDEs such as VS Code with full TypeScript declarations.  The type annotations for `publish` and `subscribe` help to ensure the data sent and received conforms to the same type, for instance.
+
+
+## React Together
+
+[React Together](https://reacttogether.dev) is a library built on top of `@croquet/react`. It provides additional hooks and utility components to simplify the development of collaborative React applications:
+
+* Hooks for shared state management across multiple users
+* Hooks for simultaneous function execution across connected views
+* Pre-built utility components for displaying connected views and managing the current session
+
+These features allow developers to easily create interactive and synchronized user experiences. For more information on React Together, refer to its [documentation](https://reacttogether.dev/#/getting-started).

@@ -1,4 +1,16 @@
 # Changelog
+- 2.2.0
+  - Added `showChildrenWithoutSession` prop to CroquetRoot
+  - Added `deferSession` prop to CroquetRoot
+  - Added `useLeaveSession` hook
+  - Added `useSetSession` hook
+  - Added `useIsJoined` hook
+  - Added `useSessionParams` hook
+  - Renamed `useConnectedViews` to `useJoinedViews` (old name still available as an alias)
+  - Renamed `useCroquetSession` to `useSession` (old name still available as an alias)
+  - Renamed `useCroquetView` to `useView` (old name still available as an alias)
+  - Improved session transitioning: Application only re-renders when new connection is fully established
+  - Strengthened typing definitions
 - 2.1.2
   - Update @croquet/croquet to `^2.0.0-19`
 - 2.1.1

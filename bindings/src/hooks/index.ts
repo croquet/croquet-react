@@ -17,3 +17,12 @@ export { useSyncedCallback } from './useSyncedCallback'
 export { useUpdateCallback } from './useUpdateCallback'
 export { useView } from './useView'
 export { useViewId } from './useViewId'
+
+// Backwards compatibility exports:
+import { useJoinedViews } from './useJoinedViews'
+import { useSession } from './useSession'
+import { useView } from './useView'
+const useCroquetSession = useSession
+const useCroquetView = useView
+const useConnectedViews = useJoinedViews
+export { useCroquetSession, useConnectedViews, useCroquetView }

@@ -442,3 +442,27 @@ export function InCroquetSession(params) {}
  * );
  */
 export function createCroquetSession(params) {}
+
+/**
+ * @public
+ * @deprecated since version 2.2.0. Alias for {@link useJoinedViews}. Use that hook instead.
+ * @function
+ * @name useConnectedViews
+ */
+export const useConnectedViews = useJoinedViews;
+
+/**
+ * @public
+ * @deprecated since version 2.2.0. Alias for {@link useSession}. Use that hook instead.
+ * @function
+ * @name useCroquetSession
+ */
+export const useCroquetSession = useSession;
+
+/**
+ * @public
+ * @deprecated since version 2.2.0. Alias for {@link useView}. Use that hook instead.
+ * @function
+ * @name useCroquetView
+ */
+export const useCroquetView = useView;

@@ -133,8 +133,10 @@ export function CroquetRoot<M extends ReactModel>({
       const { join, ...args } = newParams
 
       // @ts-expect-error name can be undefined
-      nextSessionRef.current = await createCroquetSession(args)
-      setCurrentSessionParams(newParams)
+      createCroquetSession(args).then((newSession) => {
+        nextSessionRef.current = newSession
+        setCurrentSessionParams(newParams)
+      })
     },
     [setCurrentSessionParams, currentSessionParams]
   )

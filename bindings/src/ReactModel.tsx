@@ -62,12 +62,12 @@ export class ReactModel extends Model {
     }
 
     // we call the original handler, and then publish a react-updated event
-    const reactHandler = this.createQFunc({handler}, (data: any) => {
+    const reactHandler = this.createQFunc({handler}, `(data: any) => {
       const model = this as any; // shut up typescript
       if (typeof handler === 'function') handler(data)
       else model[handler](data)
       this.publish(this.sessionId, 'react-updated')
-    });
+    }`);
 
     super.subscribe(scope, event, reactHandler)
   }

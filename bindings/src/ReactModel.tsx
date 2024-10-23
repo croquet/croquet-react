@@ -45,7 +45,7 @@ export class ReactModel extends Model {
           `Override ${event === 'view-join' ? 'handleViewJoin(viewId)' : 'handleViewExit(viewId)'} instead\n`
       )
     }
-    this.__subscribe(scope, event, handler as any)
+    this.__subscribe(scope, event, handler)
   }
 
   // This function is the one that performs the subscription logic, without performing any checks.
@@ -62,13 +62,14 @@ export class ReactModel extends Model {
     }
 
     // we call the original handler, and then publish a react-updated event
-    const reactHandler = this.createQFunc({handler}, `(data) => {
+    // We pass as a javascript string to survive minification
+    const reactHandler = this.createQFunc<(e: any) => void>({handler}, `(data) => {
       if (typeof handler === 'function') handler(data)
       else this[handler](data)
       this.publish(this.sessionId, 'react-updated')
-    }`);
+    }`) 
 
-    super.subscribe(scope, event, reactHandler as any)
+    super.subscribe(scope, event, reactHandler)
   }
 
   // Function that helps ReactModel publish a react-updated event

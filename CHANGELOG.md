@@ -1,4 +1,6 @@
 # Changelog
+- 2.2.1
+  - Bug fix: QFunc handlers survive minification
 - 2.2.0
   - Added `showChildrenWithoutSession` prop to CroquetRoot
   - Added `deferSession` prop to CroquetRoot

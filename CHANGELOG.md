@@ -1,4 +1,7 @@
 # Changelog
+- 2.3.0-0
+  - add ViewInfo support (Miguel), require Croquet 2.0.0-40
+  - TODO before release: MAKE BACKWARDS COMPATIBLE
 - 2.2.1
   - Bug fix: QFunc handlers survive minification
 - 2.2.0

@@ -132,7 +132,6 @@ export function CroquetRoot<M extends ReactModel>({
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { join, ...args } = newParams
 
-      // @ts-expect-error name can be undefined
       createCroquetSession(args).then((newSession) => {
         nextSessionRef.current = newSession
         setCurrentSessionParams(newParams)

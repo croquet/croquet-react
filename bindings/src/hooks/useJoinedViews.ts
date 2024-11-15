@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { ReactModel } from '../ReactModel'
+import { ReactModel, ViewInfo } from '../ReactModel'
 import { useCroquetContext } from './useCroquetContext'
 import { useIsJoined } from './useIsJoined'
 
-interface JoinedViews {
-  views: string[]
+interface JoinedViews<T = undefined> {
+  views: ViewInfo<T>[]
   viewCount: number
 }
 
@@ -14,7 +14,7 @@ function viewsSelector(rootModel: ReactModel | null): JoinedViews {
   if(!rootModel?.__views) return noViews
   const views = rootModel.__views
   return {
-    views: Array.from(views),
+    views: Array.from(views.values()),
     viewCount: views.size,
   }
 }

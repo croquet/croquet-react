@@ -50,6 +50,6 @@ export interface CroquetReactSessionParameters<M extends ReactModel>
 ```
 */
 export async function createCroquetSession<M extends ReactModel>(params: CroquetReactSessionParameters<M>) {
-  const sessionParams = { ...params, view: CroquetReactView<M> }
+  const sessionParams = { ...params, view: CroquetReactView<M>, flags: [ 'react' ] }
   return Session.join(sessionParams)
 }

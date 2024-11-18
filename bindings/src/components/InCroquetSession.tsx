@@ -44,7 +44,7 @@ export function InCroquetSession<M extends ReactModel>(params: InCroquetSessionP
     console.log('InCroquetSession effect')
     setJoining((old) => {
       if (old) return old
-      const sessionParams = { ...params, view: CroquetReactView<M> }
+      const sessionParams = { ...params, view: CroquetReactView<M>, flags: [ 'react' ]}
       delete sessionParams.children
       console.log('calling Session.join()')
       Session.join({ ...sessionParams }).then(setCroquetSession)

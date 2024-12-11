@@ -5,7 +5,7 @@ export interface ViewInfo<T> {
   info?: T
 }
 
-export class ReactModel<T = undefined> extends Model {
+export class ReactModel<T = unknown> extends Model {
   __reactEvents: { scope: string; event: string }[] = []
   __views: Map<string, ViewInfo<T>> | null = null
 
@@ -16,7 +16,9 @@ export class ReactModel<T = undefined> extends Model {
 
     // We don't want to track the joined views in every model.
     // the trackViews option enables this behavior
-    if (trackViews === true) this.__views = new Map()
+    if (trackViews === true) {
+      this.__views = new Map()
+    }
 
     // Subscribe directly via super since we don't need to publish react-updated
     super.subscribe(this.sessionId, 'view-join', this.__viewJoin)
@@ -25,36 +27,40 @@ export class ReactModel<T = undefined> extends Model {
 
   // The view-join event provides either a `viewId` string, or if viewInfo was 
   // specified, an object containing `{ viewId, info }`
-  private __viewJoin(viewId: string | ViewInfo<T>) {
+  private __viewJoin(viewIdOrInfo: string | ViewInfo<T>) {
+    const viewInfo = typeof viewIdOrInfo !== 'string' ? viewIdOrInfo : { viewId: viewIdOrInfo }
+    const viewId = viewInfo.viewId
+
     if (this.__views) {
-      if (typeof viewId === 'string') viewId = { viewId }
-      this.__views.set(viewId.viewId, viewId)
+      this.__views.set(viewId, viewInfo)
       this.publish(this.sessionId, 'views-updated')
     }
-    this.handleViewJoin(viewId)
+    this.handleViewJoin(viewId, viewInfo)
   }
 
   // The view-exit event provides either a `viewId` string, or if viewInfo was 
   // specified, an object containing `{ viewId, info }`
-  private __viewExit(viewId: string | ViewInfo<T>) {
+  private __viewExit(viewIdOrInfo: string | ViewInfo<T>) {
+    const viewInfo = typeof viewIdOrInfo !== 'string' ? viewIdOrInfo : { viewId: viewIdOrInfo }
+    const viewId = viewInfo.viewId
+
     if (this.__views) {
-      const id = typeof viewId !== 'string' ? viewId.viewId : viewId
-      this.__views.delete(id)
+      this.__views.delete(viewId)
       this.publish(this.sessionId, 'views-updated')
     }
-    this.handleViewExit(viewId)
+    this.handleViewExit(viewId, viewInfo)
   }
 
   // Override these methods to add custom handling
-  handleViewJoin(viewId: string | ViewInfo<T>) {} // eslint-disable-line @typescript-eslint/no-unused-vars
-  handleViewExit(viewId: string | ViewInfo<T>) {} // eslint-disable-line @typescript-eslint/no-unused-vars
+  handleViewJoin(viewId: string, viewInfo: ViewInfo<T>) {} // eslint-disable-line @typescript-eslint/no-unused-vars
+  handleViewExit(viewId: string, viewInfo: ViewInfo<T>) {} // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // Public function to assert that users do not subscribe directly to view-join/exit events
   subscribe<T>(scope: string, event: string, handler: SubscriptionHandler<T>): void {
     if (event === 'view-join' || event === 'view-exit') {
       throw new Error(
         `In @croquet/react you cannot directly subscribe to ${event}.\n` +
-          `Override ${event === 'view-join' ? 'handleViewJoin(viewId)' : 'handleViewExit(viewId)'} instead\n`
+          `Override ${event === 'view-join' ? 'handleViewJoin' : 'handleViewExit'} instead\n`
       )
     }
     this.__subscribe(scope, event, handler)

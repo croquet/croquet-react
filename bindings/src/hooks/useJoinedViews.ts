@@ -1,40 +1,66 @@
 import { useEffect, useState } from 'react'
 import { ReactModel, ViewInfo } from '../ReactModel'
 import { useCroquetContext } from './useCroquetContext'
-import { useIsJoined } from './useIsJoined'
 
 interface JoinedViews<T = undefined> {
-  views: ViewInfo<T>[]
+  viewIds: string[]
+  viewInfos: Record<string, ViewInfo<T>>
   viewCount: number
+  // Deprecated
+  views: string[]
 }
 
-const noViews = { views: [], viewCount: 0 }
+let warned = false
 
-function viewsSelector(rootModel: ReactModel | null): JoinedViews {
-  if(!rootModel?.__views) return noViews
-  const views = rootModel.__views
-  return {
-    views: Array.from(views.values()),
-    viewCount: views.size,
+function deprecatedViewsPropertyWarning() {
+  if (warned) return
+  warned = true
+  console.warn('Accessing the `views` property of `useJoinedViews` is deprecated. Use `viewIds` instead.')
+}
+
+const EMPTY_ARRAY: string[] = []
+const EMPTY_OBJECT = {}
+
+const NO_VIEWS = {
+  viewIds: EMPTY_ARRAY,
+  viewCount: 0,
+  viewInfos: EMPTY_OBJECT,
+
+  get views() {
+    deprecatedViewsPropertyWarning()
+    return this.viewIds
   }
 }
-export function useJoinedViews(): JoinedViews {
-  const { session, view, model } = useCroquetContext()
-  const isJoined = useIsJoined()
 
-  const [views, setViews] = useState(viewsSelector(model))
+function viewsSelector<T>(rootModel: ReactModel<T> | null): JoinedViews<T> {
+  if(!rootModel?.__views) return NO_VIEWS as JoinedViews<T>
+  const views = rootModel.__views
+  return {
+    viewIds: Array.from(views.keys()),
+    viewInfos: Object.fromEntries(views.entries()),
+    viewCount: views.size,
+
+    get views() {
+      deprecatedViewsPropertyWarning()
+      return this.viewIds
+    }
+  }
+}
+export function useJoinedViews<T = undefined>(): JoinedViews<T> {
+  const { session, view, model } = useCroquetContext<ReactModel<T>>()
+
+  const [views, setViews] = useState(viewsSelector<T>(model))
 
   useEffect(() => {
     if (session && view && model) {
-      const handler = () => setViews(viewsSelector(model))
+      const handler = () => setViews(viewsSelector<T>(model))
       view.subscribe(session.id, {event: 'views-updated', handling: 'oncePerFrame'}, handler)
+      handler()
       return () => view.unsubscribe(session.id, 'views-updated', handler)
+    } else {
+      setViews(NO_VIEWS)
     }
   }, [session, view, model])
-
-  useEffect(() => {
-    isJoined ? setViews(viewsSelector(model)) : setViews(noViews)
-  }, [isJoined, model, setViews])
 
   if (model && !model.__views) {
     throw new Error(

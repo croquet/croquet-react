@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react'
-import { ReactModel, ViewInfo } from '../ReactModel'
+import { ReactModel, type ViewInfo } from '../ReactModel'
 import { useCroquetContext } from './useCroquetContext'
 
-interface JoinedViews<T = undefined> {
+interface JoinedViews<T> {
   viewIds: string[]
-  viewInfos: Record<string, ViewInfo<T>>
+  viewInfos: { [viewId: string]: ViewInfo<T> }
   viewCount: number
   // Deprecated
   views: string[]
 }
 
+// Make sure we only warn once
 let warned = false
-
 function deprecatedViewsPropertyWarning() {
   if (warned) return
   warned = true
@@ -23,8 +23,8 @@ const EMPTY_OBJECT = {}
 
 const NO_VIEWS = {
   viewIds: EMPTY_ARRAY,
-  viewCount: 0,
   viewInfos: EMPTY_OBJECT,
+  viewCount: 0,
 
   get views() {
     deprecatedViewsPropertyWarning()

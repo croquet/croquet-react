@@ -1,8 +1,9 @@
 import { Model, SubscriptionHandler, FutureHandler } from '@croquet/croquet'
 
+// TODO: import from @croquet/croquet
 export interface ViewInfo<T> {
   viewId: string
-  info?: T
+  viewData?: T
 }
 
 export class ReactModel<T = unknown> extends Model {
@@ -25,10 +26,10 @@ export class ReactModel<T = unknown> extends Model {
     super.subscribe(this.sessionId, 'view-exit', this.__viewExit)
   }
 
-  // The view-join event provides either a `viewId` string, or if viewInfo was 
-  // specified, an object containing `{ viewId, info }`
+  // The view-join event provides either a `viewId` string, or if viewData was
+  // specified, a ViewInfo<T> object
   private __viewJoin(viewIdOrInfo: string | ViewInfo<T>) {
-    const viewInfo = typeof viewIdOrInfo !== 'string' ? viewIdOrInfo : { viewId: viewIdOrInfo }
+    const viewInfo: ViewInfo<T> = typeof viewIdOrInfo !== 'string' ? viewIdOrInfo : { viewId: viewIdOrInfo }
     const viewId = viewInfo.viewId
 
     if (this.__views) {
@@ -38,10 +39,10 @@ export class ReactModel<T = unknown> extends Model {
     this.handleViewJoin(viewId, viewInfo)
   }
 
-  // The view-exit event provides either a `viewId` string, or if viewInfo was 
-  // specified, an object containing `{ viewId, info }`
+  // The view-exit event provides either a `viewId` string, or if viewData was
+  // specified, a ViewInfo<T> object
   private __viewExit(viewIdOrInfo: string | ViewInfo<T>) {
-    const viewInfo = typeof viewIdOrInfo !== 'string' ? viewIdOrInfo : { viewId: viewIdOrInfo }
+    const viewInfo: ViewInfo<T> = typeof viewIdOrInfo !== 'string' ? viewIdOrInfo : { viewId: viewIdOrInfo }
     const viewId = viewInfo.viewId
 
     if (this.__views) {

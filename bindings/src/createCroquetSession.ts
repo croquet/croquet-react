@@ -2,8 +2,8 @@ import { Session, CroquetSessionParameters } from '@croquet/croquet'
 import { CroquetReactView } from './CroquetReactView'
 import { ReactModel } from './ReactModel'
 
-export interface CroquetReactSessionParameters<M extends ReactModel>
-  extends Omit<CroquetSessionParameters<M, CroquetReactView<M>>, 'view'> {}
+export interface CroquetReactSessionParameters<M extends ReactModel, T = unknown>
+  extends Omit<CroquetSessionParameters<M, CroquetReactView<M>, T>, 'view'> {}
 
 /** When Croquet is used in a component that is a part of a bigger application,
  * it is sometimes better to establish the Croquet session instance outside,

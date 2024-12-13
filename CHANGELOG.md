@@ -1,5 +1,5 @@
 # Changelog
-- 2.3.0-0
+- 2.3.0-1
   - Added properties `viewIds` and `viewInfos` properties to the object returned by `useJoinedViews`
   - Deprecated `views` property in favor of `viewIds` in object returned by `useJoinedViews`
   - Added optional `viewData` property to the `CroquetRoot.sessionParams` prop (from `@croquet/croquet2.0.0-42`)

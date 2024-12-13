@@ -1,7 +1,11 @@
 # Changelog
 - 2.3.0-0
-  - add ViewInfo support (Miguel), require Croquet 2.0.0-40
-  - TODO before release: MAKE BACKWARDS COMPATIBLE
+  - Added properties `viewIds` and `viewInfos` properties to the object returned by `useJoinedViews`
+  - Deprecated `views` property in favor of `viewIds` in object returned by `useJoinedViews`
+  - Added optional `viewData` property to the `CroquetRoot.sessionParams` prop (from `@croquet/croquet2.0.0-42`)
+  - `ReactModel.handleViewJoin` receives second argument `viewInfo` of type `ViewInfo`
+  - `ReactModel.handleViewExit` receives second argument `viewInfo` of type `ViewInfo`
+
 - 2.2.1
   - Bug fix: QFunc handlers survive minification
 - 2.2.0

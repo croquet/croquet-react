@@ -17,18 +17,20 @@ class ReactModel {
   /**
    * This method is called whenever the ReactModel receives a [view-join](../croquet/global.html#event:view-join) event.
    * @param {string} viewId - The id of the view that just connected
+   * @param {ViewInfo} viewInfo - The ViewInfo object for the joined view
    * @return {void}
    * @public
    */
-  handleViewJoin(viewId) {}
+  handleViewJoin(viewId, viewInfo) {}
 
   /**
    * This method is called whenever the ReactModel receives a [view-exit](../croquet/global.html#event:view-exit) event.
    * @param {string} viewId - The id of the view that just left
+   * @param {ViewInfo} viewInfo - The ViewInfo object for the view that left the session
    * @return {void}
    * @public
    */
-  handleViewExit(viewId) {}
+  handleViewExit(viewId, viewInfo) {}
 }
 
 /**
@@ -103,11 +105,13 @@ export function useIsJoined() {}
  *
  * @public
  * @returns {Object} An object containing information about joined views.
- *  * `views` - An array of unique identifiers for the joined views.
- *  * `viewCount` - The total number of views currently joined to the session.
+ *  * `viewIds`: string[] - An array of all the joined view ids.
+ *  * `viewInfos`: { [viewId: string]: ViewInfo<T> } - An object with the joined view ids as keys and the ViewInfo objects as values.
+ *  * `viewCount`: number - The total number of views currently joined to the session.
+ *  * `views`: string[] - *Deprecated* An alias for `viewIds`. This property will be removed in the next major release.
  *
  * @example
- * const { views, viewCount } = useJoinedViews();
+ * const { viewIds, viewCount } = useJoinedViews();
  * console.log(`There are ${viewCount} views joined to the session.`);
  * console.log('View IDs:', views.join(", "));
  */

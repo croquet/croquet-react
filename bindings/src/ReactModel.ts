@@ -42,8 +42,8 @@ export class ReactModel<T = unknown> extends Model {
   // The view-exit event provides either a `viewId` string, or if viewData was
   // specified, a ViewInfo<T> object
   private __viewExit(viewIdOrInfo: string | ViewInfo<T>) {
-    const viewInfo: ViewInfo<T> = typeof viewIdOrInfo !== 'string' ? viewIdOrInfo : { viewId: viewIdOrInfo }
-    const viewId = viewInfo.viewId
+    const viewId = typeof viewIdOrInfo === 'string' ? viewIdOrInfo : viewIdOrInfo.viewId
+    const viewInfo = this.__views?.get(viewId) ?? { viewId }
 
     if (this.__views) {
       this.__views.delete(viewId)
